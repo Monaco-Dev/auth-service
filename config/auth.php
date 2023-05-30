@@ -40,6 +40,11 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+
+        'api' => [
+            'driver' => 'passport',
+            'provider' => 'users',
+        ],
     ],
 
     /*
@@ -111,5 +116,9 @@ return [
     */
 
     'password_timeout' => 10800,
+
+    'access_token_timeout' => 60 * 2, // mins * hours = 2 hrs / 120 mins
+    'refresh_token_timeout' => 60 * 4, // mins * hours = 4 hrs / 240 mins
+    'remember_me_token_timeout' => 60 * 24 * 30, // 43200 mins = 1 month
 
 ];
