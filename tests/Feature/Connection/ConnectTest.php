@@ -38,7 +38,7 @@ class ConnectTest extends TestCase
             'Accept' => 'application/json',
             'Authorization' => 'Bearer ' . $auth['access_token']
         ])
-            ->post(route('connection.connect'), $payload)
+            ->post(route('connections.connect'), $payload)
             ->assertStatus(200);
     }
 
@@ -54,7 +54,7 @@ class ConnectTest extends TestCase
             'Accept' => 'application/json',
             'Authorization' => 'Bearer ' . $auth['access_token']
         ])
-            ->post(route('connection.connect'))
+            ->post(route('connections.connect'))
             ->assertStatus(422);
     }
 
@@ -64,7 +64,7 @@ class ConnectTest extends TestCase
     public function test_unauthenticated(): void
     {
         $this->withHeaders(['Accept' => 'application/json'])
-            ->post(route('connection.connect'))
+            ->post(route('connections.connect'))
             ->assertStatus(401);
     }
 }

@@ -31,7 +31,7 @@ class SearchTest extends TestCase
             'Accept' => 'application/json',
             'Authorization' => 'Bearer ' . $auth['access_token']
         ])
-            ->post(route('user.search'), $payload)
+            ->post(route('users.search'), $payload)
             ->assertStatus(200);
     }
 
@@ -41,7 +41,7 @@ class SearchTest extends TestCase
     public function test_unauthenticated(): void
     {
         $this->withHeaders(['Accept' => 'application/json'])
-            ->post(route('user.search'))
+            ->post(route('users.search'))
             ->assertStatus(401);
     }
 }

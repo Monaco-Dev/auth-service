@@ -30,7 +30,8 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword
     protected $cascadeDeletes = [
         'brokerLicense',
         'socials',
-        'connections'
+        'connections',
+        'connectionInvitations'
     ];
 
     /**
@@ -134,7 +135,20 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword
         return $this->hasMany(Connection::class)
             ->whereHas('connection.brokerLicense', function ($query) {
                 $query->whereNotNull('verified_at');
-            });;
+            });
+    }
+
+    /**
+     * Return ConnectionInvitation relationship.
+     * 
+     * @return App\Models\ConnectionInvitation
+     */
+    public function connectionInvitations()
+    {
+        return $this->hasMany(ConnectionInvitation::class)
+            ->whereHas('invitation.brokerLicense', function ($query) {
+                $query->whereNotNull('verified_at');
+            });
     }
 
     /**

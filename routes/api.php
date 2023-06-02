@@ -43,20 +43,24 @@ Route::middleware('auth:api')->group(function () {
 
         Route::middleware('verified-broker')->group(function () {
             Route::prefix('users')->group(function () {
-                Route::put('{id}', [UserController::class, 'update'])->name('user.update');
-                Route::get('{id}', [UserController::class, 'show'])->name('user.show');
-                Route::post('search', [UserController::class, 'search'])->name('user.search');
+                Route::put('{id}', [UserController::class, 'update'])->name('users.update');
+                Route::get('{id}', [UserController::class, 'show'])->name('users.show');
+                Route::post('search', [UserController::class, 'search'])->name('users.search');
             });
 
             Route::prefix('connections')->group(function () {
-                Route::post('/', [ConnectionController::class, 'connect'])->name('connection.connect');
-                Route::delete('{id}', [ConnectionController::class, 'disconnect'])->name('connection.disconnect');
+                Route::post('/', [ConnectionController::class, 'connect'])->name('connections.connect');
+                Route::delete('{id}', [ConnectionController::class, 'disconnect'])->name('connections.disconnect');
             });
 
             Route::prefix('connection-invitations')->group(function () {
-                Route::post('/', [ConnectionInvitationController::class, 'invite'])->name('connection-invitation.invite');
-                Route::delete('{id}', [ConnectionInvitationController::class, 'cancel'])->name('connection-invitation.cancel');
+                Route::post('/', [ConnectionInvitationController::class, 'invite'])->name('connection-invitations.invite');
+                Route::delete('{id}', [ConnectionInvitationController::class, 'cancel'])->name('connection-invitations.cancel');
             });
         });
     });
+});
+
+Route::middleware('client')->group(function () {
+    //
 });

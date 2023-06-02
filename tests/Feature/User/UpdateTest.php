@@ -34,7 +34,7 @@ class UpdateTest extends TestCase
             'Accept' => 'application/json',
             'Authorization' => 'Bearer ' . $auth['access_token']
         ])
-            ->put(route('user.update', $user->id), $payload)
+            ->put(route('users.update', $user->id), $payload)
             ->assertStatus(200);
     }
 
@@ -46,7 +46,7 @@ class UpdateTest extends TestCase
         $user = User::factory()->create();
 
         $this->withHeaders(['Accept' => 'application/json'])
-            ->put(route('user.update', $user->id))
+            ->put(route('users.update', $user->id))
             ->assertStatus(401);
     }
 }

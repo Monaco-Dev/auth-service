@@ -16,7 +16,9 @@ class VerifiedBroker
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!optional(Auth::user()->brokerLicense)->isVerified()) abort(403, 'Your license number is not verified.');
+        if (!optional(Auth::user()->brokerLicense)->isVerified()) {
+            abort(403, 'Your license number is not verified.');
+        }
 
         return $next($request);
     }

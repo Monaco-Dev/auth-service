@@ -39,7 +39,7 @@ class DisconnectTest extends TestCase
             'Accept' => 'application/json',
             'Authorization' => 'Bearer ' . $auth['access_token']
         ])
-            ->delete(route('connection.disconnect', $network->id))
+            ->delete(route('connections.disconnect', $network->id))
             ->assertStatus(200);
     }
 
@@ -51,7 +51,7 @@ class DisconnectTest extends TestCase
         $network = User::factory()->hasBrokerLicense()->create();
 
         $this->withHeaders(['Accept' => 'application/json'])
-            ->delete(route('connection.disconnect', $network->id))
+            ->delete(route('connections.disconnect', $network->id))
             ->assertStatus(401);
     }
 }

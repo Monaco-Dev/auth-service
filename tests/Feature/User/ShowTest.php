@@ -27,7 +27,7 @@ class ShowTest extends TestCase
             'Accept' => 'application/json',
             'Authorization' => 'Bearer ' . $auth['access_token']
         ])
-            ->get(route('user.show', $user->id))
+            ->get(route('users.show', $user->id))
             ->assertStatus(200);
     }
 
@@ -39,7 +39,7 @@ class ShowTest extends TestCase
         $user = User::factory()->create();
 
         $this->withHeaders(['Accept' => 'application/json'])
-            ->get(route('user.show', $user->id))
+            ->get(route('users.show', $user->id))
             ->assertStatus(401);
     }
 }
