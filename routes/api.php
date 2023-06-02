@@ -60,24 +60,3 @@ Route::middleware('auth:api')->group(function () {
         });
     });
 });
-
-/**
- * feed-service
- *      posts
- *          id
- *          user_id
- *          content
- *      shares
- *          id
- *          user_id
- *          post_id
- *      pins
- *          id
- *          user_id
- *          post_id
- *      alerts
- *          id
- *          user_id
- *          keyword
- *      files
- */
