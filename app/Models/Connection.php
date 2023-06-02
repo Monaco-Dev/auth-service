@@ -39,4 +39,14 @@ class Connection extends Model
     {
         return $this->belongsTo(User::class, 'connection_user_id', 'id');
     }
+
+    /**
+     * Return BrokerLicense relationship.
+     * 
+     * @return App\Models\BrokerLicense
+     */
+    public function brokerLicense()
+    {
+        return $this->hasOne(BrokerLicense::class, 'user_id', 'connection_user_id');
+    }
 }

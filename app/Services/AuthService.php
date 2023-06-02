@@ -75,15 +75,9 @@ class AuthService extends Service implements AuthServiceInterface
      */
     public function verifyToken()
     {
-        $data = Auth::user()
-            ->with([
-                'brokerLicense',
-                'connections.connection',
-                'socials'
-            ])
-            ->first();
+        $data = $this->repository->model()->withProfile()->find(Auth::user()->id);
 
-        return response(new UserResource($data));
+        return new UserResource($data);
     }
 
     /**
@@ -98,16 +92,14 @@ class AuthService extends Service implements AuthServiceInterface
 
         $user = $this->repository->create($userData);
 
+        Auth::login($user);
+
         $this->brokerLicenseRepository->firstOrCreate(
             ['user_id' => $user->id],
             ['license_number' => Arr::get($request, 'broker_license_number')]
         );
 
-        $data = $user->with([
-            'brokerLicense',
-            'connections.connection',
-            'socials'
-        ])->first();
+        $data = $this->repository->model()->withProfile()->find($user->id);
 
         $token = $this->repository->authenticate(
             $user->email,
@@ -118,7 +110,11 @@ class AuthService extends Service implements AuthServiceInterface
 
         event(new Registered($user));
 
-        return response(new UserResource($data));
+        $response = new UserResource($data);
+
+        Auth::logout();
+
+        return $response;
     }
 
     /**
@@ -187,5 +183,17 @@ class AuthService extends Service implements AuthServiceInterface
         }
 
         return response()->json($response);
+    }
+
+    /**
+     * Request to deactivate a specific user.
+     * 
+     * @return \Illuminate\Http\Response
+     */
+    public function deactivate()
+    {
+        Auth::user()->delete();
+
+        return response()->json(true);
     }
 }

@@ -22,11 +22,11 @@ class LoginTest extends TestCase
 
         $payload = [
             'login' => $user->username,
-            'password' => 'password'
+            'password' => 'Password123!'
         ];
 
         $this->withHeaders(['Accept' => 'application/json'])
-            ->post('/api/login', $payload)
+            ->post(route('auth.login'), $payload)
             ->assertStatus(200);
     }
 
@@ -36,7 +36,7 @@ class LoginTest extends TestCase
     public function test_invalid(): void
     {
         $this->withHeaders(['Accept' => 'application/json'])
-            ->post('/api/login')
+            ->post(route('auth.login'))
             ->assertStatus(422);
     }
 }

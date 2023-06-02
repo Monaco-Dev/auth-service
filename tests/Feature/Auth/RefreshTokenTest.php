@@ -21,14 +21,14 @@ class RefreshTokenTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $auth = UserRepository::authenticate($user->username, 'password');
+        $auth = UserRepository::authenticate($user->username, 'Password123!');
 
         $payload = [
             'refresh_token' => $auth['refresh_token']
         ];
 
         $this->withHeaders(['Accept' => 'application/json'])
-            ->post('/api/refresh-token', $payload)
+            ->post(route('auth.token.refresh'), $payload)
             ->assertStatus(200);
     }
 
@@ -38,7 +38,7 @@ class RefreshTokenTest extends TestCase
     public function test_invalid(): void
     {
         $this->withHeaders(['Accept' => 'application/json'])
-            ->post('/api/refresh-token')
+            ->post(route('auth.token.refresh'))
             ->assertStatus(422);
     }
 }

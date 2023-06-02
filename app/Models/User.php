@@ -11,6 +11,7 @@ use Laravel\Passport\HasApiTokens;
 use Dyrynda\Database\Support\CascadeSoftDeletes;
 use Illuminate\Auth\Passwords\CanResetPassword as PasswordsCanResetPassword;
 use Illuminate\Contracts\Auth\CanResetPassword;
+use Illuminate\Support\Facades\Auth;
 
 class User extends Authenticatable implements MustVerifyEmail, CanResetPassword
 {
@@ -62,6 +63,7 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'phone_number_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
 
@@ -97,13 +99,42 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword
     }
 
     /**
+     * Return User relationship.
+     * 
+     * @return App\Models\User
+     */
+    public function networkUsers()
+    {
+        return $this->belongsToMany(User::class, 'connections', 'user_id', 'connection_user_id')
+            ->whereHas('brokerLicense', function ($query) {
+                $query->whereNotNull('verified_at');
+            });
+    }
+
+    /**
+     * Return User relationship.
+     * 
+     * @return App\Models\User
+     */
+    public function connectionUsers()
+    {
+        return $this->belongsToMany(User::class, 'connections', 'connection_user_id', 'user_id')
+            ->whereHas('brokerLicense', function ($query) {
+                $query->whereNotNull('verified_at');
+            });
+    }
+
+    /**
      * Return Connection relationship.
      * 
      * @return App\Models\Connection
      */
     public function connections()
     {
-        return $this->hasMany(Connection::class);
+        return $this->hasMany(Connection::class)
+            ->whereHas('connection.brokerLicense', function ($query) {
+                $query->whereNotNull('verified_at');
+            });;
     }
 
     /**
@@ -114,5 +145,62 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword
     public function brokerLicense()
     {
         return $this->hasOne(BrokerLicense::class);
+    }
+
+    /**
+     * Return ConnectionInvitation relationship.
+     * 
+     * @return App\Models\User
+     */
+    public function pendingInvitations()
+    {
+        return $this->belongsToMany(User::class, 'connection_invitations', 'invitation_user_id', 'user_id')
+            ->whereHas('brokerLicense', function ($query) {
+                $query->whereNotNull('verified_at');
+            });
+    }
+
+    /**
+     * Return ConnectionInvitation relationship.
+     * 
+     * @return App\Models\ConnectionInvitation
+     */
+    public function requestInvitations()
+    {
+        return $this->belongsToMany(User::class, 'connection_invitations', 'user_id', 'invitation_user_id')
+            ->whereHas('brokerLicense', function ($query) {
+                $query->whereNotNull('verified_at');
+            });
+    }
+
+    /**
+     * Get user's relationships.
+     */
+    public static function withProfile()
+    {
+        return self::with([
+            'socials',
+            'brokerLicense',
+            'networkUsers.brokerLicense',
+            'requestInvitations.brokerLicense',
+            'pendingInvitations.brokerLicense',
+            'mutuals.brokerLicense'
+        ]);
+    }
+
+    /**
+     * Get connection mutuals.
+     * 
+     * @return App\Models\User
+     */
+    public function mutuals()
+    {
+        return $this->belongsToMany(User::class, 'connections', 'connection_user_id', 'user_id')
+            ->whereHas('connections', function ($query) {
+                $query->where('connection_user_id', Auth::user()->id);
+            })
+            ->whereHas('brokerLicense', function ($query) {
+                $query->whereNotNull('verified_at');
+            });
     }
 }

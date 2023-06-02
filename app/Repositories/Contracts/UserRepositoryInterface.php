@@ -2,7 +2,12 @@
 
 namespace App\Repositories\Contracts;
 
-interface UserRepositoryInterface
+use App\Repositories\Support\BaseContracts\{
+    FindInterface as Find,
+    UpdateInterface as Update
+};
+
+interface UserRepositoryInterface extends Find, Update
 {
     /**
      * Authenticate User

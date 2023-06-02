@@ -25,7 +25,7 @@ class ForgotPasswordTest extends TestCase
         ];
 
         $this->withHeaders(['Accept' => 'application/json'])
-            ->post('/api/forgot-password', $payload)
+            ->post(route('password.email'), $payload)
             ->assertStatus(200);
     }
 
@@ -35,7 +35,7 @@ class ForgotPasswordTest extends TestCase
     public function test_invalid(): void
     {
         $this->withHeaders(['Accept' => 'application/json'])
-            ->post('/api/forgot-password')
+            ->post(route('password.email'))
             ->assertStatus(422);
     }
 }

@@ -129,4 +129,14 @@ class AuthController extends Controller
     {
         return $this->service->resetPassword($request->validated());
     }
+
+    /**
+     * Request to deactivate a specific user.
+     * 
+     * @return \Illuminate\Http\Response
+     */
+    public function deactivate()
+    {
+        return $this->service->deactivate();
+    }
 }

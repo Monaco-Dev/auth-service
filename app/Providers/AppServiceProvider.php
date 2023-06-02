@@ -5,8 +5,18 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-use App\Services\AuthService;
-use App\Services\Contracts\AuthServiceInterface;
+use App\Services\Contracts\{
+    AuthServiceInterface,
+    ConnectionInvitationServiceInterface,
+    ConnectionServiceInterface,
+    UserServiceInterface
+};
+use App\Services\{
+    AuthService,
+    ConnectionInvitationService,
+    ConnectionService,
+    UserService
+};
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -16,7 +26,10 @@ class AppServiceProvider extends ServiceProvider
      * @var array
      */
     public $bindings = [
-        AuthServiceInterface::class => AuthService::class
+        AuthServiceInterface::class => AuthService::class,
+        UserServiceInterface::class => UserService::class,
+        ConnectionServiceInterface::class => ConnectionService::class,
+        ConnectionInvitationServiceInterface::class => ConnectionInvitationService::class
     ];
 
     /**

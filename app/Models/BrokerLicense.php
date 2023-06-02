@@ -21,6 +21,15 @@ class BrokerLicense extends Model
     ];
 
     /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'verified_at' => 'datetime',
+    ];
+
+    /**
      * Return User relationship.
      * 
      * @return App\Models\User
@@ -28,5 +37,33 @@ class BrokerLicense extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Return Connection relationship.
+     * 
+     * @return App\Models\Connection
+     */
+    public function connection()
+    {
+        return $this->belongsTo(User::class, 'user_id', 'user_id');
+    }
+
+    /**
+     * Get all verified records only.
+     */
+    public function verified()
+    {
+        return $this->whereNotNull('verified_at');
+    }
+
+    /**
+     * Identify if license is verified.
+     * 
+     * @return bool
+     */
+    public function isVerified()
+    {
+        return !!$this->verified_at;
     }
 }

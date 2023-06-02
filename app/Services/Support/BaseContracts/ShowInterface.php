@@ -11,5 +11,5 @@ interface ShowInterface
      * @param bool $findOrFail
      * @return \Illuminate\Database\Eloquent\Model
      */
-    public function show($int, bool $findOrFail = true);
+    public function show($id, bool $findOrFail = true);
 }

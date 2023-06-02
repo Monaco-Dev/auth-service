@@ -31,7 +31,7 @@ class ResetPasswordTest extends TestCase
         ];
 
         $this->withHeaders(['Accept' => 'application/json'])
-            ->post('/api/reset-password', $payload)
+            ->post(route('password.update'), $payload)
             ->assertStatus(200);
     }
 
@@ -41,7 +41,7 @@ class ResetPasswordTest extends TestCase
     public function test_invalid(): void
     {
         $this->withHeaders(['Accept' => 'application/json'])
-            ->post('/api/reset-password')
+            ->post(route('password.update'))
             ->assertStatus(422);
     }
 }

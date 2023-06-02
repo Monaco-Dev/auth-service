@@ -73,4 +73,11 @@ interface AuthServiceInterface
      * @return \Illuminate\Http\Response
      */
     public function resetPassword(array $request);
+
+    /**
+     * Request to deactivate a specific user.
+     * 
+     * @return \Illuminate\Http\Response
+     */
+    public function deactivate();
 }

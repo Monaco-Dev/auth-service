@@ -34,7 +34,7 @@ class RegisterTest extends TestCase
         ];
 
         $this->withHeaders(['Accept' => 'application/json'])
-            ->post('/api/register', $payload)
+            ->post(route('auth.register'), $payload)
             ->assertStatus(200);
     }
 
@@ -44,7 +44,7 @@ class RegisterTest extends TestCase
     public function test_invalid(): void
     {
         $this->withHeaders(['Accept' => 'application/json'])
-            ->post('/api/register')
+            ->post(route('auth.register'))
             ->assertStatus(422);
     }
 }

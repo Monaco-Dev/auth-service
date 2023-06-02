@@ -21,13 +21,13 @@ class VerifyTokenTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $auth = UserRepository::authenticate($user->username, 'password');
+        $auth = UserRepository::authenticate($user->username, 'Password123!');
 
         $this->withHeaders([
             'Accept' => 'application/json',
             'Authorization' => 'Bearer ' . $auth['access_token']
         ])
-            ->get('/api/verify-token')
+            ->get(route('auth.token.verify'))
             ->assertStatus(200);
     }
 
@@ -37,7 +37,7 @@ class VerifyTokenTest extends TestCase
     public function test_unauthenticated(): void
     {
         $this->withHeaders(['Accept' => 'application/json'])
-            ->get('/api/verify-token')
+            ->get(route('auth.token.verify'))
             ->assertStatus(401);
     }
 }
