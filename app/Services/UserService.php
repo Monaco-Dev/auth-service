@@ -45,7 +45,7 @@ class UserService extends Service implements UserServiceInterface
      *
      * @param int|string $id
      * @param bool $findOrFail
-     * @return \Illuminate\Database\Eloquent\Model
+     * @return \Illuminate\Http\Response
      */
     public function show($id, bool $findOrFail = true)
     {

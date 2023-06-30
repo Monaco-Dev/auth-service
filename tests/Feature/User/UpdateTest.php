@@ -8,7 +8,6 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 use App\Models\User;
-use Facades\App\Repositories\Contracts\UserRepositoryInterface as UserRepository;
 
 class UpdateTest extends TestCase
 {
@@ -19,9 +18,10 @@ class UpdateTest extends TestCase
      */
     public function test_success(): void
     {
+        $this->withoutMiddleware();
+
         $user = User::factory()->hasBrokerLicense()->create();
         $dummy = User::factory()->make();
-        $auth = UserRepository::authenticate($user->username, 'Password123!');
 
         $payload = [
             'first_name' => $dummy->first_name,
@@ -30,10 +30,8 @@ class UpdateTest extends TestCase
             'email' => $dummy->email
         ];
 
-        $this->withHeaders([
-            'Accept' => 'application/json',
-            'Authorization' => 'Bearer ' . $auth['access_token']
-        ])
+        $this->actingAs($user)
+            ->withHeaders(['Accept' => 'application/json'])
             ->put(route('users.update', $user->id), $payload)
             ->assertStatus(200);
     }
@@ -48,5 +46,36 @@ class UpdateTest extends TestCase
         $this->withHeaders(['Accept' => 'application/json'])
             ->put(route('users.update', $user->id))
             ->assertStatus(401);
+    }
+
+    /**
+     * Test not found response.
+     */
+    public function test_not_found(): void
+    {
+        $this->withoutMiddleware();
+
+        $user = User::factory()->hasBrokerLicense()->create();
+
+        $this->actingAs($user)
+            ->withHeaders(['Accept' => 'application/json'])
+            ->put(route('users.update', 0))
+            ->assertStatus(404);
+    }
+
+    /**
+     * Test unauthorized response.
+     */
+    public function test_unauthorized(): void
+    {
+        $this->withoutMiddleware();
+
+        $user = User::factory()->hasBrokerLicense()->create();
+        $dummy = User::factory()->create();
+
+        $this->actingAs($user)
+            ->withHeaders(['Accept' => 'application/json'])
+            ->put(route('users.update', $dummy->id))
+            ->assertStatus(403);
     }
 }

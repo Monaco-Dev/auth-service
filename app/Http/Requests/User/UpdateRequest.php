@@ -5,6 +5,8 @@ namespace App\Http\Requests\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 
+use Facades\App\Repositories\Contracts\UserRepositoryInterface as UserRepository;
+
 class UpdateRequest extends FormRequest
 {
     /**
@@ -12,7 +14,11 @@ class UpdateRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->id == Auth::user()->id;
+        $user = UserRepository::find($this->id, false);
+
+        if (!$user) abort(404, 'Not found.');
+
+        return $user->id == Auth::user()->id;
     }
 
     /**

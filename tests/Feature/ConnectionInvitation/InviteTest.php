@@ -8,7 +8,6 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 use App\Models\User;
-use Facades\App\Repositories\Contracts\UserRepositoryInterface as UserRepository;
 
 class InviteTest extends TestCase
 {
@@ -19,20 +18,18 @@ class InviteTest extends TestCase
      */
     public function test_success(): void
     {
+        $this->withoutMiddleware();
+
         $user = User::factory()->hasBrokerLicense()->create();
         $network = User::factory()->hasBrokerLicense()->create();
-
-        $auth = UserRepository::authenticate($user->username, 'Password123!');
 
         $payload = [
             'user_id' => $network->id
         ];
 
-        $this->withHeaders([
-            'Accept' => 'application/json',
-            'Authorization' => 'Bearer ' . $auth['access_token']
-        ])
-            ->post(route('connection-invitation.invite'), $payload)
+        $this->actingAs($user)
+            ->withHeaders(['Accept' => 'application/json'])
+            ->post(route('connection-invitations.invite'), $payload)
             ->assertStatus(200);
     }
 
@@ -41,14 +38,13 @@ class InviteTest extends TestCase
      */
     public function test_invalid(): void
     {
-        $user = User::factory()->hasBrokerLicense()->create();
-        $auth = UserRepository::authenticate($user->username, 'Password123!');
+        $this->withoutMiddleware();
 
-        $this->withHeaders([
-            'Accept' => 'application/json',
-            'Authorization' => 'Bearer ' . $auth['access_token']
-        ])
-            ->post(route('connection-invitation.invite'))
+        $user = User::factory()->hasBrokerLicense()->create();
+
+        $this->actingAs($user)
+            ->withHeaders(['Accept' => 'application/json'])
+            ->post(route('connection-invitations.invite'))
             ->assertStatus(422);
     }
 
@@ -58,7 +54,7 @@ class InviteTest extends TestCase
     public function test_unauthenticated(): void
     {
         $this->withHeaders(['Accept' => 'application/json'])
-            ->post(route('connection-invitation.invite'))
+            ->post(route('connection-invitations.invite'))
             ->assertStatus(401);
     }
 }

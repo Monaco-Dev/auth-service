@@ -30,6 +30,25 @@ class BrokerLicense extends Model
     ];
 
     /**
+     * The accessors to append to the model's array form.
+     * 
+     * @var array<string>
+     */
+    protected $appends = [
+        'is_license_verified'
+    ];
+
+    /**
+     * Append new attribute.
+     * 
+     * @return bool
+     */
+    public function getIsLicenseVerifiedAttribute()
+    {
+        return !!$this->verified_at;
+    }
+
+    /**
      * Return User relationship.
      * 
      * @return App\Models\User

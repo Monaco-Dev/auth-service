@@ -9,7 +9,6 @@ use Tests\TestCase;
 
 use App\Models\Connection;
 use App\Models\User;
-use Facades\App\Repositories\Contracts\UserRepositoryInterface as UserRepository;
 
 class DisconnectTest extends TestCase
 {
@@ -20,6 +19,8 @@ class DisconnectTest extends TestCase
      */
     public function test_success(): void
     {
+        $this->withoutMiddleware();
+
         $user = User::factory()->hasBrokerLicense()->create();
         $network = User::factory()->hasBrokerLicense()->create();
 
@@ -33,12 +34,8 @@ class DisconnectTest extends TestCase
             'connection_user_id' => $user->id
         ]);
 
-        $auth = UserRepository::authenticate($user->username, 'Password123!');
-
-        $this->withHeaders([
-            'Accept' => 'application/json',
-            'Authorization' => 'Bearer ' . $auth['access_token']
-        ])
+        $this->actingAs($user)
+            ->withHeaders(['Accept' => 'application/json'])
             ->delete(route('connections.disconnect', $network->id))
             ->assertStatus(200);
     }
@@ -53,5 +50,21 @@ class DisconnectTest extends TestCase
         $this->withHeaders(['Accept' => 'application/json'])
             ->delete(route('connections.disconnect', $network->id))
             ->assertStatus(401);
+    }
+
+    /**
+     * Test unauthorized response.
+     */
+    public function test_unauthorized(): void
+    {
+        $this->withoutMiddleware();
+
+        $user = User::factory()->hasBrokerLicense()->create();
+        $network = User::factory()->hasBrokerLicense()->create();
+
+        $this->actingAs($user)
+            ->withHeaders(['Accept' => 'application/json'])
+            ->delete(route('connections.disconnect', $network->id))
+            ->assertStatus(403);
     }
 }

@@ -25,14 +25,17 @@ class UserResource extends JsonResource
             'first_name' => Arr::get($data, 'first_name'),
             'last_name' => Arr::get($data, 'last_name'),
             'full_name' => Arr::get($data, 'first_name') . ' ' . Arr::get($data, 'last_name'),
-            'is_email_verified' => !!Arr::get($data, 'email_verified_at'),
-            'is_phone_number_verified' => !!Arr::get($data, 'phone_number_verified_at'),
+            'email_verified_at' => Arr::get($data, 'email_verified_at'),
+            'is_email_verified' => Arr::get($data, 'is_email_verified'),
+            'phone_number_verified_at' => Arr::get($data, 'phone_number_verified_at'),
+            'is_phone_number_verified' => false,
+            'connections_count' => Arr::get($data, 'network_users_count') ?? 0,
+            'pending_invitations_count' => Arr::get($data, 'pending_invitations_count') ?? 0,
+            'request_invitations_count' => Arr::get($data, 'request_invitations_count') ?? 0,
+            'mutuals_count' => Arr::get($data, 'mutuals_count') ?? 0,
             'socials' => SocialResource::collection($this->whenLoaded('socials')),
             'broker_license' => new BrokerLicenseResource($this->whenLoaded('brokerLicense')),
-            'connections' => ConnectionResource::collection($this->whenLoaded('networkUsers')),
-            'pending_invitations' => ConnectionInvitationResource::collection($this->whenLoaded('pendingInvitations')),
-            'request_invitations' => ConnectionInvitationResource::collection($this->whenLoaded('requestInvitations')),
-            'mutuals' => ConnectionResource::collection($this->whenLoaded('mutuals'))
+            'created_at' => Arr::get($data, 'created_at')
         ];
 
         if (Arr::has($data, 'token')) Arr::set($response, 'token', Arr::get($data, 'token'));

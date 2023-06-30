@@ -8,7 +8,6 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 use App\Models\User;
-use Facades\App\Repositories\Contracts\UserRepositoryInterface as UserRepository;
 
 class ShowTest extends TestCase
 {
@@ -19,14 +18,12 @@ class ShowTest extends TestCase
      */
     public function test_success(): void
     {
+        $this->withoutMiddleware();
+
         $user = User::factory()->hasBrokerLicense()->create();
 
-        $auth = UserRepository::authenticate($user->username, 'Password123!');
-
-        $this->withHeaders([
-            'Accept' => 'application/json',
-            'Authorization' => 'Bearer ' . $auth['access_token']
-        ])
+        $this->actingAs($user)
+            ->withHeaders(['Accept' => 'application/json'])
             ->get(route('users.show', $user->id))
             ->assertStatus(200);
     }
@@ -41,5 +38,20 @@ class ShowTest extends TestCase
         $this->withHeaders(['Accept' => 'application/json'])
             ->get(route('users.show', $user->id))
             ->assertStatus(401);
+    }
+
+    /**
+     * Test unauthenticated response.
+     */
+    public function test_not_found(): void
+    {
+        $this->withoutMiddleware();
+
+        $user = User::factory()->make();
+
+        $this->actingAs($user)
+            ->withHeaders(['Accept' => 'application/json'])
+            ->get(route('users.show', 0))
+            ->assertStatus(404);
     }
 }

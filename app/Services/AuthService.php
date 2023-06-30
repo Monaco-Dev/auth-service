@@ -77,7 +77,7 @@ class AuthService extends Service implements AuthServiceInterface
     {
         $data = $this->repository->model()->withProfile()->find(Auth::user()->id);
 
-        return new UserResource($data);
+        return $data ? new UserResource($data) : response($data);
     }
 
     /**

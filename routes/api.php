@@ -61,6 +61,6 @@ Route::middleware('auth:api')->group(function () {
     });
 });
 
-Route::middleware('client')->group(function () {
+Route::prefix('service')->middleware('client')->group(function () {
     //
 });

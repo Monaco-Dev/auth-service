@@ -8,7 +8,6 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 use App\Models\User;
-use Facades\App\Repositories\Contracts\UserRepositoryInterface as UserRepository;
 
 class VerifyTokenTest extends TestCase
 {
@@ -19,14 +18,12 @@ class VerifyTokenTest extends TestCase
      */
     public function test_success(): void
     {
+        $this->withoutMiddleware();
+
         $user = User::factory()->create();
 
-        $auth = UserRepository::authenticate($user->username, 'Password123!');
-
-        $this->withHeaders([
-            'Accept' => 'application/json',
-            'Authorization' => 'Bearer ' . $auth['access_token']
-        ])
+        $this->actingAs($user)
+            ->withHeaders(['Accept' => 'application/json'])
             ->get(route('auth.token.verify'))
             ->assertStatus(200);
     }

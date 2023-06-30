@@ -9,7 +9,6 @@ use Tests\TestCase;
 
 use App\Models\User;
 use App\Models\ConnectionInvitation;
-use Facades\App\Repositories\Contracts\UserRepositoryInterface as UserRepository;
 
 class ConnectTest extends TestCase
 {
@@ -20,6 +19,8 @@ class ConnectTest extends TestCase
      */
     public function test_success(): void
     {
+        $this->withoutMiddleware();
+
         $user = User::factory()->hasBrokerLicense()->create();
         $network = User::factory()->hasBrokerLicense()->create();
 
@@ -28,16 +29,12 @@ class ConnectTest extends TestCase
             'invitation_user_id' => $user->id
         ]);
 
-        $auth = UserRepository::authenticate($user->username, 'Password123!');
-
         $payload = [
             'user_id' => $network->id
         ];
 
-        $this->withHeaders([
-            'Accept' => 'application/json',
-            'Authorization' => 'Bearer ' . $auth['access_token']
-        ])
+        $this->actingAs($user)
+            ->withHeaders(['Accept' => 'application/json'])
             ->post(route('connections.connect'), $payload)
             ->assertStatus(200);
     }
@@ -47,13 +44,12 @@ class ConnectTest extends TestCase
      */
     public function test_invalid(): void
     {
-        $user = User::factory()->hasBrokerLicense()->create();
-        $auth = UserRepository::authenticate($user->username, 'Password123!');
+        $this->withoutMiddleware();
 
-        $this->withHeaders([
-            'Accept' => 'application/json',
-            'Authorization' => 'Bearer ' . $auth['access_token']
-        ])
+        $user = User::factory()->hasBrokerLicense()->create();
+
+        $this->actingAs($user)
+            ->withHeaders(['Accept' => 'application/json'])
             ->post(route('connections.connect'))
             ->assertStatus(422);
     }

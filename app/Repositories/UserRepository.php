@@ -118,7 +118,7 @@ class UserRepository extends Repository implements UserRepositoryInterface
 
         $user = $user->first();
 
-        return !!optional($user)->email_verified_at;
+        return optional($user)->is_email_verified;
     }
 
     /**

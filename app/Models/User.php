@@ -11,6 +11,7 @@ use Laravel\Passport\HasApiTokens;
 use Dyrynda\Database\Support\CascadeSoftDeletes;
 use Illuminate\Auth\Passwords\CanResetPassword as PasswordsCanResetPassword;
 use Illuminate\Contracts\Auth\CanResetPassword;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 
 class User extends Authenticatable implements MustVerifyEmail, CanResetPassword
@@ -67,6 +68,25 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword
         'phone_number_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    /**
+     * The accessors to append to the model's array form.
+     * 
+     * @var array<string>
+     */
+    protected $appends = [
+        'is_email_verified'
+    ];
+
+    /**
+     * Append new attribute.
+     * 
+     * @return bool
+     */
+    public function getIsEmailVerifiedAttribute()
+    {
+        return !!$this->email_verified_at;
+    }
 
     /**
      * Hash password attribute.
@@ -192,14 +212,20 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword
      */
     public static function withProfile()
     {
-        return self::with([
+        $with = [
             'socials',
-            'brokerLicense',
-            'networkUsers.brokerLicense',
-            'requestInvitations.brokerLicense',
-            'pendingInvitations.brokerLicense',
-            'mutuals.brokerLicense'
-        ]);
+            'brokerLicense'
+        ];
+
+        $withCount = [
+            'networkUsers',
+            'requestInvitations',
+            'pendingInvitations'
+        ];
+
+        if (Auth::check()) Arr::prepend($withCount, 'mutuals');
+
+        return self::with($with)->withCount($withCount);
     }
 
     /**
