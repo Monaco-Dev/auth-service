@@ -37,7 +37,11 @@ class UserService extends Service implements UserServiceInterface
 
         if (Arr::has($request, 'email')) $this->repository->find($id)->sendEmailVerificationNotification();
 
-        return response()->json(true);
+        if (Arr::has($request, 'email') || Arr::has($request, 'username')) {
+            auth()->user()->tokens->each(fn ($token) => $this->repository->logout($token->id));
+        }
+
+        return $this->show($id);
     }
 
     /**

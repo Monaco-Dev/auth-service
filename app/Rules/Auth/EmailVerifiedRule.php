@@ -17,7 +17,7 @@ class EmailVerifiedRule implements ValidationRule
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         if (!UserRepository::isEmailVerified(null, $value)) {
-            $fail('The :attribute is not yet verified.');
+            $fail('The email is not yet verified.');
         }
     }
 }

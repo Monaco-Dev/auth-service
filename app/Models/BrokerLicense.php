@@ -18,6 +18,7 @@ class BrokerLicense extends Model
     protected $fillable = [
         'user_id',
         'license_number',
+        'expiration_date'
     ];
 
     /**
@@ -27,6 +28,7 @@ class BrokerLicense extends Model
      */
     protected $casts = [
         'verified_at' => 'datetime',
+        'expiration_date' => 'datetime'
     ];
 
     /**
@@ -35,7 +37,8 @@ class BrokerLicense extends Model
      * @var array<string>
      */
     protected $appends = [
-        'is_license_verified'
+        'is_license_verified',
+        'is_license_expired'
     ];
 
     /**
@@ -45,7 +48,17 @@ class BrokerLicense extends Model
      */
     public function getIsLicenseVerifiedAttribute()
     {
-        return !!$this->verified_at;
+        return $this->isVerified();
+    }
+
+    /**
+     * Append new attribute.
+     * 
+     * @return bool
+     */
+    public function getIsLicenseExpiredAttribute()
+    {
+        return $this->isExpired();
     }
 
     /**
@@ -84,5 +97,15 @@ class BrokerLicense extends Model
     public function isVerified()
     {
         return !!$this->verified_at;
+    }
+
+    /**
+     * Identify if license is expired.
+     * 
+     * @return bool
+     */
+    public function isExpired()
+    {
+        return $this->expiration_date <= now();
     }
 }

@@ -138,6 +138,8 @@ class UserRepository extends Repository implements UserRepositoryInterface
 
                 $user->save();
 
+                $user->tokens->each(fn ($token) => $this->logout($token->id));
+
                 event(new PasswordReset($user));
             }
         );

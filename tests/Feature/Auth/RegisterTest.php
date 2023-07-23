@@ -30,7 +30,8 @@ class RegisterTest extends TestCase
             'email' => $user->email,
             'password' => $password,
             'password_confirmation' => $password,
-            'broker_license_number' => $brokerLicense->license_number
+            'broker_license_number' => $brokerLicense->license_number,
+            'expiration_date' => $brokerLicense->expiration_date
         ];
 
         $this->withHeaders(['Accept' => 'application/json'])

@@ -94,10 +94,11 @@ class AuthService extends Service implements AuthServiceInterface
 
         Auth::login($user);
 
-        $this->brokerLicenseRepository->firstOrCreate(
-            ['user_id' => $user->id],
-            ['license_number' => Arr::get($request, 'broker_license_number')]
-        );
+        $this->brokerLicenseRepository->create([
+            'user_id' => $user->id,
+            'license_number' => Arr::get($request, 'broker_license_number'),
+            'expiration_date' => Arr::get($request, 'expiration_date')
+        ]);
 
         $data = $this->repository->model()->withProfile()->find($user->id);
 

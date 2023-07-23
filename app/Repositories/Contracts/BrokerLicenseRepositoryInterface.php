@@ -3,10 +3,12 @@
 namespace App\Repositories\Contracts;
 
 use App\Repositories\Support\BaseContracts\{
-    FirstOrCreateInterface as firstOrCreate
+    FindInterface as Find,
+    CreateInterface as Create,
+    ForceDeleteInterface as ForceDelete
 };
 
-interface BrokerLicenseRepositoryInterface extends firstOrCreate
+interface BrokerLicenseRepositoryInterface extends Find, Create, ForceDelete
 {
     /**
      * Here you insert custom functions.

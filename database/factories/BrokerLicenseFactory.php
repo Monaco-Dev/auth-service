@@ -19,7 +19,8 @@ class BrokerLicenseFactory extends Factory
         return [
             'user_id' => fake()->unique()->randomDigit(),
             'license_number' => fake()->numerify('#######'),
-            'verified_at' => now()
+            'verified_at' => now(),
+            'expiration_date' => now()->addYear()
         ];
     }
 }

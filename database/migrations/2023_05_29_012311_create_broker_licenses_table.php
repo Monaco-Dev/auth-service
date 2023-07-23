@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('user_id')->unique()->constrained()->cascadeOnDelete();
             $table->string('license_number')->unique();
             $table->timestamp('verified_at')->nullable();
+            $table->timestamp('expiration_date')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

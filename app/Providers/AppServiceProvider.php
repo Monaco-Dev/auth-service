@@ -7,12 +7,14 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 use App\Services\Contracts\{
     AuthServiceInterface,
+    BrokerLicenseServiceInterface,
     ConnectionInvitationServiceInterface,
     ConnectionServiceInterface,
     UserServiceInterface
 };
 use App\Services\{
     AuthService,
+    BrokerLicenseService,
     ConnectionInvitationService,
     ConnectionService,
     UserService
@@ -29,7 +31,8 @@ class AppServiceProvider extends ServiceProvider
         AuthServiceInterface::class => AuthService::class,
         UserServiceInterface::class => UserService::class,
         ConnectionServiceInterface::class => ConnectionService::class,
-        ConnectionInvitationServiceInterface::class => ConnectionInvitationService::class
+        ConnectionInvitationServiceInterface::class => ConnectionInvitationService::class,
+        BrokerLicenseServiceInterface::class => BrokerLicenseService::class
     ];
 
     /**

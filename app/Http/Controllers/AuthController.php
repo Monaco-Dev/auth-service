@@ -11,7 +11,8 @@ use App\Http\Requests\Auth\{
     LoginRequest,
     RefreshTokenRequest,
     RegisterRequest,
-    ResetPasswordRequest
+    ResetPasswordRequest,
+    ValidatePasswordRequest
 };
 
 class AuthController extends Controller
@@ -138,5 +139,16 @@ class AuthController extends Controller
     public function deactivate()
     {
         return $this->service->deactivate();
+    }
+
+    /**
+     * Password hardening
+     * 
+     * @param App\Http\Requests\Auth\ValidatePasswordRequest $request
+     * @return \Illuminate\Http\Response
+     */
+    public function validatePassword(ValidatePasswordRequest $request)
+    {
+        return response()->json($request->validated());
     }
 }

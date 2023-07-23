@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\{
     AuthController,
+    BrokerLicenseController,
     ConnectionController,
     ConnectionInvitationController,
     UserController
@@ -24,7 +25,7 @@ Route::prefix('auth')->group(function () {
     Route::post('register', [AuthController::class, 'register'])->name('auth.register');
     Route::post('login', [AuthController::class, 'login'])->name('auth.login');
     Route::post('refresh-token', [AuthController::class, 'refreshToken'])->name('auth.token.refresh');
-
+    Route::post('validate-password', [AuthController::class, 'validatePassword']);
     Route::post('forgot-password', [AuthController::class, 'forgotPassword'])->name('password.email');
     Route::post('reset-password', [AuthController::class, 'resetPassword'])->name('password.update');
 });
@@ -40,6 +41,8 @@ Route::middleware('auth:api')->group(function () {
 
     Route::middleware('verified-email')->group(function () {
         Route::delete('auth/deactivate', [AuthController::class, 'deactivate'])->name('auth.deactivate');
+
+        Route::post('broker-licenses', [BrokerLicenseController::class, 'store'])->name('brokerLicenses.store');
 
         Route::middleware('verified-broker')->group(function () {
             Route::prefix('users')->group(function () {

@@ -20,6 +20,10 @@ class VerifiedBroker
             abort(403, 'Your license number is not verified.');
         }
 
+        if (optional(Auth::user()->brokerLicense)->isExpired()) {
+            abort(403, 'Your license number is expired.');
+        }
+
         return $next($request);
     }
 }

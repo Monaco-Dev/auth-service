@@ -20,7 +20,9 @@ class BrokerLicenseResource extends JsonResource
         return [
             'id' => Arr::get($data, 'id'),
             'is_license_verified' => Arr::get($data, 'is_license_verified'),
+            'is_license_expired' => Arr::get($data, 'is_license_expired'),
             'license_number' => Arr::get($data, 'license_number'),
+            'expiration_date' => Arr::get($data, 'expiration_date'),
             'user' => new UserResource($this->whenLoaded('user')),
         ];
     }
