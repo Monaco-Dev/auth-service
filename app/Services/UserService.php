@@ -7,6 +7,7 @@ use Illuminate\Support\Arr;
 use App\Repositories\Contracts\UserRepositoryInterface;
 use App\Services\Contracts\UserServiceInterface;
 use App\Http\Resources\UserResource;
+use Illuminate\Support\Facades\Auth;
 
 class UserService extends Service implements UserServiceInterface
 {
@@ -66,10 +67,25 @@ class UserService extends Service implements UserServiceInterface
      */
     public function search(array $request)
     {
+        $search = Arr::get($request, 'search');
+
         $data = $this->repository->model()
-            ->withProfile()
-            ->where('username', 'like', '%' . Arr::get($request, 'username') . '%')
-            ->paginate();
+            ->withProfile();
+
+        if ($search) {
+            $data->where(function ($query) use ($search) {
+                $query->orWhere('username', 'like', '%' . $search . '%')
+                    ->orWhere('first_name', 'like', '%' . $search . '%')
+                    ->orWhere('last_name', 'like', '%' . $search . '%')
+                    ->orWhere('email', 'like', '%' . $search . '%')
+                    ->orWhere('phone_number', 'like', '%' . $search . '%');
+            })
+                ->orWhereHas('brokerLicense', function ($query) use ($search) {
+                    $query->where('license_number', 'like', '%' . $search . '%');
+                });
+        }
+
+        $data = $data->paginate();
 
         return UserResource::collection($data);
     }

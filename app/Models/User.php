@@ -11,7 +11,6 @@ use Laravel\Passport\HasApiTokens;
 use Dyrynda\Database\Support\CascadeSoftDeletes;
 use Illuminate\Auth\Passwords\CanResetPassword as PasswordsCanResetPassword;
 use Illuminate\Contracts\Auth\CanResetPassword;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 
 class User extends Authenticatable implements MustVerifyEmail, CanResetPassword
@@ -220,10 +219,18 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword
         $withCount = [
             'networkUsers',
             'requestInvitations',
-            'pendingInvitations'
+            'pendingInvitations',
+            'mutuals',
+            'connectionUsers as is_network' => function ($query) {
+                $query->where('user_id', Auth::user()->id);
+            },
+            'pendingInvitations as is_following' => function ($query) {
+                $query->where('user_id', Auth::user()->id);
+            },
+            'requestInvitations as is_requested' => function ($query) {
+                $query->where('invitation_user_id', Auth::user()->id);
+            }
         ];
-
-        if (Auth::check()) Arr::prepend($withCount, 'mutuals');
 
         return self::with($with)->withCount($withCount);
     }

@@ -97,6 +97,11 @@ class ConnectionService extends Service implements ConnectionServiceInterface
             ->where('user_id', Auth::user()->id)
             ->forceDelete();
 
+        $this->repository->model()
+            ->where('connection_user_id', Auth::user()->id)
+            ->where('user_id', $id)
+            ->forceDelete();
+
         return response()->json(true);
     }
 }
