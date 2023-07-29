@@ -2,14 +2,23 @@
 
 namespace App\Services\Contracts;
 
-use App\Services\Support\BaseContracts\{
-    StoreInterface as Store,
-    DestroyInterface as Destroy
-};
+use App\Services\Support\BaseContracts\StoreInterface as Store;
 
-interface ConnectionServiceInterface extends Store, Destroy
+interface ConnectionServiceInterface extends Store
 {
     /**
-     * Here you insert custom functions.
+     * Search for specific resources in the database.
+     *
+     * @param  array  $request
+     * @return \Illuminate\Http\Response
      */
+    public function search(array $request);
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int|string $id
+     * @return \Illuminate\Http\Response
+     */
+    public function disconnect($id);
 }

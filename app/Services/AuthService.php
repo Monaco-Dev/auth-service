@@ -75,7 +75,7 @@ class AuthService extends Service implements AuthServiceInterface
      */
     public function verifyToken()
     {
-        $data = $this->repository->model()->withProfile()->find(Auth::user()->id);
+        $data = $this->repository->profile();
 
         return $data ? new UserResource($data) : response($data);
     }
@@ -100,7 +100,7 @@ class AuthService extends Service implements AuthServiceInterface
             'expiration_date' => Arr::get($request, 'expiration_date')
         ]);
 
-        $data = $this->repository->model()->withProfile()->find($user->id);
+        $data = $this->repository->profile($user->id);
 
         $token = $this->repository->authenticate(
             $user->email,

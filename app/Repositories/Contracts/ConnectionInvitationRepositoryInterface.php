@@ -5,6 +5,10 @@ namespace App\Repositories\Contracts;
 interface ConnectionInvitationRepositoryInterface
 {
     /**
-     * Here you insert custom functions.
+     * Remove the specified resource from storage.
+     *
+     * @param array $request
+     * @return int
      */
+    public function cancel(array $request);
 }

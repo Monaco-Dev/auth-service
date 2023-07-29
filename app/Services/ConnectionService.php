@@ -6,6 +6,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
+use App\Http\Resources\UserResource;
 use App\Notifications\ConnectNotification;
 use App\Repositories\Contracts\{
     ConnectionInvitationRepositoryInterface,
@@ -67,10 +68,10 @@ class ConnectionService extends Service implements ConnectionServiceInterface
                 'connection_user_id' => $userId
             ]);
 
-            $this->connectionInvitationRepository->model()
-                ->where('user_id', $userId)
-                ->where('invitation_user_id', $authId)
-                ->forceDelete();
+            $this->connectionInvitationRepository->cancel([
+                'user_id' => $userId,
+                'invitation_user_id' => $authId
+            ]);
 
             $this->userRepository->find($userId)->notify(new ConnectNotification);
 
@@ -87,21 +88,34 @@ class ConnectionService extends Service implements ConnectionServiceInterface
     /**
      * Remove the specified resource from storage.
      *
-     * @param int|string $id
-     * @return int
+     * @param  int|string $id
+     * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function disconnect($id)
     {
-        $this->repository->model()
-            ->where('connection_user_id', $id)
-            ->where('user_id', Auth::user()->id)
-            ->forceDelete();
+        $this->repository->disconnect([
+            'connection_user_id' => $id,
+            'user_id' => Auth::user()->id
+        ]);
 
-        $this->repository->model()
-            ->where('connection_user_id', Auth::user()->id)
-            ->where('user_id', $id)
-            ->forceDelete();
+        $this->repository->disconnect([
+            'connection_user_id' => Auth::user()->id,
+            'user_id' => $id
+        ]);
 
         return response()->json(true);
+    }
+
+    /**
+     * Search for specific resources in the database.
+     *
+     * @param  array  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function search(array $request)
+    {
+        $data = $this->userRepository->searchNetworks($request);
+
+        return UserResource::collection($data);
     }
 }

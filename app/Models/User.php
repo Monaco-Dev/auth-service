@@ -158,6 +158,19 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword
     }
 
     /**
+     * Return Connection relationship.
+     * 
+     * @return App\Models\Connection
+     */
+    public function networks()
+    {
+        return $this->hasMany(Connection::class, 'connection_user_id', 'id')
+            ->whereHas('connection.brokerLicense', function ($query) {
+                $query->whereNotNull('verified_at');
+            });
+    }
+
+    /**
      * Return ConnectionInvitation relationship.
      * 
      * @return App\Models\ConnectionInvitation

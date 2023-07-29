@@ -59,4 +59,28 @@ interface UserRepositoryInterface extends Find, Update
      * @return \Illuminate\Http\Response
      */
     public function resetPassword(array $request);
+
+    /**
+     * Get user's profile
+     * 
+     * @param int|string|null
+     * @return \Illuminate\Database\Eloquent\Model
+     */
+    public function profile($id = null);
+
+    /**
+     * Search for specific resources in the database.
+     *
+     * @param  array  $request
+     * @return \Illuminate\Database\Eloquent\Model
+     */
+    public function searchNetworks(array $request);
+
+    /**
+     * Search for specific resources in the database.
+     *
+     * @param  array  $request
+     * @return \Illuminate\Database\Eloquent\Model
+     */
+    public function search(array $request);
 }

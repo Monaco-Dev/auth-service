@@ -1,16 +1,16 @@
 <?php
 
-namespace Tests\Feature\BrokerLicense;
+namespace Tests\Feature\Connection;
 
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
-use App\Models\BrokerLicense;
+use App\Models\Connection;
 use App\Models\User;
 
-class StoreTest extends TestCase
+class SearchTest extends TestCase
 {
     use DatabaseTransactions;
 
@@ -22,17 +22,21 @@ class StoreTest extends TestCase
         $this->withoutMiddleware();
 
         $user = User::factory()->hasBrokerLicense()->create();
-        $brokerLicense = BrokerLicense::factory()->make();
+        $network = User::factory()->hasBrokerLicense()->create();
+
+        Connection::factory()->create([
+            'user_id' => $user->id,
+            'connection_user_id' => $network->id
+        ]);
 
         $payload = [
-            'license_number' => $brokerLicense->license_number,
-            'expiration_date' => $brokerLicense->expiration_date
+            'search' => null
         ];
 
         $this->actingAs($user)
             ->withHeaders(['Accept' => 'application/json'])
-            ->post(route('brokerLicenses.store'), $payload)
-            ->assertStatus(201);
+            ->post(route('connections.search'), $payload)
+            ->assertStatus(200);
     }
 
     /**
@@ -41,7 +45,7 @@ class StoreTest extends TestCase
     public function test_unauthenticated(): void
     {
         $this->withHeaders(['Accept' => 'application/json'])
-            ->post(route('brokerLicenses.store'))
+            ->post(route('connections.search'))
             ->assertStatus(401);
     }
 }

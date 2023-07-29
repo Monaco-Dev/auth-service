@@ -37,7 +37,7 @@ class UserResource extends JsonResource
 
         if (Arr::has($data, 'token')) Arr::set($response, 'token', Arr::get($data, 'token'));
 
-        if (Arr::get($data, 'id') === Auth::user()->id) {
+        if (Arr::get($data, 'id') === optional(Auth::user())->id) {
             Arr::set($response, 'email_verified_at', Arr::get($data, 'email_verified_at'));
             Arr::set($response, 'is_email_verified', Arr::get($data, 'is_email_verified'));
             Arr::set($response, 'is_phone_number_verified', false);

@@ -54,16 +54,14 @@ class ConnectionInvitationService extends Service implements ConnectionInvitatio
     /**
      * Remove the specified resource from storage.
      *
-     * @param int|string $id
-     * @return int
+     * @param  int|string $id
+     * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function cancel($id)
     {
-        $this->repository->model()
-            ->where('invitation_user_id', $id)
-            ->where('user_id', Auth::user()->id)
-            ->forceDelete();
-
-        return response()->json(true);
+        return $this->repository->cancel([
+            'invitation_user_id' => $id,
+            'user_id' => Auth::user()->id
+        ]);
     }
 }

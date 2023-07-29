@@ -52,6 +52,7 @@ Route::middleware('auth:api')->group(function () {
             });
 
             Route::prefix('connections')->group(function () {
+                Route::post('search', [ConnectionController::class, 'search'])->name('connections.search');
                 Route::post('/', [ConnectionController::class, 'connect'])->name('connections.connect');
                 Route::delete('{id}', [ConnectionController::class, 'disconnect'])->name('connections.disconnect');
             });

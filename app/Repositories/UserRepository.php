@@ -10,6 +10,7 @@ use Laravel\Passport\{
 };
 use Illuminate\Support\Facades\Password;
 use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Support\Arr;
 
 use App\Models\User;
 use App\Repositories\Contracts\UserRepositoryInterface;
@@ -143,5 +144,76 @@ class UserRepository extends Repository implements UserRepositoryInterface
                 event(new PasswordReset($user));
             }
         );
+    }
+
+    /**
+     * Get user's profile
+     * 
+     * @param int|string|null
+     * @return \Illuminate\Database\Eloquent\Model
+     */
+    public function profile($id = null)
+    {
+        return $this->model->withProfile()->find($id ?? Auth::user()->id);
+    }
+
+    /**
+     * Search for specific resources in the database.
+     *
+     * @param  array  $request
+     * @return \Illuminate\Database\Eloquent\Model
+     */
+    public function searchNetworks(array $request)
+    {
+        $search = Arr::get($request, 'search');
+
+        $data = $this->model
+            ->with(['brokerLicense'])
+            ->whereHas('networks', function ($query) {
+                $query->where('user_id', Auth::user()->id);
+            });
+
+        if ($search) {
+            $data = $data->where(function ($query) use ($search) {
+                $query->where('username', 'like', '%' . $search . '%')
+                    ->orWhere('first_name', 'like', '%' . $search . '%')
+                    ->orWhere('last_name', 'like', '%' . $search . '%')
+                    ->orWhere('email', 'like', '%' . $search . '%')
+                    ->orWhere('phone_number', 'like', '%' . $search . '%');
+            })
+                ->whereHas('brokerLicense', function ($query) use ($search) {
+                    $query->where('license_number', 'like', '%' . $search . '%');
+                });
+        }
+
+        return $data->paginate();
+    }
+
+    /**
+     * Search for specific resources in the database.
+     *
+     * @param  array  $request
+     * @return \Illuminate\Database\Eloquent\Model
+     */
+    public function search(array $request)
+    {
+        $search = Arr::get($request, 'search');
+
+        $data = $this->model->withProfile();
+
+        if ($search) {
+            $data->where(function ($query) use ($search) {
+                $query->where('username', 'like', '%' . $search . '%')
+                    ->orWhere('first_name', 'like', '%' . $search . '%')
+                    ->orWhere('last_name', 'like', '%' . $search . '%')
+                    ->orWhere('email', 'like', '%' . $search . '%')
+                    ->orWhere('phone_number', 'like', '%' . $search . '%');
+            })
+                ->whereHas('brokerLicense', function ($query) use ($search) {
+                    $query->where('license_number', 'like', '%' . $search . '%');
+                });
+        }
+
+        return $data->paginate();
     }
 }

@@ -6,6 +6,7 @@ use App\Services\Contracts\ConnectionServiceInterface;
 use App\Http\Requests\Connection\{
     ConnectRequest,
     DisconnectRequest,
+    SearchRequest,
 };
 
 class ConnectionController extends Controller
@@ -47,6 +48,17 @@ class ConnectionController extends Controller
      */
     public function disconnect(DisconnectRequest $request, $id)
     {
-        return $this->service->destroy($id);
+        return $this->service->disconnect($id);
+    }
+
+    /**
+     * Search for specific resources in the database.
+     *
+     * @param  \App\Http\Requests\Connection\SearchRequest  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function search(SearchRequest $request)
+    {
+        return $this->service->search($request->validated());
     }
 }

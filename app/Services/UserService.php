@@ -54,7 +54,7 @@ class UserService extends Service implements UserServiceInterface
      */
     public function show($id, bool $findOrFail = true)
     {
-        $user = $this->repository->model()->withProfile()->find($id);
+        $user = $this->repository->profile($id);
 
         return new UserResource($user);
     }
@@ -67,25 +67,7 @@ class UserService extends Service implements UserServiceInterface
      */
     public function search(array $request)
     {
-        $search = Arr::get($request, 'search');
-
-        $data = $this->repository->model()
-            ->withProfile();
-
-        if ($search) {
-            $data->where(function ($query) use ($search) {
-                $query->orWhere('username', 'like', '%' . $search . '%')
-                    ->orWhere('first_name', 'like', '%' . $search . '%')
-                    ->orWhere('last_name', 'like', '%' . $search . '%')
-                    ->orWhere('email', 'like', '%' . $search . '%')
-                    ->orWhere('phone_number', 'like', '%' . $search . '%');
-            })
-                ->orWhereHas('brokerLicense', function ($query) use ($search) {
-                    $query->where('license_number', 'like', '%' . $search . '%');
-                });
-        }
-
-        $data = $data->paginate();
+        $data = $this->repository->search($request);
 
         return UserResource::collection($data);
     }

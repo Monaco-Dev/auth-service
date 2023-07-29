@@ -47,6 +47,6 @@ class ConnectionInvitationController extends Controller
      */
     public function cancel(CancelRequest $request, $id)
     {
-        return $this->service->destroy($id);
+        return $this->service->cancel($id);
     }
 }

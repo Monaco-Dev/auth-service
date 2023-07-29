@@ -2,14 +2,15 @@
 
 namespace App\Services\Contracts;
 
-use App\Services\Support\BaseContracts\{
-    StoreInterface as Store,
-    DestroyInterface as Destroy
-};
+use App\Services\Support\BaseContracts\StoreInterface as Store;
 
-interface ConnectionInvitationServiceInterface extends Store, Destroy
+interface ConnectionInvitationServiceInterface extends Store
 {
     /**
-     * Here you insert custom functions.
+     * Remove the specified resource from storage.
+     *
+     * @param  int|string $id
+     * @return \Illuminate\Http\Response
      */
+    public function cancel($id);
 }
