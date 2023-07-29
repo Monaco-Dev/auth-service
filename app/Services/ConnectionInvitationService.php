@@ -5,6 +5,7 @@ namespace App\Services;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 
+use App\Http\Resources\UserResource;
 use App\Notifications\InviteNotification;
 use App\Repositories\Contracts\ConnectionInvitationRepositoryInterface;
 use App\Repositories\Contracts\UserRepositoryInterface;
@@ -29,6 +30,30 @@ class ConnectionInvitationService extends Service implements ConnectionInvitatio
     ) {
         $this->repository = $repository;
         $this->userRepository = $userRepository;
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Support\LazyCollection
+     */
+    public function index()
+    {
+        $data = $this->userRepository->pendingInvitations();
+
+        return UserResource::collection($data);
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function requests()
+    {
+        $data = $this->userRepository->requestInvitations();
+
+        return UserResource::collection($data);
     }
 
     /**

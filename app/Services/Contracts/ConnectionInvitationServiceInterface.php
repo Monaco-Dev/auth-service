@@ -2,10 +2,20 @@
 
 namespace App\Services\Contracts;
 
-use App\Services\Support\BaseContracts\StoreInterface as Store;
+use App\Services\Support\BaseContracts\{
+    IndexInterface as Index,
+    StoreInterface as Store
+};
 
-interface ConnectionInvitationServiceInterface extends Store
+interface ConnectionInvitationServiceInterface extends Index, Store
 {
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function requests();
+
     /**
      * Remove the specified resource from storage.
      *

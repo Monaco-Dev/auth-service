@@ -58,6 +58,8 @@ Route::middleware('auth:api')->group(function () {
             });
 
             Route::prefix('connection-invitations')->group(function () {
+                Route::get('requests', [ConnectionInvitationController::class, 'requests'])->name('connection-invitations.requests');
+                Route::get('/', [ConnectionInvitationController::class, 'index'])->name('connection-invitations.index');
                 Route::post('/', [ConnectionInvitationController::class, 'invite'])->name('connection-invitations.invite');
                 Route::delete('{id}', [ConnectionInvitationController::class, 'cancel'])->name('connection-invitations.cancel');
             });

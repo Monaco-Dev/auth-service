@@ -83,4 +83,18 @@ interface UserRepositoryInterface extends Find, Update
      * @return \Illuminate\Database\Eloquent\Model
      */
     public function search(array $request);
+
+    /**
+     * Search for specific resources in the database.
+     * 
+     * @return \Illuminate\Database\Eloquent\Model
+     */
+    public function pendingInvitations();
+
+    /**
+     * Search for specific resources in the database.
+     * 
+     * @return \Illuminate\Database\Eloquent\Model
+     */
+    public function requestInvitations();
 }

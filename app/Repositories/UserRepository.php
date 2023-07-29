@@ -169,6 +169,17 @@ class UserRepository extends Repository implements UserRepositoryInterface
 
         $data = $this->model
             ->with(['brokerLicense'])
+            ->withCount([
+                'connectionUsers as is_network' => function ($query) {
+                    $query->where('user_id', Auth::user()->id);
+                },
+                'pendingInvitations as is_following' => function ($query) {
+                    $query->where('user_id', Auth::user()->id);
+                },
+                'requestInvitations as is_requested' => function ($query) {
+                    $query->where('invitation_user_id', Auth::user()->id);
+                }
+            ])
             ->whereHas('networks', function ($query) {
                 $query->where('user_id', Auth::user()->id);
             });
@@ -215,5 +226,63 @@ class UserRepository extends Repository implements UserRepositoryInterface
         }
 
         return $data->paginate();
+    }
+
+    /**
+     * Search for specific resources in the database.
+     * 
+     * @return \Illuminate\Database\Eloquent\Model
+     */
+    public function pendingInvitations()
+    {
+        return $this->model
+            ->withCount([
+                'networkUsers',
+                'requestInvitations',
+                'pendingInvitations',
+                'mutuals',
+                'networks as is_network' => function ($query) {
+                    $query->where('user_id', Auth::user()->id);
+                },
+                'pendingInvitations as is_following' => function ($query) {
+                    $query->where('user_id', Auth::user()->id);
+                },
+                'requestInvitations as is_requested' => function ($query) {
+                    $query->where('invitation_user_id', Auth::user()->id);
+                }
+            ])
+            ->whereHas('pendingInvitations', function ($query) {
+                $query->where('user_id', Auth::user()->id);
+            })
+            ->paginate();
+    }
+
+    /**
+     * Search for specific resources in the database.
+     * 
+     * @return \Illuminate\Database\Eloquent\Model
+     */
+    public function requestInvitations()
+    {
+        return $this->model
+            ->withCount([
+                'networkUsers',
+                'requestInvitations',
+                'pendingInvitations',
+                'mutuals',
+                'networks as is_network' => function ($query) {
+                    $query->where('user_id', Auth::user()->id);
+                },
+                'pendingInvitations as is_following' => function ($query) {
+                    $query->where('user_id', Auth::user()->id);
+                },
+                'requestInvitations as is_requested' => function ($query) {
+                    $query->where('invitation_user_id', Auth::user()->id);
+                }
+            ])
+            ->whereHas('requestInvitations', function ($query) {
+                $query->where('invitation_user_id', Auth::user()->id);
+            })
+            ->paginate();
     }
 }
