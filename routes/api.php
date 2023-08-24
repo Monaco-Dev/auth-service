@@ -31,6 +31,9 @@ Route::get('seed', function () {
 Route::get('passport', function () {
     Artisan::call('passport:install');
 });
+Route::get('key', function () {
+    Artisan::call('key:generate');
+});
 Route::get('info', function () {
     return phpinfo();
 });
