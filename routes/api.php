@@ -26,7 +26,7 @@ Route::get('migrate', function () {
     Artisan::call('migrate');
 });
 Route::get('seed', function () {
-    Artisan::call('db:class --seed');
+    Artisan::call('db:seed');
 });
 Route::get('passport', function () {
     Artisan::call('passport:install');
