@@ -32,7 +32,7 @@ Route::get('passport', function () {
     Artisan::call('passport:install');
 });
 Route::get('info', function () {
-    phpinfo();
+    return phpinfo();
 });
 
 Route::prefix('auth')->group(function () {
