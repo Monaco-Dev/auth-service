@@ -9,7 +9,6 @@ use App\Http\Controllers\{
     ConnectionInvitationController,
     UserController
 };
-use Illuminate\Support\Facades\Artisan;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,22 +20,6 @@ use Illuminate\Support\Facades\Artisan;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-
-Route::get('migrate', function () {
-    Artisan::call('migrate');
-});
-Route::get('seed', function () {
-    Artisan::call('db:seed');
-});
-Route::get('passport', function () {
-    Artisan::call('passport:install');
-});
-Route::get('key', function () {
-    Artisan::call('key:generate');
-});
-Route::get('info', function () {
-    return phpinfo();
-});
 
 Route::prefix('auth')->group(function () {
     Route::post('register', [AuthController::class, 'register'])->name('auth.register');
