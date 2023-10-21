@@ -2,34 +2,18 @@
 
 namespace Tests\Feature\Auth;
 
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
+use Illuminate\Support\Arr;
 
 use App\Models\User;
-use Facades\App\Repositories\Contracts\UserRepositoryInterface as UserRepository;
 
 class LogoutTest extends TestCase
 {
-    use DatabaseTransactions;
+    use RefreshDatabase;
 
-    /**
-     * Test successful response.
-     */
-    public function test_success(): void
-    {
-        $user = User::factory()->create();
-
-        $auth = UserRepository::authenticate($user->username, 'Password123!');
-
-        $this->withHeaders([
-            'Accept' => 'application/json',
-            'Authorization' => 'Bearer ' . $auth['access_token']
-        ])
-            ->post(route('auth.logout'))
-            ->assertStatus(200);
-    }
+    protected $route = 'auth.logout';
 
     /**
      * Test unauthenticated response.
@@ -37,7 +21,22 @@ class LogoutTest extends TestCase
     public function test_unauthenticated(): void
     {
         $this->withHeaders(['Accept' => 'application/json'])
-            ->post(route('auth.logout'))
-            ->assertStatus(401);
+            ->post(route($this->route))
+            ->assertUnauthorized();
+    }
+
+    /**
+     * Test successful response.
+     */
+    public function test_success(): void
+    {
+        $auth = $this->login(User::factory()->create()->email);
+
+        $this->withHeaders([
+            'Accept' => 'application/json',
+            'Authorization' => 'Bearer ' . Arr::get($auth, 'access_token')
+        ])
+            ->post(route($this->route))
+            ->assertOk();
     }
 }

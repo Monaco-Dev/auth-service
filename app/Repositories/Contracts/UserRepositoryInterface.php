@@ -4,19 +4,20 @@ namespace App\Repositories\Contracts;
 
 use App\Repositories\Support\BaseContracts\{
     FindInterface as Find,
-    UpdateInterface as Update
+    UpdateInterface as Update,
+    DeleteInterface as Delete,
 };
 
-interface UserRepositoryInterface extends Find, Update
+interface UserRepositoryInterface extends Find, Update, Delete
 {
     /**
      * Authenticate User
      * 
-     * @param String $login
+     * @param String $email
      * @param String $password
      * @return mixed
      */
-    public function authenticate($login, $password);
+    public function authenticate($email, $password);
 
     /**
      * Logout the user
@@ -35,24 +36,6 @@ interface UserRepositoryInterface extends Find, Update
     public function refreshToken($token);
 
     /**
-     * Attempt to authorize user
-     * 
-     * @param String $login
-     * @param String $password
-     * @return bool
-     */
-    public function isValidCredential($login, $password);
-
-    /**
-     * Check if email is verified
-     * 
-     * @param int|string|null $id
-     * @param string|null $login
-     * @return bool
-     */
-    public function isEmailVerified($id = null, $login = null);
-
-    /**
      * Reset user's password.
      * 
      * @param array $request
@@ -63,38 +46,17 @@ interface UserRepositoryInterface extends Find, Update
     /**
      * Get user's profile
      * 
-     * @param int|string|null
+     * @param int|string $id
+     * @param bool $verified
      * @return \Illuminate\Database\Eloquent\Model
      */
-    public function profile($id = null);
+    public function profile($id, $verified = false);
 
     /**
-     * Search for specific resources in the database.
-     *
-     * @param  array  $request
-     * @return \Illuminate\Database\Eloquent\Model
-     */
-    public function searchNetworks(array $request);
-
-    /**
-     * Search for specific resources in the database.
-     *
-     * @param  array  $request
-     * @return \Illuminate\Database\Eloquent\Model
-     */
-    public function search(array $request);
-
-    /**
-     * Search for specific resources in the database.
+     * Deactivate user to database.
      * 
-     * @return \Illuminate\Database\Eloquent\Model
+     * @param int|string $id
+     * @return bool
      */
-    public function pendingInvitations();
-
-    /**
-     * Search for specific resources in the database.
-     * 
-     * @return \Illuminate\Database\Eloquent\Model
-     */
-    public function requestInvitations();
+    public function deactivate($id);
 }

@@ -80,4 +80,11 @@ interface AuthServiceInterface
      * @return \Illuminate\Http\Response
      */
     public function deactivate();
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @return int
+     */
+    public function delete();
 }

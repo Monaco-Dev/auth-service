@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\Auth;
 
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
@@ -11,7 +10,9 @@ use App\Models\User;
 
 class ForgotPasswordTest extends TestCase
 {
-    use DatabaseTransactions;
+    use RefreshDatabase;
+
+    protected $route = 'password.email';
 
     /**
      * Test successful response.
@@ -20,22 +21,34 @@ class ForgotPasswordTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $payload = [
-            'email' => $user->email
-        ];
+        $payload = ['email' => $user->email];
 
-        $this->withHeaders(['Accept' => 'application/json'])
-            ->post(route('password.email'), $payload)
-            ->assertStatus(200);
+        $this->post(route($this->route), $payload)
+            ->assertOk()
+            ->assertValid();
     }
 
     /**
-     * Test invalid response.
+     * Test email required response.
      */
-    public function test_invalid(): void
+    public function test_email_required(): void
     {
         $this->withHeaders(['Accept' => 'application/json'])
-            ->post(route('password.email'))
-            ->assertStatus(422);
+            ->post(route($this->route))
+            ->assertUnprocessable()
+            ->assertSeeText('The email field is required');
+    }
+
+    /**
+     * Test email format response.
+     */
+    public function test_email_format(): void
+    {
+        $payload = ['email' => fake()->userName()];
+
+        $this->withHeaders(['Accept' => 'application/json'])
+            ->post(route($this->route), $payload)
+            ->assertUnprocessable()
+            ->assertSeeText('The email field must be a valid email address');
     }
 }

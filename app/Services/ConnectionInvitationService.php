@@ -2,91 +2,93 @@
 
 namespace App\Services;
 
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Arr;
 
+use App\Models\User;
 use App\Http\Resources\UserResource;
-use App\Notifications\InviteNotification;
 use App\Repositories\Contracts\ConnectionInvitationRepositoryInterface;
-use App\Repositories\Contracts\UserRepositoryInterface;
 use App\Services\Contracts\ConnectionInvitationServiceInterface;
 
 class ConnectionInvitationService extends Service implements ConnectionInvitationServiceInterface
 {
     /**
-     * @var \App\Repositories\Contracts\UserRepositoryInterface
-     */
-    protected $userRepository;
-
-    /**
      * Create the service instance and inject its repository.
      *
      * @param App\Repositories\Contracts\ConnectionInvitationRepositoryInterface
-     * @param App\Repositories\Contracts\UserRepositoryInterface
      */
-    public function __construct(
-        ConnectionInvitationRepositoryInterface $repository,
-        UserRepositoryInterface $userRepository
-    ) {
+    public function __construct(ConnectionInvitationRepositoryInterface $repository)
+    {
         $this->repository = $repository;
-        $this->userRepository = $userRepository;
-    }
-
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Support\LazyCollection
-     */
-    public function index()
-    {
-        $data = $this->userRepository->pendingInvitations();
-
-        return UserResource::collection($data);
-    }
-
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function requests()
-    {
-        $data = $this->userRepository->requestInvitations();
-
-        return UserResource::collection($data);
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param array $request
-     * @return \Illuminate\Database\Eloquent\Model
+     * @param  \App\Models\User $user
+     * @return \Illuminate\Http\Response
      */
-    public function store(array $request)
+    public function send(User $user)
     {
-        $this->repository->create([
-            'user_id' => Auth::user()->id,
-            'invitation_user_id' => Arr::get($request, 'user_id')
-        ]);
+        $auth = Auth::user();
 
-        $user = $this->userRepository->find(Arr::get($request, 'user_id'));
+        $auth->incomingInvites()->attach($user);
+        $user->incomingInvites()->attach($auth);
 
-        $user->notify(new InviteNotification($user));
+        // $user->notify(new ConnectedNotification($auth));
 
-        return response()->json(true);
+        return response()->json(true, 200);
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int|string $id
+     * @param  \App\Models\User $user
      * @return \Illuminate\Http\Response
      */
-    public function cancel($id)
+    public function cancel(User $user)
     {
-        return $this->repository->cancel([
-            'invitation_user_id' => $id,
-            'user_id' => Auth::user()->id
-        ]);
+        $auth = Auth::user();
+
+        $auth->incomingInvites()->detach($user);
+        $user->incomingInvites()->detach($auth);
+
+        return response()->json(true, 200);
+    }
+
+    /**
+     * Search for specific resources in the database.
+     * 
+     * @param  array  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function searchIncoming(array $request)
+    {
+        $search = Arr::get($request, 'search');
+
+        return UserResource::collection(
+            Auth::user()
+                ->incomingInvites()
+                ->search($search, Auth::user()->id)
+                ->paginate()
+        );
+    }
+
+    /**
+     * Search for specific resources in the database.
+     * 
+     * @param  array  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function searchOutgoing(array $request)
+    {
+        $search = Arr::get($request, 'search');
+
+        return UserResource::collection(
+            Auth::user()
+                ->outgoingInvites()
+                ->search($search, Auth::user()->id)
+                ->paginate()
+        );
     }
 }

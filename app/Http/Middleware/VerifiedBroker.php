@@ -16,11 +16,11 @@ class VerifiedBroker
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!optional(Auth::user()->brokerLicense)->isVerified()) {
+        if (!optional(Auth::user()->brokerLicense)->is_license_verified) {
             abort(403, 'Your license number is not verified.');
         }
 
-        if (optional(Auth::user()->brokerLicense)->isExpired()) {
+        if (optional(Auth::user()->brokerLicense)->is_license_expired) {
             abort(403, 'Your license number is expired.');
         }
 

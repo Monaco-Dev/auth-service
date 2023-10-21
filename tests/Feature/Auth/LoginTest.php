@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\Auth;
 
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
@@ -11,7 +10,9 @@ use App\Models\User;
 
 class LoginTest extends TestCase
 {
-    use DatabaseTransactions;
+    use RefreshDatabase;
+
+    protected $route = 'auth.login';
 
     /**
      * Test successful response.
@@ -21,22 +22,56 @@ class LoginTest extends TestCase
         $user = User::factory()->create();
 
         $payload = [
-            'login' => $user->username,
-            'password' => 'Password123!'
+            'email' => $user->email,
+            'password' => 'Password123!',
+            'remember_me' => true
         ];
 
         $this->withHeaders(['Accept' => 'application/json'])
-            ->post(route('auth.login'), $payload)
-            ->assertStatus(200);
+            ->post(route($this->route), $payload)
+            ->assertOk()
+            ->assertValid();
     }
 
     /**
-     * Test invalid response.
+     * Test invalid parameters response.
      */
-    public function test_invalid(): void
+    public function test_invalid_parameters(): void
     {
+        $payload = [
+            'email' => null,
+            'password' => null,
+            'remember_me' => 'true'
+        ];
+
         $this->withHeaders(['Accept' => 'application/json'])
-            ->post(route('auth.login'))
-            ->assertStatus(422);
+            ->post(route($this->route), $payload)
+            ->assertUnprocessable()
+            ->assertInvalid([
+                'email' => ['The email field is required.'],
+                'password' => ['The password field is required.'],
+                'remember_me' => ['The remember me field must be true or false.']
+            ]);
+    }
+
+    /**
+     * Test invalid credentials response.
+     */
+    public function test_invalid_credentials(): void
+    {
+        $user = User::factory()->create();
+
+        $payload = [
+            'email' => fake()->safeEmail(),
+            'password' => $user->password,
+            'remember_me' => true
+        ];
+
+        $this->withHeaders(['Accept' => 'application/json'])
+            ->post(route($this->route), $payload)
+            ->assertUnprocessable()
+            ->assertInvalid([
+                'email' => ['Invalid Credentials.']
+            ]);
     }
 }

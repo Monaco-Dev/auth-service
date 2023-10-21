@@ -4,118 +4,80 @@ namespace App\Services;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 use App\Http\Resources\UserResource;
-use App\Notifications\ConnectNotification;
-use App\Repositories\Contracts\{
-    ConnectionInvitationRepositoryInterface,
-    ConnectionRepositoryInterface,
-    UserRepositoryInterface
-};
+use App\Models\User;
+use App\Notifications\ConnectedNotification;
+use App\Repositories\Contracts\ConnectionRepositoryInterface;
 use App\Services\Contracts\ConnectionServiceInterface;
 
 class ConnectionService extends Service implements ConnectionServiceInterface
 {
     /**
-     * @var \App\Repositories\Contracts\ConnectionInvitationRepositoryInterface
-     */
-    protected $connectionInvitationRepository;
-
-    /**
-     * @var \App\Repositories\Contracts\UserRepositoryInterface
-     */
-    protected $userRepository;
-
-    /**
      * Create the service instance and inject its repository.
      *
      * @param App\Repositories\Contracts\ConnectionRepositoryInterface
-     * @param App\Repositories\Contracts\ConnectionInvitationRepositoryInterface
-     * @param App\Repositories\Contracts\UserRepositoryInterface
      */
-    public function __construct(
-        ConnectionRepositoryInterface $repository,
-        ConnectionInvitationRepositoryInterface $connectionInvitationRepository,
-        UserRepositoryInterface $userRepository
-    ) {
+    public function __construct(ConnectionRepositoryInterface $repository)
+    {
         $this->repository = $repository;
-        $this->connectionInvitationRepository = $connectionInvitationRepository;
-        $this->userRepository = $userRepository;
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param array $request
-     * @return \Illuminate\Database\Eloquent\Model
+     * @param  \App\Models\User $user
+     * @return \Illuminate\Http\Response
      */
-    public function store(array $request)
+    public function connect(User $user)
     {
-        DB::beginTransaction();
+        $auth = Auth::user();
 
-        try {
-            $userId = Arr::get($request, 'user_id');
-            $authId = Auth::user()->id;
+        $auth->connections()->attach($user);
+        $user->connections()->attach($auth);
 
-            $this->repository->create([
-                'user_id' => $userId,
-                'connection_user_id' => $authId
-            ]);
+        $auth->incomingInvites()->detach($user);
+        $user->incomingInvites()->detach($auth);
 
-            $this->repository->create([
-                'user_id' => $authId,
-                'connection_user_id' => $userId
-            ]);
+        $user->notify(new ConnectedNotification($auth));
 
-            $this->connectionInvitationRepository->cancel([
-                'user_id' => $userId,
-                'invitation_user_id' => $authId
-            ]);
-
-            $this->userRepository->find($userId)->notify(new ConnectNotification);
-
-            DB::commit();
-        } catch (\Exception $e) {
-            DB::rollBack();
-
-            throw $e;
-        }
-
-        return response()->json(true);
+        return response()->json(true, 200);
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int|string $id
+     * @param  \App\Models\User $user
      * @return \Illuminate\Http\Response
      */
-    public function disconnect($id)
+    public function disconnect(User $user)
     {
-        $this->repository->disconnect([
-            'connection_user_id' => $id,
-            'user_id' => Auth::user()->id
-        ]);
+        $auth = Auth::user();
 
-        $this->repository->disconnect([
-            'connection_user_id' => Auth::user()->id,
-            'user_id' => $id
-        ]);
+        $auth->connections()->detach($user);
+        $user->connections()->detach($auth);
 
-        return response()->json(true);
+        $auth->incomingInvites()->detach($user);
+        $user->incomingInvites()->detach($auth);
+
+        return response()->json(true, 200);
     }
 
     /**
      * Search for specific resources in the database.
-     *
+     * 
      * @param  array  $request
      * @return \Illuminate\Http\Response
      */
     public function search(array $request)
     {
-        $data = $this->userRepository->searchNetworks($request);
+        $search = Arr::get($request, 'search');
 
-        return UserResource::collection($data);
+        return UserResource::collection(
+            Auth::user()
+                ->connections()
+                ->search($search, Auth::user()->id)
+                ->paginate()
+        );
     }
 }

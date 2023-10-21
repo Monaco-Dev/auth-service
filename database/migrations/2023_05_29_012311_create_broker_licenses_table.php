@@ -13,12 +13,11 @@ return new class extends Migration
     {
         Schema::create('broker_licenses', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->unique()->constrained()->cascadeOnDelete();
+            $table->foreignId('user_id')->unique();
             $table->string('license_number')->unique();
             $table->timestamp('verified_at')->nullable();
             $table->timestamp('expiration_date')->nullable();
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 

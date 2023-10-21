@@ -12,7 +12,6 @@ use App\Http\Requests\Auth\{
     RefreshTokenRequest,
     RegisterRequest,
     ResetPasswordRequest,
-    ValidatePasswordRequest
 };
 
 class AuthController extends Controller
@@ -142,13 +141,12 @@ class AuthController extends Controller
     }
 
     /**
-     * Password hardening
-     * 
-     * @param App\Http\Requests\Auth\ValidatePasswordRequest $request
+     * Remove the specified resource from storage.
+     *
      * @return \Illuminate\Http\Response
      */
-    public function validatePassword(ValidatePasswordRequest $request)
+    public function destroy()
     {
-        return response()->json($request->validated());
+        return $this->service->delete();
     }
 }

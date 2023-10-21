@@ -3,7 +3,6 @@
 namespace Tests\Feature\Auth;
 
 use Illuminate\Support\Facades\Password;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
@@ -12,7 +11,9 @@ use App\Models\User;
 
 class ResetPasswordTest extends TestCase
 {
-    use DatabaseTransactions, WithFaker;
+    use RefreshDatabase;
+
+    protected $route = 'password.update';
 
     /**
      * A basic feature test example.
@@ -21,7 +22,7 @@ class ResetPasswordTest extends TestCase
     {
         $user = User::factory()->create();
         $token = Password::broker()->createToken($user);
-        $password = $this->faker()->password(8, 8) . 'Aa1!';
+        $password = fake()->password(8, 8) . 'Aa1!';
 
         $payload = [
             'token' => $token,
@@ -31,8 +32,9 @@ class ResetPasswordTest extends TestCase
         ];
 
         $this->withHeaders(['Accept' => 'application/json'])
-            ->post(route('password.update'), $payload)
-            ->assertStatus(200);
+            ->post(route($this->route), $payload)
+            ->assertOk()
+            ->assertValid();
     }
 
     /**
@@ -41,7 +43,7 @@ class ResetPasswordTest extends TestCase
     public function test_invalid(): void
     {
         $this->withHeaders(['Accept' => 'application/json'])
-            ->post(route('password.update'))
-            ->assertStatus(422);
+            ->post(route($this->route))
+            ->assertUnprocessable();
     }
 }

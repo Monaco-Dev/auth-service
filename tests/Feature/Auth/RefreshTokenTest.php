@@ -2,34 +2,32 @@
 
 namespace Tests\Feature\Auth;
 
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
+use Illuminate\Support\Arr;
 
 use App\Models\User;
-use Facades\App\Repositories\Contracts\UserRepositoryInterface as UserRepository;
 
 class RefreshTokenTest extends TestCase
 {
-    use DatabaseTransactions;
+    use RefreshDatabase;
+
+    protected $route = 'auth.token.refresh';
 
     /**
      * Test successful response.
      */
     public function test_success(): void
     {
-        $user = User::factory()->create();
+        $auth = $this->login(User::factory()->create()->email);
 
-        $auth = UserRepository::authenticate($user->username, 'Password123!');
-
-        $payload = [
-            'refresh_token' => $auth['refresh_token']
-        ];
+        $payload = ['refresh_token' => Arr::get($auth, 'refresh_token')];
 
         $this->withHeaders(['Accept' => 'application/json'])
-            ->post(route('auth.token.refresh'), $payload)
-            ->assertStatus(200);
+            ->post(route($this->route), $payload)
+            ->assertOk()
+            ->assertValid();
     }
 
     /**
@@ -38,7 +36,10 @@ class RefreshTokenTest extends TestCase
     public function test_invalid(): void
     {
         $this->withHeaders(['Accept' => 'application/json'])
-            ->post(route('auth.token.refresh'))
-            ->assertStatus(422);
+            ->post(route($this->route))
+            ->assertUnprocessable()
+            ->assertInvalid([
+                'refresh_token' => 'The refresh token field is required.'
+            ]);
     }
 }

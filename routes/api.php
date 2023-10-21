@@ -7,6 +7,7 @@ use App\Http\Controllers\{
     BrokerLicenseController,
     ConnectionController,
     ConnectionInvitationController,
+    SlugController,
     UserController
 };
 
@@ -22,46 +23,68 @@ use App\Http\Controllers\{
 */
 
 Route::prefix('auth')->group(function () {
-    Route::post('register', [AuthController::class, 'register'])->name('auth.register');
-    Route::post('login', [AuthController::class, 'login'])->name('auth.login');
-    Route::post('refresh-token', [AuthController::class, 'refreshToken'])->name('auth.token.refresh');
-    Route::post('validate-password', [AuthController::class, 'validatePassword']);
-    Route::post('forgot-password', [AuthController::class, 'forgotPassword'])->name('password.email');
-    Route::post('reset-password', [AuthController::class, 'resetPassword'])->name('password.update');
+    Route::name('auth.')->group(function () {
+        Route::post('register', [AuthController::class, 'register'])->name('register');
+        Route::post('login', [AuthController::class, 'login'])->name('login');
+        Route::post('refresh-token', [AuthController::class, 'refreshToken'])->name('token.refresh');
+    });
+
+    Route::name('password.')->group(function () {
+        Route::post('forgot-password', [AuthController::class, 'forgotPassword'])->name('email');
+        Route::post('reset-password', [AuthController::class, 'resetPassword'])->name('update');
+    });
 });
 
 Route::middleware('auth:api')->group(function () {
     Route::prefix('auth')->group(function () {
-        Route::post('logout', [AuthController::class, 'logout'])->name('auth.logout');
-        Route::get('verify-token', [AuthController::class, 'verifyToken'])->name('auth.token.verify');
+        Route::name('auth.')->group(function () {
+            Route::post('logout', [AuthController::class, 'logout'])->name('logout');
+            Route::delete('delete', [AuthController::class, 'destroy'])->name('destroy');
+            Route::get('verify-token', [AuthController::class, 'verifyToken'])->name('token.verify');
+        });
 
-        Route::get('email/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])->name('verification.verify');
-        Route::post('email/verification-notification', [AuthController::class, 'resendEmailVerification'])->name('verification.send');
+        Route::prefix('email')->name('verification.')->group(function () {
+            Route::get('verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])->name('verify');
+            Route::post('verification-notification', [AuthController::class, 'resendEmailVerification'])->name('send');
+        });
     });
 
     Route::middleware('verified-email')->group(function () {
-        Route::delete('auth/deactivate', [AuthController::class, 'deactivate'])->name('auth.deactivate');
-
-        Route::post('broker-licenses', [BrokerLicenseController::class, 'store'])->name('brokerLicenses.store');
+        Route::post('broker-licenses/update', [BrokerLicenseController::class, 'update'])->name('brokerLicenses.update');
 
         Route::middleware('verified-broker')->group(function () {
-            Route::prefix('users')->group(function () {
-                Route::put('{id}', [UserController::class, 'update'])->name('users.update');
-                Route::get('{id}', [UserController::class, 'show'])->name('users.show');
-                Route::post('search', [UserController::class, 'search'])->name('users.search');
+            Route::post('auth/deactivate', [AuthController::class, 'deactivate'])->name('auth.deactivate');
+
+            Route::prefix('users')->name('users.')->group(function () {
+                Route::put('{user}', [UserController::class, 'update'])->name('update');
+                Route::get('{url}', [UserController::class, 'show'])->name('show')->middleware('profile');
+                Route::post('search', [UserController::class, 'search'])->name('search');
             });
 
-            Route::prefix('connections')->group(function () {
-                Route::post('search', [ConnectionController::class, 'search'])->name('connections.search');
-                Route::post('/', [ConnectionController::class, 'connect'])->name('connections.connect');
-                Route::delete('{id}', [ConnectionController::class, 'disconnect'])->name('connections.disconnect');
+            Route::prefix('connections')->name('connections.')->group(function () {
+                Route::prefix('{user}')->group(function () {
+                    Route::post('connect', [ConnectionController::class, 'connect'])->name('connect');
+                    Route::delete('disconnect', [ConnectionController::class, 'disconnect'])->name('disconnect');
+                });
+
+                Route::post('search', [ConnectionController::class, 'search'])->name('search');
             });
 
-            Route::prefix('connection-invitations')->group(function () {
-                Route::get('requests', [ConnectionInvitationController::class, 'requests'])->name('connection-invitations.requests');
-                Route::get('/', [ConnectionInvitationController::class, 'index'])->name('connection-invitations.index');
-                Route::post('/', [ConnectionInvitationController::class, 'invite'])->name('connection-invitations.invite');
-                Route::delete('{id}', [ConnectionInvitationController::class, 'cancel'])->name('connection-invitations.cancel');
+            Route::prefix('connection-invitations')->name('connection-invitations.')->group(function () {
+                Route::prefix('{user}')->group(function () {
+                    Route::post('send', [ConnectionInvitationController::class, 'send'])->name('send');
+                    Route::delete('cancel', [ConnectionInvitationController::class, 'cancel'])->name('cancel');
+                });
+
+                Route::prefix('search')->name('search.')->group(function () {
+                    Route::post('incoming', [ConnectionInvitationController::class, 'searchIncoming'])->name('incoming');
+                    Route::post('outgoing', [ConnectionInvitationController::class, 'searchOutgoing'])->name('outgoing');
+                });
+            });
+
+            Route::prefix('slugs')->name('slugs.')->group(function () {
+                Route::post('/', [SlugController::class, 'store'])->name('store');
+                Route::delete('{slug}', [SlugController::class, 'destroy'])->name('destroy');
             });
         });
     });

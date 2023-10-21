@@ -3,10 +3,13 @@
 namespace App\Http\Requests\Auth;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rules\Password;
+
+use App\Http\Requests\Support\PasswordRules;
 
 class RegisterRequest extends FormRequest
 {
+    use PasswordRules;
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -23,41 +26,26 @@ class RegisterRequest extends FormRequest
                 'required',
                 'string'
             ],
-            'username' => [
-                'required',
-                'string',
-                'unique:users'
-            ],
             'email' => [
                 'required',
                 'email',
                 'unique:users'
             ],
             'phone_number' => [
-                'nullable',
+                'required',
                 'max:11',
                 'min:11',
-                'string'
-            ],
-            'password' => [
-                'required',
-                'confirmed',
                 'string',
-                Password::min(8)
-                    ->mixedCase()
-                    ->numbers()
-                    ->symbols()
-                    ->uncompromised()
+                'unique:users'
             ],
-            'broker_license_number' => [
+            'password' => $this->password(),
+            'broker.license_number' => [
                 'required',
-                'sometimes',
                 'unique:broker_licenses,license_number',
                 'digits:7'
             ],
-            'expiration_date' => [
+            'broker.expiration_date' => [
                 'required',
-                'sometimes',
                 'date'
             ]
         ];

@@ -5,9 +5,9 @@ namespace App\Http\Controllers;
 use App\Services\Contracts\UserServiceInterface;
 use App\Http\Requests\User\{
     SearchRequest,
-    ShowRequest,
     UpdateRequest,
 };
+use App\Models\User;
 
 class UserController extends Controller
 {
@@ -32,24 +32,23 @@ class UserController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \App\Http\Requests\User\UpdateRequest  $request
-     * @param  int|string  $id
+     * @param  \App\Models\User $user
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdateRequest $request, $id)
+    public function update(UpdateRequest $request, User $user)
     {
-        return $this->service->update($id, $request->validated());
+        return $this->service->update($user, $request->validated());
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  \App\Http\Requests\User\ShowRequest $request
-     * @param  int|string  $id
+     * @param  string  $url
      * @return \Illuminate\Http\Response
      */
-    public function show(ShowRequest $request, $id)
+    public function show($url)
     {
-        return $this->service->show($id);
+        return $this->service->show($url);
     }
 
     /**

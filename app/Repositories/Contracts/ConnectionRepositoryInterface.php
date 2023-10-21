@@ -2,15 +2,9 @@
 
 namespace App\Repositories\Contracts;
 
-use App\Repositories\Support\BaseContracts\CreateInterface as Create;
-
-interface ConnectionRepositoryInterface extends Create
+interface ConnectionRepositoryInterface
 {
     /**
-     * Remove the specified resource from storage.
-     *
-     * @param array $request
-     * @return \Illuminate\Http\Response
+     * Here you insert custom functions.
      */
-    public function disconnect(array $request);
 }

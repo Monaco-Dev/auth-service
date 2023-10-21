@@ -5,7 +5,6 @@ namespace Database\Seeders;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
-use App\Models\Connection;
 use App\Models\User;
 
 class UserSeeder extends Seeder
@@ -17,17 +16,38 @@ class UserSeeder extends Seeder
     {
         $users = User::factory()
             ->hasBrokerLicense()
-            ->hasSocials()
+            ->hasSlugs()
             ->count(5)
             ->create();
 
-        $users->each(function ($user) use ($users) {
-            $users->except(['id' => $user->id])->each(function ($connection) use ($user) {
-                Connection::factory()->create([
-                    'user_id' => $user->id,
-                    'connection_user_id' => $connection->id
-                ]);
-            });
+        $users->each(function ($user, $key) use ($users) {
+            // Create connection
+            if ($key + 1 <= count($users) - 1) {
+                $network = new User($users->toArray()[$key + 1]);
+
+                $user->connections()->attach($network);
+                $network->connections()->attach($user);
+            }
+
+            // Create outgoing invites
+            User::factory()
+                ->hasBrokerLicense()
+                ->hasSlugs()
+                ->count(2)
+                ->create()
+                ->each(function ($invite) use ($user) {
+                    $user->incomingInvites()->attach($invite);
+                });
+
+            // Create incoming invites
+            User::factory()
+                ->hasBrokerLicense()
+                ->hasSlugs()
+                ->count(2)
+                ->create()
+                ->each(function ($invite) use ($user) {
+                    $invite->incomingInvites()->attach($user);
+                });
         });
     }
 }

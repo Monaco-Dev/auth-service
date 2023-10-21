@@ -3,6 +3,7 @@
 namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Exception;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -24,7 +25,18 @@ class Handler extends ExceptionHandler
     public function register(): void
     {
         $this->reportable(function (Throwable $e) {
-            //
+            if ($this->isModelNotFoundException($e)) ModelNotFoundException::abort();
         });
+    }
+
+    /**
+     * Identify exception callback
+     * 
+     * @param $e
+     * @return bool
+     */
+    protected function isModelNotFoundException($e)
+    {
+        return $e instanceof ModelNotFoundException;
     }
 }

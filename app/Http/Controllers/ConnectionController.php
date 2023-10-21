@@ -6,8 +6,9 @@ use App\Services\Contracts\ConnectionServiceInterface;
 use App\Http\Requests\Connection\{
     ConnectRequest,
     DisconnectRequest,
-    SearchRequest,
+    SearchRequest
 };
+use App\Models\User;
 
 class ConnectionController extends Controller
 {
@@ -32,23 +33,24 @@ class ConnectionController extends Controller
      * Store a newly created resource in storage.
      *
      * @param  \App\Http\Requests\Connection\ConnectRequest  $request
+     * @param  \App\Models\User $user
      * @return \Illuminate\Http\Response
      */
-    public function connect(ConnectRequest $request)
+    public function connect(ConnectRequest $request, User $user)
     {
-        return $this->service->store($request->validated());
+        return $this->service->connect($user);
     }
 
     /**
      * Remove the specified resource from storage.
      *
      * @param  \App\Http\Requests\Connection\DisconnectRequest  $request
-     * @param  int|string $id
+     * @param  \App\Models\User $user
      * @return \Illuminate\Http\Response
      */
-    public function disconnect(DisconnectRequest $request, $id)
+    public function disconnect(DisconnectRequest $request, User $user)
     {
-        return $this->service->disconnect($id);
+        return $this->service->disconnect($user);
     }
 
     /**

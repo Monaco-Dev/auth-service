@@ -2,65 +2,113 @@
 
 namespace Tests\Feature\User;
 
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
+use Illuminate\Support\Arr;
 
+use App\Models\BrokerLicense;
 use App\Models\User;
 
 class UpdateTest extends TestCase
 {
-    use DatabaseTransactions;
+    use RefreshDatabase;
 
-    /**
-     * Test successful response.
-     */
-    public function test_success(): void
-    {
-        $this->withoutMiddleware();
-
-        $user = User::factory()->hasBrokerLicense()->create();
-        $dummy = User::factory()->make();
-
-        $payload = [
-            'first_name' => $dummy->first_name,
-            'last_name' => $dummy->last_name,
-            'username' => $dummy->username,
-            'email' => $dummy->email
-        ];
-
-        $this->actingAs($user)
-            ->withHeaders(['Accept' => 'application/json'])
-            ->put(route('users.update', $user->id), $payload)
-            ->assertStatus(200);
-    }
+    protected $route = 'users.update';
 
     /**
      * Test unauthenticated response.
      */
     public function test_unauthenticated(): void
     {
-        $user = User::factory()->create();
-
         $this->withHeaders(['Accept' => 'application/json'])
-            ->put(route('users.update', $user->id))
-            ->assertStatus(401);
+            ->put(route($this->route, 1))
+            ->assertUnauthorized();
     }
 
     /**
-     * Test not found response.
+     * Test unverified email response
      */
-    public function test_not_found(): void
+    public function test_unverified_email(): void
     {
-        $this->withoutMiddleware();
+        $user = User::factory()->unverified()->create();
 
-        $user = User::factory()->hasBrokerLicense()->create();
+        $auth = $this->login($user->email);
 
-        $this->actingAs($user)
-            ->withHeaders(['Accept' => 'application/json'])
-            ->put(route('users.update', 0))
-            ->assertStatus(404);
+        $this->withHeaders([
+            'Accept' => 'application/json',
+            'Authorization' => 'Bearer ' . Arr::get($auth, 'access_token')
+        ])
+            ->put(route($this->route, $user))
+            ->assertForbidden()
+            ->assertSeeText('Your email address is not verified');
+    }
+
+    /**
+     * Test unverified license response
+     */
+    public function test_unverified_license(): void
+    {
+        $user = User::factory()
+            ->has(BrokerLicense::factory()->unverified())
+            ->create();
+
+        $auth = $this->login($user->email);
+
+        $this->withHeaders([
+            'Accept' => 'application/json',
+            'Authorization' => 'Bearer ' . Arr::get($auth, 'access_token')
+        ])
+            ->put(route($this->route, $user))
+            ->assertForbidden()
+            ->assertSeeText('Your license number is not verified');
+    }
+
+    /**
+     * Test expired license response
+     */
+    public function test_expired_license(): void
+    {
+        $user = User::factory()
+            ->has(BrokerLicense::factory()->expired())
+            ->create();
+
+        $auth = $this->login($user->email);
+
+        $this->withHeaders([
+            'Accept' => 'application/json',
+            'Authorization' => 'Bearer ' . Arr::get($auth, 'access_token')
+        ])
+            ->put(route($this->route, $user))
+            ->assertForbidden()
+            ->assertSeeText('Your license number is expired');
+    }
+
+    /**
+     * Test successful response.
+     */
+    public function test_success(): void
+    {
+        $user = User::factory()
+            ->hasBrokerLicense()
+            ->hasSlugs()
+            ->create();
+
+        $auth = $this->login($user->email);
+
+        $payload = [
+            'first_name' => $user->first_name,
+            'last_name' => $user->last_name,
+            'email' => $user->email,
+            'phone_number' => $user->phone_number
+        ];
+
+        $this->withHeaders([
+            'Accept' => 'application/json',
+            'Authorization' => 'Bearer ' . Arr::get($auth, 'access_token')
+        ])
+            ->put(route($this->route, $user->id), $payload)
+            ->assertOk();
     }
 
     /**
@@ -68,14 +116,16 @@ class UpdateTest extends TestCase
      */
     public function test_unauthorized(): void
     {
-        $this->withoutMiddleware();
-
         $user = User::factory()->hasBrokerLicense()->create();
         $dummy = User::factory()->create();
 
-        $this->actingAs($user)
-            ->withHeaders(['Accept' => 'application/json'])
-            ->put(route('users.update', $dummy->id))
-            ->assertStatus(403);
+        $auth = $this->login($user->email);
+
+        $this->withHeaders([
+            'Accept' => 'application/json',
+            'Authorization' => 'Bearer ' . Arr::get($auth, 'access_token')
+        ])
+            ->put(route($this->route, $dummy->id))
+            ->assertForbidden();
     }
 }

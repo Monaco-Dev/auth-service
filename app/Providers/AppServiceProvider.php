@@ -10,6 +10,7 @@ use App\Services\Contracts\{
     BrokerLicenseServiceInterface,
     ConnectionInvitationServiceInterface,
     ConnectionServiceInterface,
+    SlugServiceInterface,
     UserServiceInterface
 };
 use App\Services\{
@@ -17,6 +18,7 @@ use App\Services\{
     BrokerLicenseService,
     ConnectionInvitationService,
     ConnectionService,
+    SlugService,
     UserService
 };
 
@@ -30,9 +32,10 @@ class AppServiceProvider extends ServiceProvider
     public $bindings = [
         AuthServiceInterface::class => AuthService::class,
         UserServiceInterface::class => UserService::class,
+        BrokerLicenseServiceInterface::class => BrokerLicenseService::class,
+        SlugServiceInterface::class => SlugService::class,
         ConnectionServiceInterface::class => ConnectionService::class,
         ConnectionInvitationServiceInterface::class => ConnectionInvitationService::class,
-        BrokerLicenseServiceInterface::class => BrokerLicenseService::class
     ];
 
     /**

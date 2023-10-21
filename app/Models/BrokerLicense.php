@@ -2,13 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class BrokerLicense extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
 
     /**
      * The attributes that are mass assignable.
@@ -17,6 +17,7 @@ class BrokerLicense extends Model
      */
     protected $fillable = [
         'user_id',
+        'verified_at',
         'license_number',
         'expiration_date'
     ];
@@ -48,7 +49,7 @@ class BrokerLicense extends Model
      */
     public function getIsLicenseVerifiedAttribute()
     {
-        return $this->isVerified();
+        return !!$this->verified_at;
     }
 
     /**
@@ -58,7 +59,7 @@ class BrokerLicense extends Model
      */
     public function getIsLicenseExpiredAttribute()
     {
-        return $this->isExpired();
+        return $this->expiration_date <= now();
     }
 
     /**
@@ -72,40 +73,13 @@ class BrokerLicense extends Model
     }
 
     /**
-     * Return Connection relationship.
+     * License must be verified.
      * 
-     * @return App\Models\Connection
+     * @return Illuminate\Database\Eloquent\Builder
      */
-    public function connection()
+    public function scopeVerified(Builder $query): Builder
     {
-        return $this->belongsTo(User::class, 'user_id', 'user_id');
-    }
-
-    /**
-     * Get all verified records only.
-     */
-    public function verified()
-    {
-        return $this->whereNotNull('verified_at');
-    }
-
-    /**
-     * Identify if license is verified.
-     * 
-     * @return bool
-     */
-    public function isVerified()
-    {
-        return !!$this->verified_at;
-    }
-
-    /**
-     * Identify if license is expired.
-     * 
-     * @return bool
-     */
-    public function isExpired()
-    {
-        return $this->expiration_date <= now();
+        return $query->whereNotNull('verified_at')
+            ->where('expiration_date', '>', now());
     }
 }

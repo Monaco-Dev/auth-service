@@ -40,13 +40,13 @@ trait ModelResource
     /**
      * Update the specified resource in storage.
      *
-     * @param int|string $id
+     * @param mixed $model
      * @param array $request
      * @return \Illuminate\Database\Eloquent\Model
      */
-    public function update($id, array $request)
+    public function update(mixed $model, array $request)
     {
-        $model = $this->model->findOrFail($id);
+        $model = optional($model)->id ? $model : $this->model->findOrFail($model);
 
         $model->update($request);
 
@@ -56,12 +56,12 @@ trait ModelResource
     /**
      * Remove the specified resource from storage.
      *
-     * @param int|string $id
+     * @param mixed $model
      * @return int
      */
-    public function delete($id)
+    public function delete(mixed $model)
     {
-        $model = $this->model->findOrFail($id);
+        $model = optional($model)->id ? $model : $this->model->findOrFail($model);
 
         $model->delete();
 

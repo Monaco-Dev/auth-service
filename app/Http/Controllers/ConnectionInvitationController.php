@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Services\Contracts\ConnectionInvitationServiceInterface;
 use App\Http\Requests\ConnectionInvitation\{
     CancelRequest,
-    InviteRequest,
+    SearchRequest,
+    SendRequest
 };
+use App\Models\User;
 
 class ConnectionInvitationController extends Controller
 {
@@ -28,45 +30,48 @@ class ConnectionInvitationController extends Controller
     }
 
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        return $this->service->index();
-    }
-
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function requests()
-    {
-        return $this->service->requests();
-    }
-
-    /**
      * Store a newly created resource in storage.
      *
-     * @param  \App\Http\Requests\ConnectionInvitation\InviteRequest  $request
+     * @param  \App\Http\Requests\ConnectionInvitation\SendRequest  $request
+     * @param  \App\Models\User $user
      * @return \Illuminate\Http\Response
      */
-    public function invite(InviteRequest $request)
+    public function send(SendRequest $request, User $user)
     {
-        return $this->service->store($request->validated());
+        return $this->service->send($user);
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Http\Requests\Connection\CancelRequest  $request
-     * @param  int|string $id
+     * @param  \App\Http\Requests\ConnectionInvitation\CancelRequest  $request
+     * @param  \App\Models\User $user
      * @return \Illuminate\Http\Response
      */
-    public function cancel(CancelRequest $request, $id)
+    public function cancel(CancelRequest $request, User $user)
     {
-        return $this->service->cancel($id);
+        return $this->service->cancel($user);
+    }
+
+    /**
+     * Search for specific resources in the database.
+     *
+     * @param  \App\Http\Requests\ConnectionInvitation\SearchRequest  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function searchIncoming(SearchRequest $request)
+    {
+        return $this->service->searchIncoming($request->validated());
+    }
+
+    /**
+     * Search for specific resources in the database.
+     *
+     * @param  \App\Http\Requests\ConnectionInvitation\SearchRequest  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function searchOutgoing(SearchRequest $request)
+    {
+        return $this->service->searchOutgoing($request->validated());
     }
 }

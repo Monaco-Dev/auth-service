@@ -8,10 +8,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
-use Dyrynda\Database\Support\CascadeSoftDeletes;
 use Illuminate\Auth\Passwords\CanResetPassword as PasswordsCanResetPassword;
 use Illuminate\Contracts\Auth\CanResetPassword;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class User extends Authenticatable implements MustVerifyEmail, CanResetPassword
 {
@@ -19,20 +20,7 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword
         HasFactory,
         Notifiable,
         SoftDeletes,
-        CascadeSoftDeletes,
         PasswordsCanResetPassword;
-
-    /**
-     * The relationships that are soft deletable.
-     * 
-     * @var array<string>
-     */
-    protected $cascadeDeletes = [
-        'brokerLicense',
-        'socials',
-        'connections',
-        'connectionInvitations'
-    ];
 
     /**
      * The attributes that are mass assignable.
@@ -42,10 +30,10 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword
     protected $fillable = [
         'first_name',
         'last_name',
-        'username',
         'email',
         'phone_number',
         'password',
+        'deactivated_at'
     ];
 
     /**
@@ -64,8 +52,8 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'phone_number_verified_at' => 'datetime',
         'password' => 'hashed',
+        'deactivated_at' => 'datetime'
     ];
 
     /**
@@ -74,7 +62,10 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword
      * @var array<string>
      */
     protected $appends = [
-        'is_email_verified'
+        'is_email_verified',
+        'is_deactivated',
+        'full_name',
+        'url'
     ];
 
     /**
@@ -85,6 +76,39 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword
     public function getIsEmailVerifiedAttribute()
     {
         return !!$this->email_verified_at;
+    }
+
+    /**
+     * Append new attribute.
+     * 
+     * @return bool
+     */
+    public function getIsDeactivatedAttribute()
+    {
+        return !!$this->deactivated_at;
+    }
+
+    /**
+     * Append new attribute.
+     * 
+     * @return bool
+     */
+    public function getFullNameAttribute()
+    {
+        return $this->first_name . ' ' . $this->last_name;
+    }
+
+    /**
+     * Append new attribute.
+     * 
+     * @return bool
+     */
+    public function getUrlAttribute()
+    {
+        $domain = config('services.web_url');
+        $slug = optional(optional($this->slugs())->primary())->slug;
+
+        return $slug ? url("$domain/$slug") : null;
     }
 
     /**
@@ -99,91 +123,6 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword
     }
 
     /**
-     * User email or username for authentication.
-     * 
-     * @return Model
-     */
-    public function findForPassport($login)
-    {
-        return $this->where('email', $login)->orWhere('username', $login)->first();
-    }
-
-    /**
-     * Return Social relationship.
-     * 
-     * @return App\Models\Social
-     */
-    public function socials()
-    {
-        return $this->hasMany(Social::class);
-    }
-
-    /**
-     * Return User relationship.
-     * 
-     * @return App\Models\User
-     */
-    public function networkUsers()
-    {
-        return $this->belongsToMany(User::class, 'connections', 'user_id', 'connection_user_id')
-            ->whereHas('brokerLicense', function ($query) {
-                $query->whereNotNull('verified_at');
-            });
-    }
-
-    /**
-     * Return User relationship.
-     * 
-     * @return App\Models\User
-     */
-    public function connectionUsers()
-    {
-        return $this->belongsToMany(User::class, 'connections', 'connection_user_id', 'user_id')
-            ->whereHas('brokerLicense', function ($query) {
-                $query->whereNotNull('verified_at');
-            });
-    }
-
-    /**
-     * Return Connection relationship.
-     * 
-     * @return App\Models\Connection
-     */
-    public function connections()
-    {
-        return $this->hasMany(Connection::class)
-            ->whereHas('connection.brokerLicense', function ($query) {
-                $query->whereNotNull('verified_at');
-            });
-    }
-
-    /**
-     * Return Connection relationship.
-     * 
-     * @return App\Models\Connection
-     */
-    public function networks()
-    {
-        return $this->hasMany(Connection::class, 'connection_user_id', 'id')
-            ->whereHas('connection.brokerLicense', function ($query) {
-                $query->whereNotNull('verified_at');
-            });
-    }
-
-    /**
-     * Return ConnectionInvitation relationship.
-     * 
-     * @return App\Models\ConnectionInvitation
-     */
-    public function connectionInvitations()
-    {
-        return $this->hasMany(ConnectionInvitation::class)
-            ->whereHas('invitation.brokerLicense', function ($query) {
-                $query->whereNotNull('verified_at');
-            });
-    }
-
-    /**
      * Return BrokerLicense relationship.
      * 
      * @return App\Models\BrokerLicense
@@ -194,73 +133,175 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword
     }
 
     /**
-     * Return ConnectionInvitation relationship.
+     * Return Slug relationship.
      * 
-     * @return App\Models\User
+     * @return App\Models\Slug
      */
-    public function pendingInvitations()
+    public function slugs()
     {
-        return $this->belongsToMany(User::class, 'connection_invitations', 'invitation_user_id', 'user_id')
+        return $this->hasMany(Slug::class);
+    }
+
+    /**
+     * User must be verified.
+     * 
+     * @return Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeVerified(Builder $query): Builder
+    {
+        return $query
+            ->whereNotNull('email_verified_at')
+            ->whereNull('deactivated_at')
+            ->whereNull('deleted_at')
             ->whereHas('brokerLicense', function ($query) {
-                $query->whereNotNull('verified_at');
+                $query->verified();
             });
     }
 
     /**
-     * Return ConnectionInvitation relationship.
+     * Return Connections relationship.
+     * 
+     * @return App\Models\Connection
+     */
+    public function connections()
+    {
+        return $this->belongsToMany(
+            User::class,
+            'connections',
+            'user_id',
+            'connection_user_id'
+        )
+            ->withTimestamps();
+    }
+
+    /**
+     * Return Connection Invitations relationship.
      * 
      * @return App\Models\ConnectionInvitation
      */
-    public function requestInvitations()
+    public function incomingInvites()
     {
-        return $this->belongsToMany(User::class, 'connection_invitations', 'user_id', 'invitation_user_id')
-            ->whereHas('brokerLicense', function ($query) {
-                $query->whereNotNull('verified_at');
-            });
+        return $this->belongsToMany(
+            User::class,
+            'connection_invitations',
+            'user_id',
+            'connection_invitation_user_id'
+        )
+            ->withTimestamps();
     }
 
     /**
-     * Get user's relationships.
+     * Return Connection Invitations relationship.
+     * 
+     * @return App\Models\ConnectionInvitation
      */
-    public static function withProfile()
+    public function outgoingInvites()
+    {
+        return $this->belongsToMany(
+            User::class,
+            'connection_invitations',
+            'connection_invitation_user_id',
+            'user_id'
+        )
+            ->withTimestamps();
+    }
+
+    /**
+     * Get mutual connections.
+     * 
+     * @param int|string|null $id
+     * @return Illuminate\Database\Eloquent\Builder
+     */
+    public function mutuals($id = null)
+    {
+        return $this->belongsToMany(
+            User::class,
+            'connections',
+            'connection_user_id',
+            'user_id',
+        )
+            ->wherePivot('connection_user_id', '!=', $id ?? Auth::user()->id);
+    }
+
+    /**
+     * Append with relationships.
+     * 
+     * @param Illuminate\Database\Eloquent\Builder $query
+     * @return mixed
+     */
+    public function scopeWithRelations(Builder $query)
     {
         $with = [
-            'socials',
-            'brokerLicense'
+            'brokerLicense',
+            'slugs',
         ];
 
         $withCount = [
-            'networkUsers',
-            'requestInvitations',
-            'pendingInvitations',
-            'mutuals',
-            'connectionUsers as is_network' => function ($query) {
-                $query->where('user_id', Auth::user()->id);
-            },
-            'pendingInvitations as is_following' => function ($query) {
-                $query->where('user_id', Auth::user()->id);
-            },
-            'requestInvitations as is_requested' => function ($query) {
-                $query->where('invitation_user_id', Auth::user()->id);
-            }
+            'connections',
+            'incomingInvites',
+            'outgoingInvites'
         ];
 
-        return self::with($with)->withCount($withCount);
+        return $query->with($with)->withCount($withCount);
     }
 
     /**
-     * Get connection mutuals.
+     * Wildcard search query
      * 
-     * @return App\Models\User
+     * @param Illuminate\Database\Eloquent\Builder $query
+     * @param string|null $search
+     * @param int|string|null $id
+     * @return Illuminate\Database\Eloquent\Builder
      */
-    public function mutuals()
+    public function scopeSearch(Builder $query, $search = null, $id = null): Builder
     {
-        return $this->belongsToMany(User::class, 'connections', 'connection_user_id', 'user_id')
-            ->whereHas('connections', function ($query) {
-                $query->where('connection_user_id', Auth::user()->id);
+        $query = $query->withRelations();
+
+        if ($id) {
+            $query = $query
+                ->withCount([
+                    'mutuals' => function ($query) use ($id) {
+                        $query->whereHas('connections', function ($query) use ($id) {
+                            $query->where('connection_user_id', $id);
+                        });
+                    }
+                ])
+                ->selectRaw(DB::raw("IF(c1.connection_user_id = $id, true, false) as has_connection"))
+                ->selectRaw(DB::raw("IF(cI1.connection_invitation_user_id = $id, true, false) as has_incoming_invite"))
+                ->selectRaw(DB::raw("IF(cI2.user_id = $id, true, false) as has_outgoing_invite"))
+                ->leftJoin('connections as c1', function ($query) use ($id) {
+                    $query->on('c1.user_id', '=', 'users.id')
+                        ->where('c1.connection_user_id', $id);
+                })
+                ->leftJoin('connection_invitations as cI1', function ($query) use ($id) {
+                    $query->on('cI1.user_id', '=', 'users.id')
+                        ->where('cI1.connection_invitation_user_id', $id);
+                })
+                ->leftJoin('connection_invitations as cI2', function ($query) use ($id) {
+                    $query->on('cI2.connection_invitation_user_id', '=', 'users.id')
+                        ->where('cI2.user_id', $id);
+                });
+        }
+
+        $query = $query
+            ->leftJoin('broker_licenses', 'broker_licenses.user_id', '=', 'users.id')
+            ->where(function ($query) use ($search) {
+                $query->where(DB::raw('CONCAT(first_name, " ", last_name)'), 'like', '%' . $search . '%')
+                    ->orWhere('email', 'like', '%' . $search . '%')
+                    ->orWhere('phone_number', 'like', '%' . $search . '%')
+                    ->orWhere('license_number', 'like', '%' . $search . '%');
             })
-            ->whereHas('brokerLicense', function ($query) {
-                $query->whereNotNull('verified_at');
-            });
+            ->verified();
+
+        if ($id) {
+            $query = $query->orderBy('mutuals_count', 'desc');
+        }
+
+        $query = $query->orderByRaw('LOCATE("' . $search . '", CONCAT(first_name, " ", last_name))')
+            ->orderByRaw('LOCATE("' . $search . '", email)')
+            ->orderByRaw('LOCATE("' . $search . '", phone_number)')
+            ->orderByRaw('LOCATE("' . $search . '", license_number)');
+
+        return $query;
     }
 }

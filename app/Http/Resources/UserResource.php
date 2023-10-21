@@ -18,35 +18,38 @@ class UserResource extends JsonResource
     {
         $data = parent::toArray($request);
 
-        $response = [
-            'id' => Arr::get($data, 'id'),
-            'username' => Arr::get($data, 'username'),
-            'email' => Arr::get($data, 'email'),
-            'phone_number' => Arr::get($data, 'phone_number'),
-            'first_name' => Arr::get($data, 'first_name'),
-            'last_name' => Arr::get($data, 'last_name'),
-            'full_name' => Arr::get($data, 'first_name') . ' ' . Arr::get($data, 'last_name'),
-            'connections_count' => Arr::get($data, 'network_users_count') ?? 0,
-            'mutuals_count' => Arr::get($data, 'mutuals_count') ?? 0,
-            'socials' => SocialResource::collection($this->whenLoaded('socials')),
-            'broker_license' => new BrokerLicenseResource($this->whenLoaded('brokerLicense')),
-            'is_network' => Arr::get($data, 'is_network'),
-            'is_following' => Arr::get($data, 'is_following'),
-            'is_requested' => Arr::get($data, 'is_requested')
+        $fields = [
+            'id',
+            'email',
+            'phone_number',
+            'first_name',
+            'last_name',
+            'is_email_verified',
+            'is_deactivated',
+            'full_name',
+            'url',
+            'connections_count',
         ];
 
-        if (Arr::has($data, 'token')) Arr::set($response, 'token', Arr::get($data, 'token'));
-
-        if (Arr::get($data, 'id') === optional(Auth::user())->id) {
-            Arr::set($response, 'email_verified_at', Arr::get($data, 'email_verified_at'));
-            Arr::set($response, 'is_email_verified', Arr::get($data, 'is_email_verified'));
-            Arr::set($response, 'is_phone_number_verified', false);
-            Arr::set($response, 'phone_number_verified_at', Arr::get($data, 'phone_number_verified_at'));
-            Arr::set($response, 'pending_invitations_count', Arr::get($data, 'pending_invitations_count') ?? 0);
-            Arr::set($response, 'request_invitations_count', Arr::get($data, 'request_invitations_count') ?? 0);
-            Arr::set($response, 'created_at', Arr::get($data, 'created_at'));
+        if (Arr::get($data, 'id') == optional(Auth::user())->id) {
+            $fields = array_merge($fields, [
+                'incoming_invites_count',
+                'outgoing_invites_count',
+            ]);
+        } else {
+            $fields = array_merge($fields, [
+                'has_incoming_invite',
+                'has_outgoing_invite',
+                'has_connection',
+                'mutuals_count',
+            ]);
         }
 
-        return $response;
+        $data = Arr::only($data, $fields);
+
+        Arr::set($data, 'broker_license', new BrokerLicenseResource($this->whenLoaded('brokerLicense')));
+        Arr::set($data, 'slugs', SlugResource::collection($this->whenLoaded('slugs')));
+
+        return $data;
     }
 }

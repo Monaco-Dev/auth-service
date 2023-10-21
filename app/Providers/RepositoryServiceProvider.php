@@ -8,14 +8,14 @@ use App\Repositories\Contracts\{
     BrokerLicenseRepositoryInterface,
     ConnectionInvitationRepositoryInterface,
     ConnectionRepositoryInterface,
-    SocialRepositoryInterface,
+    SlugRepositoryInterface,
     UserRepositoryInterface
 };
 use App\Repositories\{
     BrokerLicenseRepository,
     ConnectionInvitationRepository,
     ConnectionRepository,
-    SocialRepository,
+    SlugRepository,
     UserRepository
 };
 
@@ -28,10 +28,10 @@ class RepositoryServiceProvider extends ServiceProvider
      */
     public $bindings = [
         UserRepositoryInterface::class => UserRepository::class,
-        SocialRepositoryInterface::class => SocialRepository::class,
         BrokerLicenseRepositoryInterface::class => BrokerLicenseRepository::class,
+        SlugRepositoryInterface::class => SlugRepository::class,
         ConnectionRepositoryInterface::class => ConnectionRepository::class,
-        ConnectionInvitationRepositoryInterface::class => ConnectionInvitationRepository::class
+        ConnectionInvitationRepositoryInterface::class => ConnectionInvitationRepository::class,
     ];
 
     /**

@@ -3,60 +3,44 @@
 namespace App\Services;
 
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Auth;
 
 use App\Repositories\Contracts\UserRepositoryInterface;
 use App\Services\Contracts\UserServiceInterface;
 use App\Http\Resources\UserResource;
-use Illuminate\Support\Facades\Auth;
+use App\Repositories\Contracts\SlugRepositoryInterface;
 
 class UserService extends Service implements UserServiceInterface
 {
     /**
+     * @var \App\Repositories\Contracts\SlugRepositoryInterface
+     */
+    protected $slugRepository;
+
+    /**
      * Create the service instance and inject its repository.
      *
      * @param App\Repositories\Contracts\UserRepositoryInterface
+     * @param App\Repositories\Contracts\SlugRepositoryInterface
      */
-    public function __construct(UserRepositoryInterface $repository)
+    public function __construct(UserRepositoryInterface $repository, SlugRepositoryInterface $slugRepository)
     {
         $this->repository = $repository;
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param int|string $id
-     * @param array $request
-     * @return \Illuminate\Database\Eloquent\Model
-     */
-    public function update($id, array $request)
-    {
-        if (Arr::has($request, 'email')) Arr::set($request, 'email_verified_at', null);
-
-        if (Arr::has($request, 'phone_number')) Arr::set($request, 'phone_number_verified_at', null);
-
-        $this->repository->update($id, $request);
-
-        if (Arr::has($request, 'email')) $this->repository->find($id)->sendEmailVerificationNotification();
-
-        if (Arr::has($request, 'email') || Arr::has($request, 'username')) {
-            auth()->user()->tokens->each(fn ($token) => $this->repository->logout($token->id));
-        }
-
-        return $this->show($id);
+        $this->slugRepository = $slugRepository;
     }
 
     /**
      * Display the specified resource.
      *
-     * @param int|string $id
+     * @param string $url
      * @param bool $findOrFail
      * @return \Illuminate\Http\Response
      */
-    public function show($id, bool $findOrFail = true)
+    public function show($url, bool $findOrFail = true)
     {
-        $user = $this->repository->profile($id);
-
-        return new UserResource($user);
+        return new UserResource(
+            $this->slugRepository->profile($url)
+        );
     }
 
     /**
@@ -67,8 +51,13 @@ class UserService extends Service implements UserServiceInterface
      */
     public function search(array $request)
     {
-        $data = $this->repository->search($request);
+        $search = Arr::get($request, 'search');
 
-        return UserResource::collection($data);
+        return UserResource::collection(
+            $this->repository
+                ->model()
+                ->search($search, Auth::user()->id)
+                ->paginate()
+        );
     }
 }

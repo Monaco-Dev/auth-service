@@ -15,11 +15,11 @@ class AuthRequest
      * Request a token for the given credentials on /oauth/token passport
      * (Internal request)
      *
-     * @param String $login,
+     * @param String $email,
      * @param String $password
      * @return object
      */
-    public function getToken(String $login, String $password)
+    public function getToken(String $email, String $password)
     {
         $url = sprintf('%s', $this->endpoint);
 
@@ -27,7 +27,7 @@ class AuthRequest
             'grant_type' => 'password',
             'client_id' => config('services.client_id'),
             'client_secret' => config('services.client_secret'),
-            'username' => $login,
+            'username' => $email,
             'password' => $password,
             'scope' => '*'
         ];

@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\Auth;
 
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
@@ -11,7 +10,19 @@ use App\Models\User;
 
 class VerifyTokenTest extends TestCase
 {
-    use DatabaseTransactions;
+    use RefreshDatabase;
+
+    protected $route = 'auth.token.verify';
+
+    /**
+     * Test unauthenticated response.
+     */
+    public function test_unauthenticated(): void
+    {
+        $this->withHeaders(['Accept' => 'application/json'])
+            ->get(route($this->route))
+            ->assertUnauthorized();
+    }
 
     /**
      * Test successful response.
@@ -24,17 +35,8 @@ class VerifyTokenTest extends TestCase
 
         $this->actingAs($user)
             ->withHeaders(['Accept' => 'application/json'])
-            ->get(route('auth.token.verify'))
-            ->assertStatus(200);
-    }
-
-    /**
-     * Test unauthenticated response.
-     */
-    public function test_unauthenticated(): void
-    {
-        $this->withHeaders(['Accept' => 'application/json'])
-            ->get(route('auth.token.verify'))
-            ->assertStatus(401);
+            ->get(route($this->route))
+            ->assertOk()
+            ->assertValid();
     }
 }

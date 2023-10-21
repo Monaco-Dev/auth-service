@@ -2,7 +2,6 @@
 
 namespace App\Repositories;
 
-use Illuminate\Support\Facades\Auth;
 use Laravel\Passport\{
     Passport,
     RefreshTokenRepository,
@@ -10,7 +9,6 @@ use Laravel\Passport\{
 };
 use Illuminate\Support\Facades\Password;
 use Illuminate\Auth\Events\PasswordReset;
-use Illuminate\Support\Arr;
 
 use App\Models\User;
 use App\Repositories\Contracts\UserRepositoryInterface;
@@ -31,18 +29,18 @@ class UserRepository extends Repository implements UserRepositoryInterface
     /**
      * Authenticate User
      *
-     * @param string $login
+     * @param string $email
      * @param string $password
      * @return Collection
      */
-    public function authenticate($login, $password)
+    public function authenticate($email, $password)
     {
         if (request()->remember_me) {
             Passport::refreshTokensExpireIn(now()->addMinutes(config('auth.remember_me_token_timeout')));
         }
 
         return collect(
-            (new AuthRequest)->getToken($login, $password)
+            (new AuthRequest)->getToken($email, $password)
         );
     }
 
@@ -77,52 +75,6 @@ class UserRepository extends Repository implements UserRepositoryInterface
     }
 
     /**
-     * Attempt to authorize user
-     * 
-     * @param String $login
-     * @param String $password
-     * @return bool
-     */
-    public function isValidCredential($login, $password)
-    {
-        $params = [];
-
-        if (filter_var($login, FILTER_VALIDATE_EMAIL)) {
-            $params['email'] = $login;
-        } else {
-            $params['username'] = $login;
-        }
-
-        $params['password'] = $password;
-
-        $attempt = Auth::attempt($params);
-
-        return $attempt;
-    }
-
-    /**
-     * Check if email is verified
-     * 
-     * @param int|string|null $id
-     * @param string|null $login
-     * @return bool
-     */
-    public function isEmailVerified($id = null, $login = null)
-    {
-        if (!$id && !$login) return false;
-
-        $user = $this->model;
-
-        if ($id) $user = $user->where('id', $id);
-
-        if ($login) $user = $user->where('email', $login)->orWhere('username', $login);
-
-        $user = $user->first();
-
-        return optional($user)->is_email_verified;
-    }
-
-    /**
      * Reset user's password.
      * 
      * @param array $request
@@ -147,142 +99,59 @@ class UserRepository extends Repository implements UserRepositoryInterface
     }
 
     /**
+     * Deactivate user to database.
+     * 
+     * @param int|string $id
+     * @return bool
+     */
+    public function deactivate($id)
+    {
+        $user = $this->model->find($id);
+
+        $user->tokens->each(fn ($token) => $this->logout($token->id));
+
+        $user->deactivated_at = now();
+
+        return $user->save();
+    }
+
+    /**
      * Get user's profile
      * 
-     * @param int|string|null
+     * @param int|string $id
+     * @param bool $verified
      * @return \Illuminate\Database\Eloquent\Model
      */
-    public function profile($id = null)
+    public function profile($id, $verified = false)
     {
-        return $this->model->withProfile()->find($id ?? Auth::user()->id);
+        $model = $this->model
+            ->find($id)
+            ->withRelations();
+
+        if ($verified) $model = $model->verified();
+
+        return $model->first();
     }
 
     /**
-     * Search for specific resources in the database.
+     * Update the specified resource in storage.
      *
-     * @param  array  $request
+     * @param mixed $model
+     * @param array $request
      * @return \Illuminate\Database\Eloquent\Model
      */
-    public function searchNetworks(array $request)
+    public function update(mixed $model, array $request)
     {
-        $search = Arr::get($request, 'search');
+        $model->fill($request);
 
-        $data = $this->model
-            ->with(['brokerLicense'])
-            ->withCount([
-                'connectionUsers as is_network' => function ($query) {
-                    $query->where('user_id', Auth::user()->id);
-                },
-                'pendingInvitations as is_following' => function ($query) {
-                    $query->where('user_id', Auth::user()->id);
-                },
-                'requestInvitations as is_requested' => function ($query) {
-                    $query->where('invitation_user_id', Auth::user()->id);
-                }
-            ])
-            ->whereHas('networks', function ($query) {
-                $query->where('user_id', Auth::user()->id);
-            });
+        if ($model->isDirty()) {
+            auth()->user()->tokens->each(fn ($token) => $this->logout($token->id));
 
-        if ($search) {
-            $data = $data->where(function ($query) use ($search) {
-                $query->where('username', 'like', '%' . $search . '%')
-                    ->orWhere('first_name', 'like', '%' . $search . '%')
-                    ->orWhere('last_name', 'like', '%' . $search . '%')
-                    ->orWhere('email', 'like', '%' . $search . '%')
-                    ->orWhere('phone_number', 'like', '%' . $search . '%');
-            })
-                ->whereHas('brokerLicense', function ($query) use ($search) {
-                    $query->where('license_number', 'like', '%' . $search . '%');
-                });
+            $model->email_verified_at = null;
+
+            $model->sendEmailVerificationNotification();
         }
 
-        return $data->paginate();
-    }
-
-    /**
-     * Search for specific resources in the database.
-     *
-     * @param  array  $request
-     * @return \Illuminate\Database\Eloquent\Model
-     */
-    public function search(array $request)
-    {
-        $search = Arr::get($request, 'search');
-
-        $data = $this->model->withProfile();
-
-        if ($search) {
-            $data->where(function ($query) use ($search) {
-                $query->where('username', 'like', '%' . $search . '%')
-                    ->orWhere('first_name', 'like', '%' . $search . '%')
-                    ->orWhere('last_name', 'like', '%' . $search . '%')
-                    ->orWhere('email', 'like', '%' . $search . '%')
-                    ->orWhere('phone_number', 'like', '%' . $search . '%');
-            })
-                ->whereHas('brokerLicense', function ($query) use ($search) {
-                    $query->where('license_number', 'like', '%' . $search . '%');
-                });
-        }
-
-        return $data->paginate();
-    }
-
-    /**
-     * Search for specific resources in the database.
-     * 
-     * @return \Illuminate\Database\Eloquent\Model
-     */
-    public function pendingInvitations()
-    {
-        return $this->model
-            ->withCount([
-                'networkUsers',
-                'requestInvitations',
-                'pendingInvitations',
-                'mutuals',
-                'networks as is_network' => function ($query) {
-                    $query->where('user_id', Auth::user()->id);
-                },
-                'pendingInvitations as is_following' => function ($query) {
-                    $query->where('user_id', Auth::user()->id);
-                },
-                'requestInvitations as is_requested' => function ($query) {
-                    $query->where('invitation_user_id', Auth::user()->id);
-                }
-            ])
-            ->whereHas('pendingInvitations', function ($query) {
-                $query->where('user_id', Auth::user()->id);
-            })
-            ->paginate();
-    }
-
-    /**
-     * Search for specific resources in the database.
-     * 
-     * @return \Illuminate\Database\Eloquent\Model
-     */
-    public function requestInvitations()
-    {
-        return $this->model
-            ->withCount([
-                'networkUsers',
-                'requestInvitations',
-                'pendingInvitations',
-                'mutuals',
-                'networks as is_network' => function ($query) {
-                    $query->where('user_id', Auth::user()->id);
-                },
-                'pendingInvitations as is_following' => function ($query) {
-                    $query->where('user_id', Auth::user()->id);
-                },
-                'requestInvitations as is_requested' => function ($query) {
-                    $query->where('invitation_user_id', Auth::user()->id);
-                }
-            ])
-            ->whereHas('requestInvitations', function ($query) {
-                $query->where('invitation_user_id', Auth::user()->id);
-            })
-            ->paginate();
+        return $model->save();
     }
 }

@@ -17,13 +17,16 @@ class BrokerLicenseResource extends JsonResource
     {
         $data = parent::toArray($request);
 
-        return [
-            'id' => Arr::get($data, 'id'),
-            'is_license_verified' => Arr::get($data, 'is_license_verified'),
-            'is_license_expired' => Arr::get($data, 'is_license_expired'),
-            'license_number' => Arr::get($data, 'license_number'),
-            'expiration_date' => Arr::get($data, 'expiration_date'),
-            'user' => new UserResource($this->whenLoaded('user')),
-        ];
+        $data = Arr::only($data, [
+            'id',
+            'is_license_verified',
+            'is_license_expired',
+            'license_number',
+            'expiration_date'
+        ]);
+
+        Arr::set($data, 'user', new UserResource($this->whenLoaded('user')));
+
+        return $data;
     }
 }

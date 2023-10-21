@@ -2,11 +2,13 @@
 
 namespace App\Services\Contracts;
 
-use App\Services\Support\BaseContracts\StoreInterface as Store;
-
-interface BrokerLicenseServiceInterface extends Store
+interface BrokerLicenseServiceInterface
 {
     /**
-     * Here you insert custom functions.
+     * Update or create the specified resource in storage.
+     *
+     * @param  array  $request
+     * @return \Illuminate\Http\Response
      */
+    public function updateOrCreate(array $request);
 }

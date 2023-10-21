@@ -19,11 +19,9 @@ class UserFactory extends Factory
         return [
             'first_name' => fake()->firstName(),
             'last_name' => fake()->lastName(),
-            'username' => fake()->userName(),
             'email' => fake()->unique()->safeEmail(),
-            'phone_number' => fake()->phoneNumber(),
+            'phone_number' => fake()->numerify('###########'),
             'email_verified_at' => now(),
-            'phone_number_verified_at' => now(),
             'password' => 'Password123!'
         ];
     }
@@ -34,8 +32,7 @@ class UserFactory extends Factory
     public function unverified(): static
     {
         return $this->state(fn (array $attributes) => [
-            'email_verified_at' => null,
-            'phone_number_verified_at' => null,
+            'email_verified_at' => null
         ]);
     }
 }

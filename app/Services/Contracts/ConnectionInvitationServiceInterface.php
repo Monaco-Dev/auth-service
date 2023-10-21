@@ -2,25 +2,39 @@
 
 namespace App\Services\Contracts;
 
-use App\Services\Support\BaseContracts\{
-    IndexInterface as Index,
-    StoreInterface as Store
-};
+use App\Models\User;
 
-interface ConnectionInvitationServiceInterface extends Index, Store
+interface ConnectionInvitationServiceInterface
 {
     /**
-     * Display a listing of the resource.
+     * Store a newly created resource in storage.
      *
+     * @param  \App\Models\User $user
      * @return \Illuminate\Http\Response
      */
-    public function requests();
+    public function send(User $user);
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int|string $id
+     * @param  \App\Models\User $user
      * @return \Illuminate\Http\Response
      */
-    public function cancel($id);
+    public function cancel(User $user);
+
+    /**
+     * Search for specific resources in the database.
+     * 
+     * @param  array  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function searchIncoming(array $request);
+
+    /**
+     * Search for specific resources in the database.
+     * 
+     * @param  array  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function searchOutgoing(array $request);
 }

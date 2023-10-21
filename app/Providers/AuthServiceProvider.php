@@ -2,12 +2,14 @@
 
 namespace App\Providers;
 
-// use Illuminate\Support\Facades\Gate;
-
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Auth\Notifications\ResetPassword;
+use Illuminate\Support\Facades\Gate;
 
 use App\Models\User;
+use App\Policies\ConnectionInvitationPolicy;
+use App\Policies\ConnectionPolicy;
+use App\Policies\SlugPolicy;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -28,5 +30,15 @@ class AuthServiceProvider extends ServiceProvider
         ResetPassword::createUrlUsing(function (User $user, string $token) {
             return config('services.web_url') . '/reset-password?token=' . $token . '&email=' . $user->email;
         });
+
+        $this->registerPolicies();
+
+        Gate::define('connect', [ConnectionPolicy::class, 'connect']);
+        Gate::define('disconnect', [ConnectionPolicy::class, 'disconnect']);
+
+        Gate::define('invite', [ConnectionInvitationPolicy::class, 'invite']);
+        Gate::define('cancel-invite', [ConnectionInvitationPolicy::class, 'cancelInvite']);
+
+        Gate::define('delete-slug', [SlugPolicy::class, 'deleteSlug']);
     }
 }

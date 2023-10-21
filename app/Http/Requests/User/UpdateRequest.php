@@ -3,9 +3,6 @@
 namespace App\Http\Requests\User;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Auth;
-
-use Facades\App\Repositories\Contracts\UserRepositoryInterface as UserRepository;
 
 class UpdateRequest extends FormRequest
 {
@@ -14,11 +11,7 @@ class UpdateRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        $user = UserRepository::find($this->id, false);
-
-        if (!$user) abort(404, 'Not found.');
-
-        return $user->id == Auth::user()->id;
+        return $this->user()->can('update', $this->user);
     }
 
     /**
@@ -39,24 +32,19 @@ class UpdateRequest extends FormRequest
                 'sometimes',
                 'string'
             ],
-            'username' => [
-                'required',
-                'sometimes',
-                'string',
-                'unique:users'
-            ],
             'email' => [
                 'required',
                 'sometimes',
                 'email',
-                'unique:users'
+                'unique:users,email,' . $this->user->id
             ],
             'phone_number' => [
                 'required',
                 'sometimes',
                 'max:11',
                 'min:11',
-                'string'
+                'string',
+                'unique:users,phone_number,' . $this->user->id
             ]
         ];
     }

@@ -6,11 +6,15 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 use App\Services\Contracts\AuthServiceInterface;
 use App\Http\Resources\UserResource;
+use App\Notifications\DeactivateNotification;
 use App\Repositories\Contracts\UserRepositoryInterface;
 use App\Repositories\Contracts\BrokerLicenseRepositoryInterface;
+use App\Repositories\Contracts\SlugRepositoryInterface;
 
 class AuthService extends Service implements AuthServiceInterface
 {
@@ -20,17 +24,25 @@ class AuthService extends Service implements AuthServiceInterface
     protected $brokerLicenseRepository;
 
     /**
+     * @var \App\Repositories\Contracts\SlugRepositoryInterface
+     */
+    protected $slugRepository;
+
+    /**
      * Create the service instance and inject its repository.
      *
      * @param App\Repositories\Contracts\UserRepositoryInterface
      * @param App\Repositories\Contracts\BrokerLicenseRepositoryInterface
+     * @param App\Repositories\Contracts\SlugRepositoryInterface
      */
     public function __construct(
         UserRepositoryInterface $repository,
-        BrokerLicenseRepositoryInterface $brokerLicenseRepository
+        BrokerLicenseRepositoryInterface $brokerLicenseRepository,
+        SlugRepositoryInterface $slugRepository
     ) {
         $this->repository = $repository;
         $this->brokerLicenseRepository = $brokerLicenseRepository;
+        $this->slugRepository = $slugRepository;
     }
 
     /**
@@ -41,10 +53,28 @@ class AuthService extends Service implements AuthServiceInterface
      */
     public function login($request)
     {
-        return $this->repository->authenticate(
-            Arr::get($request, 'login'),
-            Arr::get($request, 'password')
-        );
+        DB::beginTransaction();
+
+        try {
+            $user = Auth::user();
+
+            if ($user->is_deactivated) {
+                $this->repository->reactivate($user->id);
+            }
+
+            $response = $this->repository->authenticate(
+                Arr::get($request, 'email'),
+                Arr::get($request, 'password')
+            );
+
+            DB::commit();
+
+            return $response;
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            throw $e;
+        }
     }
 
     /**
@@ -75,9 +105,9 @@ class AuthService extends Service implements AuthServiceInterface
      */
     public function verifyToken()
     {
-        $data = $this->repository->profile();
-
-        return $data ? new UserResource($data) : response($data);
+        return new UserResource(
+            $this->repository->profile(Auth::user()->id)
+        );
     }
 
     /**
@@ -88,34 +118,58 @@ class AuthService extends Service implements AuthServiceInterface
      */
     public function register(array $request)
     {
-        $userData = Arr::except($request, ['socials', 'broker_license_number']);
+        DB::beginTransaction();
 
-        $user = $this->repository->create($userData);
+        try {
+            // prepare data
+            $userData = Arr::except($request, ['broker']);
+            $brokerData = Arr::get(Arr::only($request, ['broker']), 'broker');
 
-        Auth::login($user);
+            // create user
+            $user = $this->repository->create($userData);
+            event(new Registered($user));
 
-        $this->brokerLicenseRepository->create([
-            'user_id' => $user->id,
-            'license_number' => Arr::get($request, 'broker_license_number'),
-            'expiration_date' => Arr::get($request, 'expiration_date')
-        ]);
+            // login user session
+            Auth::login($user);
 
-        $data = $this->repository->profile($user->id);
+            // create broker license
+            Arr::set($brokerData, 'user_id', $user->id);
+            $this->brokerLicenseRepository->create($brokerData);
 
-        $token = $this->repository->authenticate(
-            $user->email,
-            Arr::get($request, 'password')
-        );
+            // create slug
+            $this->slugRepository->updateOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'slug' => Str::slug(
+                        $user->first_name . ' ' . $user->last_name . ' ' . (string) Str::uuid(),
+                        '-'
+                    )
+                ]
+            );
 
-        $data->token = $token;
+            // get profile
+            $response = new UserResource(
+                $this->repository->profile($user->id)
+            );
 
-        event(new Registered($user));
+            // authenticate
+            $token = $this->repository->authenticate(
+                $user->email,
+                Arr::get($request, 'password')
+            );
+            Arr::set($response, 'token', $token);
 
-        $response = new UserResource($data);
+            // logout user session
+            Auth::logout($user);
 
-        Auth::logout();
+            DB::commit();
 
-        return $response;
+            return $response;
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            throw $e;
+        }
     }
 
     /**
@@ -193,8 +247,22 @@ class AuthService extends Service implements AuthServiceInterface
      */
     public function deactivate()
     {
-        Auth::user()->delete();
+        $user = Auth::user();
+
+        $this->repository->deactivate($user->id);
+
+        $user->notify(new DeactivateNotification);
 
         return response()->json(true);
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @return int
+     */
+    public function delete()
+    {
+        return $this->repository->delete(Auth::user()->id);
     }
 }

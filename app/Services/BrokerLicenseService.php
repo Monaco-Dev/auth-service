@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 
 use App\Repositories\Contracts\BrokerLicenseRepositoryInterface;
@@ -20,15 +21,24 @@ class BrokerLicenseService extends Service implements BrokerLicenseServiceInterf
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Update or create the specified resource in storage.
      *
-     * @param array $request
-     * @return \Illuminate\Database\Eloquent\Model
+     * @param  array  $request
+     * @return \Illuminate\Http\Response
      */
-    public function store(array $request)
+    public function updateOrCreate(array $request)
     {
-        if (Auth::user()->brokerLicense) $this->repository->forceDelete(Auth::user()->brokerLicense->id);
+        $model = Auth::user()->brokerLicense;
 
-        return $this->repository->create($request);
+        $model->fill($request);
+
+        if ($model->isDirty()) {
+            Arr::set($request, 'verified_at', null);
+        }
+
+        return $this->repository->updateOrCreate(
+            ['user_id' => $model->user_id],
+            $request
+        );
     }
 }

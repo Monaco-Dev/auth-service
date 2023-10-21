@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\Contracts\BrokerLicenseServiceInterface;
-use App\Http\Requests\BrokerLicense\StoreRequest;
+use App\Http\Requests\BrokerLicense\UpdateRequest;
 
 class BrokerLicenseController extends Controller
 {
@@ -25,13 +25,13 @@ class BrokerLicenseController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Update or create the specified resource in storage.
      *
-     * @param  \App\Http\Requests\BrokerLicense\StoreRequest  $request
+     * @param  \App\Http\Requests\BrokerLicense\UpdateRequest  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(StoreRequest $request)
+    public function update(UpdateRequest $request)
     {
-        return $this->service->store($request->validated());
+        return $this->service->updateOrCreate($request->validated());
     }
 }

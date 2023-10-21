@@ -42,23 +42,23 @@ trait RepositoryResource
     /**
      * Update the specified resource in storage.
      *
-     * @param int|string $id
+     * @param mixed $model
      * @param array $request
      * @return \Illuminate\Database\Eloquent\Model
      */
-    public function update($id, array $request)
+    public function update(mixed $model, array $request)
     {
-        return $this->repository->update($id, $request);
+        return $this->repository->update($model, $request);
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param int|string $id
+     * @param mixed $model
      * @return int
      */
-    public function destroy($id)
+    public function destroy(mixed $model)
     {
-        return $this->repository->delete($id);
+        return $this->repository->delete($model);
     }
 }

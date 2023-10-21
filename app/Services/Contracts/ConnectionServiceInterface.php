@@ -2,23 +2,31 @@
 
 namespace App\Services\Contracts;
 
-use App\Services\Support\BaseContracts\StoreInterface as Store;
+use App\Models\User;
 
-interface ConnectionServiceInterface extends Store
+interface ConnectionServiceInterface
 {
     /**
-     * Search for specific resources in the database.
+     * Store a newly created resource in storage.
      *
-     * @param  array  $request
+     * @param  \App\Models\User $user
      * @return \Illuminate\Http\Response
      */
-    public function search(array $request);
+    public function connect(User $user);
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int|string $id
+     * @param  \App\Models\User $user
      * @return \Illuminate\Http\Response
      */
-    public function disconnect($id);
+    public function disconnect(User $user);
+
+    /**
+     * Search for specific resources in the database.
+     * 
+     * @param  array  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function search(array $request);
 }
