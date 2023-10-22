@@ -15,7 +15,8 @@ class FollowPolicy
      */
     public function follow(User $user, User $model)
     {
-        return !$user->following()->where('follow_user_id', $model->id)->exists();
+        return $user->id != $model->id &&
+            !$user->following()->where('follow_user_id', $model->id)->exists();
     }
 
     /**
@@ -27,6 +28,7 @@ class FollowPolicy
      */
     public function unfollow(User $user, User $model)
     {
-        return $user->following()->where('follow_user_id', $model->id)->exists();
+        return $user->id != $model->id &&
+            $user->following()->where('follow_user_id', $model->id)->exists();
     }
 }
