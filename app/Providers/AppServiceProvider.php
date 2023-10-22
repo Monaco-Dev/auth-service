@@ -10,6 +10,7 @@ use App\Services\Contracts\{
     BrokerLicenseServiceInterface,
     ConnectionInvitationServiceInterface,
     ConnectionServiceInterface,
+    FollowServiceInterface,
     SlugServiceInterface,
     UserServiceInterface
 };
@@ -18,6 +19,7 @@ use App\Services\{
     BrokerLicenseService,
     ConnectionInvitationService,
     ConnectionService,
+    FollowService,
     SlugService,
     UserService
 };
@@ -36,6 +38,7 @@ class AppServiceProvider extends ServiceProvider
         SlugServiceInterface::class => SlugService::class,
         ConnectionServiceInterface::class => ConnectionService::class,
         ConnectionInvitationServiceInterface::class => ConnectionInvitationService::class,
+        FollowServiceInterface::class => FollowService::class,
     ];
 
     /**

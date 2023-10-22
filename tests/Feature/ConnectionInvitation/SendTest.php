@@ -10,11 +10,11 @@ use Illuminate\Support\Arr;
 use App\Models\BrokerLicense;
 use App\Models\User;
 
-class ConnectTest extends TestCase
+class SendTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected $route = 'connections.connect';
+    protected $route = 'connection-invitations.send';
 
     /**
      * Test unauthenticated response.
@@ -92,18 +92,16 @@ class ConnectTest extends TestCase
         $user = User::factory()
             ->hasBrokerLicense()
             ->hasSlugs()
-            ->hasIncomingInvites()
+            ->count(2)
             ->create();
 
-        $auth = $this->login($user->email);
-
-        $invite = $user->incomingInvites()->first();
+        $auth = $this->login($user[0]->email);
 
         $this->withHeaders([
             'Accept' => 'application/json',
             'Authorization' => 'Bearer ' . Arr::get($auth, 'access_token')
         ])
-            ->post(route($this->route, $invite))
+            ->post(route($this->route, $user[1]))
             ->assertOk();
     }
 
@@ -114,19 +112,19 @@ class ConnectTest extends TestCase
     {
         $user = User::factory()
             ->hasBrokerLicense()
-            ->hasConnections()
+            ->hasSlugs()
+            ->hasOutgoingInvites()
             ->create();
 
         $auth = $this->login($user->email);
+
+        $invite = $user->outgoingInvites()->first();
 
         $this->withHeaders([
             'Accept' => 'application/json',
             'Authorization' => 'Bearer ' . Arr::get($auth, 'access_token')
         ])
-            ->post(route(
-                $this->route,
-                $user->connections()->first()
-            ))
+            ->post(route($this->route, $invite))
             ->assertForbidden();
     }
 }

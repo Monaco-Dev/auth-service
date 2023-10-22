@@ -37,7 +37,10 @@ class ConnectionService extends Service implements ConnectionServiceInterface
         $user->connections()->attach($auth);
 
         $auth->incomingInvites()->detach($user);
+        $auth->outgoingInvites()->detach($user);
+
         $user->incomingInvites()->detach($auth);
+        $user->outgoingInvites()->detach($auth);
 
         $user->notify(new ConnectedNotification($auth));
 
@@ -58,7 +61,10 @@ class ConnectionService extends Service implements ConnectionServiceInterface
         $user->connections()->detach($auth);
 
         $auth->incomingInvites()->detach($user);
+        $auth->outgoingInvites()->detach($user);
+
         $user->incomingInvites()->detach($auth);
+        $user->outgoingInvites()->detach($auth);
 
         return response()->json(true, 200);
     }

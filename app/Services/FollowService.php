@@ -2,22 +2,22 @@
 
 namespace App\Services;
 
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Auth;
 
-use App\Models\User;
 use App\Http\Resources\UserResource;
-use App\Repositories\Contracts\ConnectionInvitationRepositoryInterface;
-use App\Services\Contracts\ConnectionInvitationServiceInterface;
+use App\Models\User;
+use App\Repositories\Contracts\FollowRepositoryInterface;
+use App\Services\Contracts\FollowServiceInterface;
 
-class ConnectionInvitationService extends Service implements ConnectionInvitationServiceInterface
+class FollowService extends Service implements FollowServiceInterface
 {
     /**
      * Create the service instance and inject its repository.
      *
-     * @param App\Repositories\Contracts\ConnectionInvitationRepositoryInterface
+     * @param App\Repositories\Contracts\FollowRepositoryInterface
      */
-    public function __construct(ConnectionInvitationRepositoryInterface $repository)
+    public function __construct(FollowRepositoryInterface $repository)
     {
         $this->repository = $repository;
     }
@@ -28,28 +28,43 @@ class ConnectionInvitationService extends Service implements ConnectionInvitatio
      * @param  \App\Models\User $user
      * @return \Illuminate\Http\Response
      */
-    public function send(User $user)
+    public function follow(User $user)
     {
         $auth = Auth::user();
 
-        $auth->outgoingInvites()->attach($user);
+        $auth->following()->attach($user);
+
+        return response()->json(true, 200);
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  \App\Models\User $user
+     * @return \Illuminate\Http\Response
+     */
+    public function unfollow(User $user)
+    {
+        $auth = Auth::user();
+
+        $auth->following()->detach($user);
 
         return response()->json(true, 200);
     }
 
     /**
      * Search for specific resources in the database.
-     * 
+     *
      * @param  array  $request
      * @return \Illuminate\Http\Response
      */
-    public function searchIncoming(array $request)
+    public function searchFollowing(array $request)
     {
         $search = Arr::get($request, 'search');
 
         return UserResource::collection(
             Auth::user()
-                ->incomingInvites()
+                ->following()
                 ->search($search, Auth::user()->id)
                 ->paginate()
         );
@@ -57,17 +72,17 @@ class ConnectionInvitationService extends Service implements ConnectionInvitatio
 
     /**
      * Search for specific resources in the database.
-     * 
+     *
      * @param  array  $request
      * @return \Illuminate\Http\Response
      */
-    public function searchOutgoing(array $request)
+    public function searchFollowers(array $request)
     {
         $search = Arr::get($request, 'search');
 
         return UserResource::collection(
             Auth::user()
-                ->outgoingInvites()
+                ->followers()
                 ->search($search, Auth::user()->id)
                 ->paginate()
         );

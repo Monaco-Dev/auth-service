@@ -1,16 +1,16 @@
 <?php
 
-namespace App\Http\Requests\ConnectionInvitation;
+namespace App\Http\Requests\Follow;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class CancelRequest extends FormRequest
+class FollowRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return $this->user()->can('cancel-invite', $this->user);
+        return $this->user()->can('follow', $this->user);
     }
 }

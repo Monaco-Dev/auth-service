@@ -8,6 +8,7 @@ use App\Repositories\Contracts\{
     BrokerLicenseRepositoryInterface,
     ConnectionInvitationRepositoryInterface,
     ConnectionRepositoryInterface,
+    FollowRepositoryInterface,
     SlugRepositoryInterface,
     UserRepositoryInterface
 };
@@ -15,6 +16,7 @@ use App\Repositories\{
     BrokerLicenseRepository,
     ConnectionInvitationRepository,
     ConnectionRepository,
+    FollowRepository,
     SlugRepository,
     UserRepository
 };
@@ -32,6 +34,7 @@ class RepositoryServiceProvider extends ServiceProvider
         SlugRepositoryInterface::class => SlugRepository::class,
         ConnectionRepositoryInterface::class => ConnectionRepository::class,
         ConnectionInvitationRepositoryInterface::class => ConnectionInvitationRepository::class,
+        FollowRepositoryInterface::class => FollowRepository::class,
     ];
 
     /**

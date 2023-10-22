@@ -7,6 +7,7 @@ use App\Http\Controllers\{
     BrokerLicenseController,
     ConnectionController,
     ConnectionInvitationController,
+    FollowController,
     SlugController,
     UserController
 };
@@ -61,6 +62,11 @@ Route::middleware('auth:api')->group(function () {
                 Route::post('search', [UserController::class, 'search'])->name('search');
             });
 
+            Route::prefix('slugs')->name('slugs.')->group(function () {
+                Route::post('/', [SlugController::class, 'store'])->name('store');
+                Route::delete('{slug}', [SlugController::class, 'destroy'])->name('destroy');
+            });
+
             Route::prefix('connections')->name('connections.')->group(function () {
                 Route::prefix('{user}')->group(function () {
                     Route::post('connect', [ConnectionController::class, 'connect'])->name('connect');
@@ -71,10 +77,7 @@ Route::middleware('auth:api')->group(function () {
             });
 
             Route::prefix('connection-invitations')->name('connection-invitations.')->group(function () {
-                Route::prefix('{user}')->group(function () {
-                    Route::post('send', [ConnectionInvitationController::class, 'send'])->name('send');
-                    Route::delete('cancel', [ConnectionInvitationController::class, 'cancel'])->name('cancel');
-                });
+                Route::post('{user}/send', [ConnectionInvitationController::class, 'send'])->name('send');
 
                 Route::prefix('search')->name('search.')->group(function () {
                     Route::post('incoming', [ConnectionInvitationController::class, 'searchIncoming'])->name('incoming');
@@ -82,9 +85,16 @@ Route::middleware('auth:api')->group(function () {
                 });
             });
 
-            Route::prefix('slugs')->name('slugs.')->group(function () {
-                Route::post('/', [SlugController::class, 'store'])->name('store');
-                Route::delete('{slug}', [SlugController::class, 'destroy'])->name('destroy');
+            Route::prefix('follows')->name('follows.')->group(function () {
+                Route::prefix('{user}')->group(function () {
+                    Route::post('follow', [FollowController::class, 'follow'])->name('follow');
+                    Route::delete('unfollow', [FollowController::class, 'unfollow'])->name('unfollow');
+                });
+
+                Route::prefix('search')->name('search.')->group(function () {
+                    Route::post('following', [FollowController::class, 'searchFollowing'])->name('following');
+                    Route::post('followers', [FollowController::class, 'searchFollowers'])->name('followers');
+                });
             });
         });
     });

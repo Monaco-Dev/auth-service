@@ -179,7 +179,7 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword
      * 
      * @return App\Models\ConnectionInvitation
      */
-    public function incomingInvites()
+    public function outgoingInvites()
     {
         return $this->belongsToMany(
             User::class,
@@ -195,13 +195,45 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword
      * 
      * @return App\Models\ConnectionInvitation
      */
-    public function outgoingInvites()
+    public function incomingInvites()
     {
         return $this->belongsToMany(
             User::class,
             'connection_invitations',
             'connection_invitation_user_id',
             'user_id'
+        )
+            ->withTimestamps();
+    }
+
+    /**
+     * Return Follow relationship.
+     * 
+     * @return App\Models\Follow
+     */
+    public function following()
+    {
+        return $this->belongsToMany(
+            User::class,
+            'follows',
+            'user_id',
+            'follow_user_id',
+        )
+            ->withTimestamps();
+    }
+
+    /**
+     * Return Follow relationship.
+     * 
+     * @return App\Models\Follow
+     */
+    public function followers()
+    {
+        return $this->belongsToMany(
+            User::class,
+            'follows',
+            'follow_user_id',
+            'user_id',
         )
             ->withTimestamps();
     }
@@ -239,7 +271,9 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword
         $withCount = [
             'connections',
             'incomingInvites',
-            'outgoingInvites'
+            'outgoingInvites',
+            'following',
+            'followers'
         ];
 
         return $query->with($with)->withCount($withCount);
@@ -269,6 +303,8 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword
                 ->selectRaw(DB::raw("IF(c1.connection_user_id = $id, true, false) as has_connection"))
                 ->selectRaw(DB::raw("IF(cI1.connection_invitation_user_id = $id, true, false) as has_incoming_invite"))
                 ->selectRaw(DB::raw("IF(cI2.user_id = $id, true, false) as has_outgoing_invite"))
+                ->selectRaw(DB::raw("IF(f1.user_id = $id, true, false) as is_following"))
+                ->selectRaw(DB::raw("IF(f2.follow_user_id = $id, true, false) as is_follower"))
                 ->leftJoin('connections as c1', function ($query) use ($id) {
                     $query->on('c1.user_id', '=', 'users.id')
                         ->where('c1.connection_user_id', $id);
@@ -280,6 +316,14 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword
                 ->leftJoin('connection_invitations as cI2', function ($query) use ($id) {
                     $query->on('cI2.connection_invitation_user_id', '=', 'users.id')
                         ->where('cI2.user_id', $id);
+                })
+                ->leftJoin('follows as f1', function ($query) use ($id) {
+                    $query->on('f1.follow_user_id', '=', 'users.id')
+                        ->where('f1.user_id', $id);
+                })
+                ->leftJoin('follows as f2', function ($query) use ($id) {
+                    $query->on('f2.user_id', '=', 'users.id')
+                        ->where('f2.follow_user_id', $id);
                 });
         }
 

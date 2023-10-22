@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Gate;
 use App\Models\User;
 use App\Policies\ConnectionInvitationPolicy;
 use App\Policies\ConnectionPolicy;
+use App\Policies\FollowPolicy;
 use App\Policies\SlugPolicy;
 
 class AuthServiceProvider extends ServiceProvider
@@ -33,12 +34,14 @@ class AuthServiceProvider extends ServiceProvider
 
         $this->registerPolicies();
 
+        Gate::define('delete-slug', [SlugPolicy::class, 'deleteSlug']);
+
         Gate::define('connect', [ConnectionPolicy::class, 'connect']);
         Gate::define('disconnect', [ConnectionPolicy::class, 'disconnect']);
 
         Gate::define('invite', [ConnectionInvitationPolicy::class, 'invite']);
-        Gate::define('cancel-invite', [ConnectionInvitationPolicy::class, 'cancelInvite']);
 
-        Gate::define('delete-slug', [SlugPolicy::class, 'deleteSlug']);
+        Gate::define('follow', [FollowPolicy::class, 'follow']);
+        Gate::define('unfollow', [FollowPolicy::class, 'unfollow']);
     }
 }

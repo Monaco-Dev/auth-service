@@ -10,11 +10,11 @@ use Illuminate\Support\Arr;
 use App\Models\BrokerLicense;
 use App\Models\User;
 
-class ConnectTest extends TestCase
+class UnfollowTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected $route = 'connections.connect';
+    protected $route = 'follows.unfollow';
 
     /**
      * Test unauthenticated response.
@@ -22,7 +22,7 @@ class ConnectTest extends TestCase
     public function test_unauthenticated(): void
     {
         $this->withHeaders(['Accept' => 'application/json'])
-            ->post(route($this->route, 1))
+            ->delete(route($this->route, 1))
             ->assertUnauthorized();
     }
 
@@ -39,7 +39,7 @@ class ConnectTest extends TestCase
             'Accept' => 'application/json',
             'Authorization' => 'Bearer ' . Arr::get($auth, 'access_token')
         ])
-            ->post(route($this->route, $user))
+            ->delete(route($this->route, $user))
             ->assertForbidden()
             ->assertSeeText('Your email address is not verified');
     }
@@ -59,7 +59,7 @@ class ConnectTest extends TestCase
             'Accept' => 'application/json',
             'Authorization' => 'Bearer ' . Arr::get($auth, 'access_token')
         ])
-            ->post(route($this->route, $user))
+            ->delete(route($this->route, $user))
             ->assertForbidden()
             ->assertSeeText('Your license number is not verified');
     }
@@ -79,7 +79,7 @@ class ConnectTest extends TestCase
             'Accept' => 'application/json',
             'Authorization' => 'Bearer ' . Arr::get($auth, 'access_token')
         ])
-            ->post(route($this->route, $user))
+            ->delete(route($this->route, $user))
             ->assertForbidden()
             ->assertSeeText('Your license number is expired');
     }
@@ -92,18 +92,18 @@ class ConnectTest extends TestCase
         $user = User::factory()
             ->hasBrokerLicense()
             ->hasSlugs()
-            ->hasIncomingInvites()
+            ->hasFollowing()
             ->create();
 
         $auth = $this->login($user->email);
 
-        $invite = $user->incomingInvites()->first();
+        $follow = $user->following()->first();
 
         $this->withHeaders([
             'Accept' => 'application/json',
             'Authorization' => 'Bearer ' . Arr::get($auth, 'access_token')
         ])
-            ->post(route($this->route, $invite))
+            ->delete(route($this->route, $follow))
             ->assertOk();
     }
 
@@ -114,19 +114,17 @@ class ConnectTest extends TestCase
     {
         $user = User::factory()
             ->hasBrokerLicense()
-            ->hasConnections()
+            ->hasSlugs()
+            ->count(2)
             ->create();
 
-        $auth = $this->login($user->email);
+        $auth = $this->login($user[0]->email);
 
         $this->withHeaders([
             'Accept' => 'application/json',
             'Authorization' => 'Bearer ' . Arr::get($auth, 'access_token')
         ])
-            ->post(route(
-                $this->route,
-                $user->connections()->first()
-            ))
+            ->delete(route($this->route, $user[1]))
             ->assertForbidden();
     }
 }

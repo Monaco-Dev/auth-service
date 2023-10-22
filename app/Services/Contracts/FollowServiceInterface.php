@@ -4,7 +4,7 @@ namespace App\Services\Contracts;
 
 use App\Models\User;
 
-interface ConnectionInvitationServiceInterface
+interface FollowServiceInterface
 {
     /**
      * Store a newly created resource in storage.
@@ -12,21 +12,29 @@ interface ConnectionInvitationServiceInterface
      * @param  \App\Models\User $user
      * @return \Illuminate\Http\Response
      */
-    public function send(User $user);
+    public function follow(User $user);
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  \App\Models\User $user
+     * @return \Illuminate\Http\Response
+     */
+    public function unfollow(User $user);
 
     /**
      * Search for specific resources in the database.
-     * 
+     *
      * @param  array  $request
      * @return \Illuminate\Http\Response
      */
-    public function searchIncoming(array $request);
+    public function searchFollowing(array $request);
 
     /**
      * Search for specific resources in the database.
-     * 
+     *
      * @param  array  $request
      * @return \Illuminate\Http\Response
      */
-    public function searchOutgoing(array $request);
+    public function searchFollowers(array $request);
 }

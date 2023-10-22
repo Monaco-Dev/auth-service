@@ -16,21 +16,8 @@ class ConnectionInvitationPolicy
     public function invite(User $user, User $model)
     {
         return !$user->connections()->where('connection_user_id', $model->id)->exists() &&
-            !$user->incomingInvites()->where('connection_invitation_user_id', $model->id)->exists() &&
+            !$model->connections()->where('connection_user_id', $user->id)->exists() &&
+            !$user->incomingInvites()->where('user_id', $model->id)->exists() &&
             !$user->outgoingInvites()->where('connection_invitation_user_id', $model->id)->exists();
-    }
-
-    /**
-     * Determine whether the user can cancel the model.
-     * 
-     * @param App\Models\User $user
-     * @param App\Models\User $model
-     * @return bool
-     */
-    public function cancelInvite(User $user, User $model)
-    {
-        return !$user->connections()->where('connection_user_id', $model->id)->exists() &&
-            !$user->incomingInvites()->where('connection_invitation_user_id', $model->id)->exists() &&
-            $user->outgoingInvites()->where('connection_invitation_user_id', $model->id)->exists();
     }
 }

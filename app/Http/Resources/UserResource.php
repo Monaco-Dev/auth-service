@@ -29,12 +29,14 @@ class UserResource extends JsonResource
             'full_name',
             'url',
             'connections_count',
+            'followers_count'
         ];
 
         if (Arr::get($data, 'id') == optional(Auth::user())->id) {
             $fields = array_merge($fields, [
                 'incoming_invites_count',
                 'outgoing_invites_count',
+                'following_count'
             ]);
         } else {
             $fields = array_merge($fields, [
@@ -42,6 +44,8 @@ class UserResource extends JsonResource
                 'has_outgoing_invite',
                 'has_connection',
                 'mutuals_count',
+                'is_following',
+                'is_follower'
             ]);
         }
 

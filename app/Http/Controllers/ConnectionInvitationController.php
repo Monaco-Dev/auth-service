@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Services\Contracts\ConnectionInvitationServiceInterface;
 use App\Http\Requests\ConnectionInvitation\{
-    CancelRequest,
     SearchRequest,
     SendRequest
 };
@@ -39,18 +38,6 @@ class ConnectionInvitationController extends Controller
     public function send(SendRequest $request, User $user)
     {
         return $this->service->send($user);
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Http\Requests\ConnectionInvitation\CancelRequest  $request
-     * @param  \App\Models\User $user
-     * @return \Illuminate\Http\Response
-     */
-    public function cancel(CancelRequest $request, User $user)
-    {
-        return $this->service->cancel($user);
     }
 
     /**

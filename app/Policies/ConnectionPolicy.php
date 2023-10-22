@@ -16,7 +16,8 @@ class ConnectionPolicy
     public function connect(User $user, User $model)
     {
         return !$user->connections()->where('connection_user_id', $model->id)->exists() &&
-            $user->incomingInvites()->where('connection_invitation_user_id', $model->id)->exists() &&
+            !$model->connections()->where('connection_user_id', $user->id)->exists() &&
+            $user->incomingInvites()->where('user_id', $model->id)->exists() &&
             !$user->outgoingInvites()->where('connection_invitation_user_id', $model->id)->exists();
     }
 
@@ -30,7 +31,8 @@ class ConnectionPolicy
     public function disconnect(User $user, User $model)
     {
         return $user->connections()->where('connection_user_id', $model->id)->exists() &&
-            !$user->incomingInvites()->where('connection_invitation_user_id', $model->id)->exists() &&
+            $model->connections()->where('connection_user_id', $user->id)->exists() &&
+            !$user->incomingInvites()->where('user_id', $model->id)->exists() &&
             !$user->outgoingInvites()->where('connection_invitation_user_id', $model->id)->exists();
     }
 }

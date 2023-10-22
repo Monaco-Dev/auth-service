@@ -48,6 +48,26 @@ class UserSeeder extends Seeder
                 ->each(function ($invite) use ($user) {
                     $invite->incomingInvites()->attach($user);
                 });
+
+            // Create outgoing invites
+            User::factory()
+                ->hasBrokerLicense()
+                ->hasSlugs()
+                ->count(2)
+                ->create()
+                ->each(function ($follow) use ($user) {
+                    $user->following()->attach($follow);
+                });
+
+            // Create incoming follow
+            User::factory()
+                ->hasBrokerLicense()
+                ->hasSlugs()
+                ->count(2)
+                ->create()
+                ->each(function ($follow) use ($user) {
+                    $follow->following()->attach($user);
+                });
         });
     }
 }

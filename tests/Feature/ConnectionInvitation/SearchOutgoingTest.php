@@ -10,11 +10,11 @@ use Illuminate\Support\Arr;
 use App\Models\BrokerLicense;
 use App\Models\User;
 
-class ConnectTest extends TestCase
+class SearchOutgoingTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected $route = 'connections.connect';
+    protected $route = 'connection-invitations.search.outgoing';
 
     /**
      * Test unauthenticated response.
@@ -22,7 +22,7 @@ class ConnectTest extends TestCase
     public function test_unauthenticated(): void
     {
         $this->withHeaders(['Accept' => 'application/json'])
-            ->post(route($this->route, 1))
+            ->post(route($this->route))
             ->assertUnauthorized();
     }
 
@@ -31,15 +31,18 @@ class ConnectTest extends TestCase
      */
     public function test_unverified_email(): void
     {
-        $user = User::factory()->unverified()->create();
-
-        $auth = $this->login($user->email);
+        $auth = $this->login(
+            User::factory()
+                ->unverified()
+                ->create()
+                ->email
+        );
 
         $this->withHeaders([
             'Accept' => 'application/json',
             'Authorization' => 'Bearer ' . Arr::get($auth, 'access_token')
         ])
-            ->post(route($this->route, $user))
+            ->post(route($this->route))
             ->assertForbidden()
             ->assertSeeText('Your email address is not verified');
     }
@@ -49,17 +52,18 @@ class ConnectTest extends TestCase
      */
     public function test_unverified_license(): void
     {
-        $user = User::factory()
-            ->has(BrokerLicense::factory()->unverified())
-            ->create();
-
-        $auth = $this->login($user->email);
+        $auth = $this->login(
+            User::factory()
+                ->has(BrokerLicense::factory()->unverified())
+                ->create()
+                ->email
+        );
 
         $this->withHeaders([
             'Accept' => 'application/json',
             'Authorization' => 'Bearer ' . Arr::get($auth, 'access_token')
         ])
-            ->post(route($this->route, $user))
+            ->post(route($this->route))
             ->assertForbidden()
             ->assertSeeText('Your license number is not verified');
     }
@@ -69,17 +73,18 @@ class ConnectTest extends TestCase
      */
     public function test_expired_license(): void
     {
-        $user = User::factory()
-            ->has(BrokerLicense::factory()->expired())
-            ->create();
-
-        $auth = $this->login($user->email);
+        $auth = $this->login(
+            User::factory()
+                ->has(BrokerLicense::factory()->expired())
+                ->create()
+                ->email
+        );
 
         $this->withHeaders([
             'Accept' => 'application/json',
             'Authorization' => 'Bearer ' . Arr::get($auth, 'access_token')
         ])
-            ->post(route($this->route, $user))
+            ->post(route($this->route))
             ->assertForbidden()
             ->assertSeeText('Your license number is expired');
     }
@@ -89,44 +94,16 @@ class ConnectTest extends TestCase
      */
     public function test_success(): void
     {
+        $this->withoutMiddleware();
+
         $user = User::factory()
             ->hasBrokerLicense()
             ->hasSlugs()
-            ->hasIncomingInvites()
             ->create();
 
-        $auth = $this->login($user->email);
-
-        $invite = $user->incomingInvites()->first();
-
-        $this->withHeaders([
-            'Accept' => 'application/json',
-            'Authorization' => 'Bearer ' . Arr::get($auth, 'access_token')
-        ])
-            ->post(route($this->route, $invite))
+        $this->actingAs($user)
+            ->withHeaders(['Accept' => 'application/json'])
+            ->post(route($this->route))
             ->assertOk();
-    }
-
-    /**
-     * Test unauthorized response.
-     */
-    public function test_unauthorized(): void
-    {
-        $user = User::factory()
-            ->hasBrokerLicense()
-            ->hasConnections()
-            ->create();
-
-        $auth = $this->login($user->email);
-
-        $this->withHeaders([
-            'Accept' => 'application/json',
-            'Authorization' => 'Bearer ' . Arr::get($auth, 'access_token')
-        ])
-            ->post(route(
-                $this->route,
-                $user->connections()->first()
-            ))
-            ->assertForbidden();
     }
 }
