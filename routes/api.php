@@ -100,6 +100,6 @@ Route::middleware('auth:api')->group(function () {
     });
 });
 
-Route::prefix('service')->middleware('client')->group(function () {
-    //
+Route::prefix('service')->name('service.')->middleware('client')->group(function () {
+    Route::post('verify-token', [AuthController::class, 'verifyToken'])->name('token.verify')->middleware('client.user');
 });

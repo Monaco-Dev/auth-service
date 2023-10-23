@@ -4,6 +4,7 @@ namespace App\Http;
 
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 use Laravel\Passport\Http\Middleware\CheckClientCredentials;
+use App\Http\Middleware\CheckClientUserCredentials;
 
 class Kernel extends HttpKernel
 {
@@ -66,6 +67,7 @@ class Kernel extends HttpKernel
         'verified-email' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'verified-broker' => \App\Http\Middleware\VerifiedBroker::class,
         'client' => CheckClientCredentials::class,
-        'profile' => \App\Http\Middleware\Profile::class
+        'profile' => \App\Http\Middleware\Profile::class,
+        'client.user' => CheckClientUserCredentials::class,
     ];
 }
