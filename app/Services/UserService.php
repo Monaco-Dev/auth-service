@@ -13,6 +13,13 @@ use App\Repositories\Contracts\SlugRepositoryInterface;
 class UserService extends Service implements UserServiceInterface
 {
     /**
+     * Resource class of the service.
+     * 
+     * @var \App\Http\Resources\UserResource
+     */
+    protected $resourceClass = UserResource::class;
+
+    /**
      * @var \App\Repositories\Contracts\SlugRepositoryInterface
      */
     protected $slugRepository;
@@ -38,7 +45,7 @@ class UserService extends Service implements UserServiceInterface
      */
     public function show($url, bool $findOrFail = true)
     {
-        return new UserResource(
+        return $this->setResponseResource(
             $this->slugRepository->profile($url)
         );
     }
@@ -53,7 +60,7 @@ class UserService extends Service implements UserServiceInterface
     {
         $search = Arr::get($request, 'search');
 
-        return UserResource::collection(
+        return $this->setResponseCollection(
             $this->repository
                 ->model()
                 ->search($search, Auth::user()->id)

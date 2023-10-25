@@ -12,6 +12,13 @@ use App\Services\Contracts\SlugServiceInterface;
 class SlugService extends Service implements SlugServiceInterface
 {
     /**
+     * Resource class of the service.
+     * 
+     * @var \App\Http\Resources\SlugResource
+     */
+    protected $resourceClass = SlugResource::class;
+
+    /**
      * Create the service instance and inject its repository.
      *
      * @param App\Repositories\Contracts\SlugRepositoryInterface
@@ -55,7 +62,7 @@ class SlugService extends Service implements SlugServiceInterface
                 ->delete();
         }
 
-        return SlugResource::collection(
+        return $this->setResponseCollection(
             $user->slugs()
                 ->where('user_id', $user->id)
                 ->get()

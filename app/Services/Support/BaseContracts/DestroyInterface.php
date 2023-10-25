@@ -8,7 +8,7 @@ interface DestroyInterface
      * Remove the specified resource from storage.
      *
      * @param mixed $model
-     * @return int
+     * @return mixed
      */
     public function destroy(mixed $model);
 }

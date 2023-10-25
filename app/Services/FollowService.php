@@ -13,6 +13,13 @@ use App\Services\Contracts\FollowServiceInterface;
 class FollowService extends Service implements FollowServiceInterface
 {
     /**
+     * Resource class of the service.
+     * 
+     * @var \App\Http\Resources\UserResource
+     */
+    protected $resourceClass = UserResource::class;
+
+    /**
      * Create the service instance and inject its repository.
      *
      * @param App\Repositories\Contracts\FollowRepositoryInterface
@@ -62,7 +69,7 @@ class FollowService extends Service implements FollowServiceInterface
     {
         $search = Arr::get($request, 'search');
 
-        return UserResource::collection(
+        return $this->setResponseCollection(
             Auth::user()
                 ->following()
                 ->search($search, Auth::user()->id)
@@ -80,7 +87,7 @@ class FollowService extends Service implements FollowServiceInterface
     {
         $search = Arr::get($request, 'search');
 
-        return UserResource::collection(
+        return $this->setResponseCollection(
             Auth::user()
                 ->followers()
                 ->search($search, Auth::user()->id)

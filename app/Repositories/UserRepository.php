@@ -124,13 +124,11 @@ class UserRepository extends Repository implements UserRepositoryInterface
      */
     public function profile($id, $verified = false)
     {
-        $model = $this->model
-            ->find($id)
-            ->withRelations();
+        $model = $this->model;
 
-        if ($verified) $model = $model->verified();
+        if ($verified) $model = $this->model->verified();
 
-        return $model->first();
+        return $model->withRelations()->find($id);
     }
 
     /**

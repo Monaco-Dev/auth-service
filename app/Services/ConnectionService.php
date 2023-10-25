@@ -14,6 +14,13 @@ use App\Services\Contracts\ConnectionServiceInterface;
 class ConnectionService extends Service implements ConnectionServiceInterface
 {
     /**
+     * Resource class of the service.
+     * 
+     * @var \App\Http\Resources\UserResource
+     */
+    protected $resourceClass = UserResource::class;
+
+    /**
      * Create the service instance and inject its repository.
      *
      * @param App\Repositories\Contracts\ConnectionRepositoryInterface
@@ -79,7 +86,7 @@ class ConnectionService extends Service implements ConnectionServiceInterface
     {
         $search = Arr::get($request, 'search');
 
-        return UserResource::collection(
+        return $this->setResponseCollection(
             Auth::user()
                 ->connections()
                 ->search($search, Auth::user()->id)

@@ -36,12 +36,13 @@ class UserResource extends JsonResource
             $fields = array_merge($fields, [
                 'incoming_invites_count',
                 'outgoing_invites_count',
-                'following_count'
+                'following_count',
+                'token'
             ]);
         } else {
             $fields = array_merge($fields, [
-                'has_incoming_invite',
-                'has_outgoing_invite',
+                'is_incoming_invite',
+                'is_outgoing_invite',
                 'has_connection',
                 'mutuals_count',
                 'is_following',

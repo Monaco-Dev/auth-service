@@ -149,8 +149,7 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword
      */
     public function scopeVerified(Builder $query): Builder
     {
-        return $query
-            ->whereNotNull('email_verified_at')
+        return $query->whereNotNull('email_verified_at')
             ->whereNull('deactivated_at')
             ->whereNull('deleted_at')
             ->whereHas('brokerLicense', function ($query) {
@@ -301,8 +300,8 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword
                     }
                 ])
                 ->selectRaw(DB::raw("IF(c1.connection_user_id = $id, true, false) as has_connection"))
-                ->selectRaw(DB::raw("IF(cI1.connection_invitation_user_id = $id, true, false) as has_incoming_invite"))
-                ->selectRaw(DB::raw("IF(cI2.user_id = $id, true, false) as has_outgoing_invite"))
+                ->selectRaw(DB::raw("IF(cI1.connection_invitation_user_id = $id, true, false) as is_incoming_invite"))
+                ->selectRaw(DB::raw("IF(cI2.user_id = $id, true, false) as is_outgoing_invite"))
                 ->selectRaw(DB::raw("IF(f1.user_id = $id, true, false) as is_following"))
                 ->selectRaw(DB::raw("IF(f2.follow_user_id = $id, true, false) as is_follower"))
                 ->leftJoin('connections as c1', function ($query) use ($id) {

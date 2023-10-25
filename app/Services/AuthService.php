@@ -19,6 +19,13 @@ use App\Repositories\Contracts\SlugRepositoryInterface;
 class AuthService extends Service implements AuthServiceInterface
 {
     /**
+     * Resource class of the service.
+     * 
+     * @var \App\Http\Resources\UserResource
+     */
+    protected $resourceClass = UserResource::class;
+
+    /**
      * @var \App\Repositories\Contracts\BrokerLicenseRepositoryInterface
      */
     protected $brokerLicenseRepository;
@@ -105,7 +112,7 @@ class AuthService extends Service implements AuthServiceInterface
      */
     public function verifyToken()
     {
-        return new UserResource(
+        return $this->setResponseResource(
             $this->repository->profile(Auth::user()->id)
         );
     }
@@ -129,9 +136,6 @@ class AuthService extends Service implements AuthServiceInterface
             $user = $this->repository->create($userData);
             event(new Registered($user));
 
-            // login user session
-            Auth::login($user);
-
             // create broker license
             Arr::set($brokerData, 'user_id', $user->id);
             $this->brokerLicenseRepository->create($brokerData);
@@ -148,23 +152,21 @@ class AuthService extends Service implements AuthServiceInterface
             );
 
             // get profile
-            $response = new UserResource(
-                $this->repository->profile($user->id)
-            );
+            $profile = $this->repository->profile($user->id);
 
             // authenticate
             $token = $this->repository->authenticate(
                 $user->email,
                 Arr::get($request, 'password')
             );
-            Arr::set($response, 'token', $token);
 
-            // logout user session
-            Auth::logout($user);
+            $profile->token = $token;
+
+            Auth::setUser($user);
 
             DB::commit();
 
-            return $response;
+            return $this->setResponseResource($profile);
         } catch (\Exception $e) {
             DB::rollBack();
 

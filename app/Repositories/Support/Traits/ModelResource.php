@@ -57,30 +57,26 @@ trait ModelResource
      * Remove the specified resource from storage.
      *
      * @param mixed $model
-     * @return int
+     * @return mixed
      */
     public function delete(mixed $model)
     {
         $model = optional($model)->id ? $model : $this->model->findOrFail($model);
 
-        $model->delete();
-
-        return 1;
+        return $model->delete();
     }
 
     /**
      * Force remove the specified resource from storage.
      *
      * @param int|string $id
-     * @return int
+     * @return mixed
      */
     public function forceDelete($id)
     {
         $model = $this->model->findOrFail($id);
 
-        $model->forceDelete();
-
-        return 1;
+        return $model->forceDelete();
     }
 
     /**

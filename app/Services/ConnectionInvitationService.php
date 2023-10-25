@@ -13,6 +13,13 @@ use App\Services\Contracts\ConnectionInvitationServiceInterface;
 class ConnectionInvitationService extends Service implements ConnectionInvitationServiceInterface
 {
     /**
+     * Resource class of the service.
+     * 
+     * @var \App\Http\Resources\UserResource
+     */
+    protected $resourceClass = UserResource::class;
+
+    /**
      * Create the service instance and inject its repository.
      *
      * @param App\Repositories\Contracts\ConnectionInvitationRepositoryInterface
@@ -47,7 +54,7 @@ class ConnectionInvitationService extends Service implements ConnectionInvitatio
     {
         $search = Arr::get($request, 'search');
 
-        return UserResource::collection(
+        return $this->setResponseCollection(
             Auth::user()
                 ->incomingInvites()
                 ->search($search, Auth::user()->id)
@@ -65,7 +72,7 @@ class ConnectionInvitationService extends Service implements ConnectionInvitatio
     {
         $search = Arr::get($request, 'search');
 
-        return UserResource::collection(
+        return $this->setResponseCollection(
             Auth::user()
                 ->outgoingInvites()
                 ->search($search, Auth::user()->id)

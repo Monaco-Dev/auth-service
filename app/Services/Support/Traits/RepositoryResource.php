@@ -7,22 +7,26 @@ trait RepositoryResource
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Support\LazyCollection
+     * @return \Illuminate\Http\Resources\Json\JsonResource|\Illuminate\Database\Eloquent\Model
      */
     public function index()
     {
-        return $this->repository->all();
+        return $this->setResponseCollection(
+            $this->repository->all()
+        );
     }
 
     /**
      * Store a newly created resource in storage.
      *
      * @param array $request
-     * @return \Illuminate\Database\Eloquent\Model
+     * @return \Illuminate\Http\Resources\Json\JsonResource|\Illuminate\Database\Eloquent\Model
      */
     public function store(array $request)
     {
-        return $this->repository->create($request);
+        return $this->setResponseResource(
+            $this->repository->create($request)
+        );
     }
 
     /**
@@ -30,13 +34,15 @@ trait RepositoryResource
      *
      * @param int|string $id
      * @param bool $findOrFail
-     * @return \Illuminate\Database\Eloquent\Model
+     * @return \Illuminate\Http\Resources\Json\JsonResource|\Illuminate\Database\Eloquent\Model|null
      */
     public function show($id, bool $findOrFail = true)
     {
         $data = $this->repository->find($id, $findOrFail);
 
-        return isset($data) ? $data : null;
+        return isset($data)
+            ? $this->setResponseResource($data)
+            : null;
     }
 
     /**
@@ -44,18 +50,22 @@ trait RepositoryResource
      *
      * @param mixed $model
      * @param array $request
-     * @return \Illuminate\Database\Eloquent\Model
+     * @return \Illuminate\Http\Resources\Json\JsonResource|\Illuminate\Database\Eloquent\Model|null
      */
     public function update(mixed $model, array $request)
     {
-        return $this->repository->update($model, $request);
+        $data = $this->repository->update($model, $request);
+
+        return isset($data)
+            ? $this->setResponseResource($data)
+            : null;
     }
 
     /**
      * Remove the specified resource from storage.
      *
      * @param mixed $model
-     * @return int
+     * @return mixed
      */
     public function destroy(mixed $model)
     {

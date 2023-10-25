@@ -8,7 +8,7 @@ interface ForceDeleteInterface
      * Force remove the specified resource from storage.
      *
      * @param int|string $id
-     * @return int
+     * @return mixed
      */
     public function forceDelete($id);
 }
