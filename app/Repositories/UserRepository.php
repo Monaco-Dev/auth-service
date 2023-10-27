@@ -142,7 +142,7 @@ class UserRepository extends Repository implements UserRepositoryInterface
     {
         $model->fill($request);
 
-        if ($model->isDirty()) {
+        if ($model->isDirty('email')) {
             auth()->user()->tokens->each(fn ($token) => $this->logout($token->id));
 
             $model->email_verified_at = null;
@@ -150,6 +150,8 @@ class UserRepository extends Repository implements UserRepositoryInterface
             $model->sendEmailVerificationNotification();
         }
 
-        return $model->save();
+        $model->save();
+
+        return $model;
     }
 }

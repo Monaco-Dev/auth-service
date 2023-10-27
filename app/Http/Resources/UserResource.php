@@ -20,8 +20,6 @@ class UserResource extends JsonResource
 
         $fields = [
             'id',
-            'email',
-            'phone_number',
             'first_name',
             'last_name',
             'is_email_verified',
@@ -34,6 +32,8 @@ class UserResource extends JsonResource
 
         if (Arr::get($data, 'id') == optional(Auth::user())->id) {
             $fields = array_merge($fields, [
+                'email',
+                'phone_number',
                 'incoming_invites_count',
                 'outgoing_invites_count',
                 'following_count',
@@ -48,6 +48,13 @@ class UserResource extends JsonResource
                 'is_following',
                 'is_follower',
             ]);
+
+            if (Arr::get($data, 'is_connection')) {
+                $fields = array_merge($fields, [
+                    'email',
+                    'phone_number',
+                ]);
+            }
         }
 
         $data = Arr::only($data, $fields);

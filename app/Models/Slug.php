@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 
 class Slug extends Model
 {
@@ -44,8 +45,8 @@ class Slug extends Model
      * 
      * @return Illuminate\Database\Eloquent\Model
      */
-    public function scopePrimary()
+    public function scopePrimary(Builder $query)
     {
-        return $this->where('is_primary', true)->first();
+        return $query->where('is_primary', true)->first();
     }
 }

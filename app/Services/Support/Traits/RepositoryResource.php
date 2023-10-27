@@ -54,7 +54,11 @@ trait RepositoryResource
      */
     public function update(mixed $model, array $request)
     {
-        return $this->repository->update($model, $request);
+        $data = $this->repository->update($model, $request);
+
+        return isset($data)
+            ? $this->setResponseResource($data)
+            : null;
     }
 
     /**

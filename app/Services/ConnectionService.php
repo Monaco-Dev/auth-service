@@ -43,6 +43,8 @@ class ConnectionService extends Service implements ConnectionServiceInterface
         $auth->connections()->attach($user);
         $user->connections()->attach($auth);
 
+        $auth->following()->attach($user);
+
         $auth->incomingInvites()->detach($user);
         $auth->outgoingInvites()->detach($user);
 
@@ -66,6 +68,8 @@ class ConnectionService extends Service implements ConnectionServiceInterface
 
         $auth->connections()->detach($user);
         $user->connections()->detach($auth);
+
+        $auth->following()->detach($user);
 
         $auth->incomingInvites()->detach($user);
         $auth->outgoingInvites()->detach($user);

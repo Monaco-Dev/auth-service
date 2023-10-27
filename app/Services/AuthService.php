@@ -130,15 +130,15 @@ class AuthService extends Service implements AuthServiceInterface
         try {
             // prepare data
             $userData = Arr::except($request, ['broker']);
-            $brokerData = Arr::get(Arr::only($request, ['broker']), 'broker');
+            // $brokerData = Arr::get(Arr::only($request, ['broker']), 'broker');
 
             // create user
             $user = $this->repository->create($userData);
             event(new Registered($user));
 
             // create broker license
-            Arr::set($brokerData, 'user_id', $user->id);
-            $this->brokerLicenseRepository->create($brokerData);
+            // Arr::set($brokerData, 'user_id', $user->id);
+            // $this->brokerLicenseRepository->create($brokerData);
 
             // create slug
             $this->slugRepository->updateOrCreate(

@@ -110,10 +110,9 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword
      */
     public function getUrlAttribute()
     {
-        $domain = config('services.web_url');
         $slug = optional(optional($this->slugs())->primary())->slug;
 
-        return $slug ? url("$domain/$slug") : null;
+        return $slug ? "/profile/$slug" : null;
     }
 
     /**
@@ -332,10 +331,10 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword
     {
         return $query->whereNotNull('email_verified_at')
             ->whereNull('deactivated_at')
-            ->whereNull('deleted_at')
-            ->whereHas('brokerLicense', function ($query) {
-                $query->verified();
-            });
+            ->whereNull('deleted_at');
+        // ->whereHas('brokerLicense', function ($query) {
+        //     $query->verified();
+        // });
     }
 
     /**
@@ -390,9 +389,9 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword
             })
             ->verified()
             ->orderBy('mutuals_count', 'desc')
-            ->orderByRaw('LOCATE("' . $search . '", CONCAT(first_name, " ", last_name))')
-            ->orderByRaw('LOCATE("' . $search . '", email)')
-            ->orderByRaw('LOCATE("' . $search . '", phone_number)')
-            ->orderByRaw('LOCATE("' . $search . '", license_number)');
+            ->orderByRaw('LOCATE("' . $search . '", CONCAT(first_name, " ", last_name)) desc')
+            ->orderByRaw('LOCATE("' . $search . '", email) desc')
+            ->orderByRaw('LOCATE("' . $search . '", phone_number) desc')
+            ->orderByRaw('LOCATE("' . $search . '", license_number) desc');
     }
 }

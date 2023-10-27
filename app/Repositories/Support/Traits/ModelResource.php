@@ -48,7 +48,9 @@ trait ModelResource
     {
         $model = optional($model)->id ? $model : $this->model->findOrFail($model);
 
-        return $model->update($request);
+        $model->update($request);
+
+        return $model;
     }
 
     /**
