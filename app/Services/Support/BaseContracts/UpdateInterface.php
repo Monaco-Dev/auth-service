@@ -9,7 +9,7 @@ interface UpdateInterface
      *
      * @param mixed $model
      * @param array $request
-     * @return \Illuminate\Database\Eloquent\Model
+     * @return \Illuminate\Http\Resources\Json\JsonResource|\Illuminate\Database\Eloquent\Model|null
      */
     public function update(mixed $model, array $request);
 }

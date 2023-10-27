@@ -42,15 +42,13 @@ trait ModelResource
      *
      * @param mixed $model
      * @param array $request
-     * @return \Illuminate\Database\Eloquent\Model
+     * @return mixed
      */
     public function update(mixed $model, array $request)
     {
         $model = optional($model)->id ? $model : $this->model->findOrFail($model);
 
-        $model->update($request);
-
-        return $model;
+        return $model->update($request);
     }
 
     /**

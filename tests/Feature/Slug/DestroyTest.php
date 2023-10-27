@@ -105,7 +105,6 @@ class DestroyTest extends TestCase
             'Accept' => 'application/json',
             'Authorization' => 'Bearer ' . Arr::get($auth, 'access_token')
         ])
-            ->withHeaders(['Accept' => 'application/json'])
             ->delete(route($this->route, $user->slugs()->first()))
             ->assertOk();
     }

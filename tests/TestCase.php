@@ -6,7 +6,6 @@ use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Notification;
 use Event;
 
-use App\Models\User;
 use App\Repositories\Support\Auth\AuthRequest;
 use Database\Seeders\OauthClientSeeder;
 
@@ -37,7 +36,7 @@ abstract class TestCase extends BaseTestCase
     /**
      * Request for password grant access token.
      * 
-     * @param User
+     * @param string $email
      * @return json
      */
     protected function login($email)
