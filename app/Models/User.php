@@ -65,7 +65,12 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword
         'is_email_verified',
         'is_deactivated',
         'full_name',
-        'url'
+        'url',
+        'is_incoming_invite',
+        'is_outgoing_invite',
+        'is_following',
+        'is_follower',
+        'is_connection',
     ];
 
     /**
@@ -112,6 +117,86 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword
     }
 
     /**
+     * Append new attribute.
+     * 
+     * @return bool
+     */
+    public function getIsOutgoingInviteAttribute()
+    {
+        if (!optional(Auth::user())->id) return false;
+
+        return $this->incomingInvites()
+            ->wherePivot(
+                'user_id',
+                Auth::user()->id
+            )->exists();
+    }
+
+    /**
+     * Append new attribute.
+     * 
+     * @return bool
+     */
+    public function getIsIncomingInviteAttribute()
+    {
+        if (!optional(Auth::user())->id) return false;
+
+        return $this->outgoingInvites()
+            ->wherePivot(
+                'connection_invitation_user_id',
+                Auth::user()->id
+            )->exists();
+    }
+
+    /**
+     * Append new attribute.
+     * 
+     * @return bool
+     */
+    public function getIsFollowingAttribute()
+    {
+        if (!optional(Auth::user())->id) return false;
+
+        return $this->followers()
+            ->wherePivot(
+                'user_id',
+                Auth::user()->id
+            )->exists();
+    }
+
+    /**
+     * Append new attribute.
+     * 
+     * @return bool
+     */
+    public function getIsFollowerAttribute()
+    {
+        if (!optional(Auth::user())->id) return false;
+
+        return $this->following()
+            ->wherePivot(
+                'follow_user_id',
+                Auth::user()->id
+            )->exists();
+    }
+
+    /**
+     * Append new attribute.
+     * 
+     * @return bool
+     */
+    public function getIsConnectionAttribute()
+    {
+        if (!optional(Auth::user())->id) return false;
+
+        return $this->connections()
+            ->wherePivot(
+                'connection_user_id',
+                Auth::user()->id
+            )->exists();
+    }
+
+    /**
      * Hash password attribute.
      * 
      * @param string $value
@@ -140,21 +225,6 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword
     public function slugs()
     {
         return $this->hasMany(Slug::class);
-    }
-
-    /**
-     * User must be verified.
-     * 
-     * @return Illuminate\Database\Eloquent\Builder
-     */
-    public function scopeVerified(Builder $query): Builder
-    {
-        return $query->whereNotNull('email_verified_at')
-            ->whereNull('deactivated_at')
-            ->whereNull('deleted_at')
-            ->whereHas('brokerLicense', function ($query) {
-                $query->verified();
-            });
     }
 
     /**
@@ -240,10 +310,9 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword
     /**
      * Get mutual connections.
      * 
-     * @param int|string|null $id
      * @return Illuminate\Database\Eloquent\Builder
      */
-    public function mutuals($id = null)
+    public function mutuals()
     {
         return $this->belongsToMany(
             User::class,
@@ -251,7 +320,22 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword
             'connection_user_id',
             'user_id',
         )
-            ->wherePivot('connection_user_id', '!=', $id ?? Auth::user()->id);
+            ->wherePivot('connection_user_id', '!=', optional(Auth::user())->id);
+    }
+
+    /**
+     * User must be verified.
+     * 
+     * @return Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeVerified(Builder $query): Builder
+    {
+        return $query->whereNotNull('email_verified_at')
+            ->whereNull('deactivated_at')
+            ->whereNull('deleted_at')
+            ->whereHas('brokerLicense', function ($query) {
+                $query->verified();
+            });
     }
 
     /**
@@ -283,50 +367,20 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword
      * 
      * @param Illuminate\Database\Eloquent\Builder $query
      * @param string|null $search
-     * @param int|string|null $id
      * @return Illuminate\Database\Eloquent\Builder
      */
-    public function scopeSearch(Builder $query, $search = null, $id = null): Builder
+    public function scopeSearch(Builder $query, $search = null): Builder
     {
-        $query = $query->withRelations();
+        $id = $id ?? optional(Auth::user())->id;
 
-        if ($id) {
-            $query = $query
-                ->withCount([
-                    'mutuals' => function ($query) use ($id) {
-                        $query->whereHas('connections', function ($query) use ($id) {
-                            $query->where('connection_user_id', $id);
-                        });
-                    }
-                ])
-                ->selectRaw(DB::raw("IF(c1.connection_user_id = $id, true, false) as has_connection"))
-                ->selectRaw(DB::raw("IF(cI1.connection_invitation_user_id = $id, true, false) as is_incoming_invite"))
-                ->selectRaw(DB::raw("IF(cI2.user_id = $id, true, false) as is_outgoing_invite"))
-                ->selectRaw(DB::raw("IF(f1.user_id = $id, true, false) as is_following"))
-                ->selectRaw(DB::raw("IF(f2.follow_user_id = $id, true, false) as is_follower"))
-                ->leftJoin('connections as c1', function ($query) use ($id) {
-                    $query->on('c1.user_id', '=', 'users.id')
-                        ->where('c1.connection_user_id', $id);
-                })
-                ->leftJoin('connection_invitations as cI1', function ($query) use ($id) {
-                    $query->on('cI1.user_id', '=', 'users.id')
-                        ->where('cI1.connection_invitation_user_id', $id);
-                })
-                ->leftJoin('connection_invitations as cI2', function ($query) use ($id) {
-                    $query->on('cI2.connection_invitation_user_id', '=', 'users.id')
-                        ->where('cI2.user_id', $id);
-                })
-                ->leftJoin('follows as f1', function ($query) use ($id) {
-                    $query->on('f1.follow_user_id', '=', 'users.id')
-                        ->where('f1.user_id', $id);
-                })
-                ->leftJoin('follows as f2', function ($query) use ($id) {
-                    $query->on('f2.user_id', '=', 'users.id')
-                        ->where('f2.follow_user_id', $id);
-                });
-        }
-
-        $query = $query
+        return $query->withRelations()
+            ->withCount([
+                'mutuals' => function ($query) use ($id) {
+                    $query->whereHas('connections', function ($query) use ($id) {
+                        $query->where('connection_user_id', $id);
+                    });
+                }
+            ])
             ->leftJoin('broker_licenses', 'broker_licenses.user_id', '=', 'users.id')
             ->where(function ($query) use ($search) {
                 $query->where(DB::raw('CONCAT(first_name, " ", last_name)'), 'like', '%' . $search . '%')
@@ -334,17 +388,11 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword
                     ->orWhere('phone_number', 'like', '%' . $search . '%')
                     ->orWhere('license_number', 'like', '%' . $search . '%');
             })
-            ->verified();
-
-        if ($id) {
-            $query = $query->orderBy('mutuals_count', 'desc');
-        }
-
-        $query = $query->orderByRaw('LOCATE("' . $search . '", CONCAT(first_name, " ", last_name))')
+            ->verified()
+            ->orderBy('mutuals_count', 'desc')
+            ->orderByRaw('LOCATE("' . $search . '", CONCAT(first_name, " ", last_name))')
             ->orderByRaw('LOCATE("' . $search . '", email)')
             ->orderByRaw('LOCATE("' . $search . '", phone_number)')
             ->orderByRaw('LOCATE("' . $search . '", license_number)');
-
-        return $query;
     }
 }

@@ -63,7 +63,7 @@ class UserService extends Service implements UserServiceInterface
         return $this->setResponseCollection(
             $this->repository
                 ->model()
-                ->search($search, Auth::user()->id)
+                ->search($search)
                 ->paginate()
         );
     }
