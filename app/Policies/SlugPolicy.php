@@ -16,6 +16,6 @@ class SlugPolicy
      */
     public function deleteSlug(User $user, Slug $slug): bool
     {
-        return $slug->user_id == $user->id;
+        return $slug->user_id == $user->id && $user->slugs()->count() > 1;
     }
 }

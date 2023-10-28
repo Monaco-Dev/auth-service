@@ -68,4 +68,23 @@ class SlugService extends Service implements SlugServiceInterface
                 ->get()
         );
     }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param mixed $model
+     * @return mixed
+     */
+    public function destroy(mixed $model)
+    {
+        $model->delete();
+
+        $slug = Auth::user()->slugs()->first();
+
+        $slug->is_primary = true;
+
+        $slug->save();
+
+        return response()->json(true);
+    }
 }
