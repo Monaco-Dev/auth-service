@@ -8,4 +8,4 @@ php-fpm -D
 
 nginx
 
-sudo php artisan migrate
+cd /app && sudo php artisan migrate --force
