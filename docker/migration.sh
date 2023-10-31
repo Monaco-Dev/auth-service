@@ -1,3 +1,3 @@
 #!/bin/bash
 
-php artisan migrate --force
+cd /app && php artisan migrate --force
