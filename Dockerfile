@@ -13,7 +13,8 @@ COPY ./src /app
 RUN sh -c "wget http://getcomposer.org/composer.phar && chmod a+x composer.phar && mv composer.phar /usr/local/bin/composer"
 RUN cd /app && \
     /usr/local/bin/composer install --no-dev &&  \
-    docker-php-ext-install pdo pdo_mysql
+    docker-php-ext-install pdo pdo_mysql && \
+    php artisan passport:keys
 
 RUN chown -R www-data: /app
 
