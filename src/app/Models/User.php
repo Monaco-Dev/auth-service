@@ -71,6 +71,7 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword
         'is_following',
         'is_follower',
         'is_connection',
+        'is_verified'
     ];
 
     /**
@@ -193,6 +194,16 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword
                 'connection_user_id',
                 Auth::user()->id
             )->exists();
+    }
+
+    /**
+     * Append new attribute.
+     * 
+     * @return bool
+     */
+    public function getIsVerifiedAttribute()
+    {
+        return !!$this->verified()->find($this->id);
     }
 
     /**

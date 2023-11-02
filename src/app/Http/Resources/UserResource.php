@@ -28,6 +28,7 @@ class UserResource extends JsonResource
             'url',
             'connections_count',
             'followers_count',
+            'is_verified'
         ];
 
         if (Arr::get($data, 'id') == optional(Auth::user())->id) {
