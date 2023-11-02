@@ -7,6 +7,7 @@ use Illuminate\Support\Arr;
 
 use App\Models\User;
 use App\Http\Resources\UserResource;
+use App\Notifications\SendInviteNotification;
 use App\Repositories\Contracts\ConnectionInvitationRepositoryInterface;
 use App\Services\Contracts\ConnectionInvitationServiceInterface;
 
@@ -32,14 +33,19 @@ class ConnectionInvitationService extends Service implements ConnectionInvitatio
     /**
      * Store a newly created resource in storage.
      *
+     * @param  array $request
      * @param  \App\Models\User $user
      * @return \Illuminate\Http\Response
      */
-    public function send(User $user)
+    public function send(array $request, User $user)
     {
+        $message = Arr::get($request, 'message');
+
         $auth = Auth::user();
 
-        $auth->outgoingInvites()->attach($user);
+        $auth->outgoingInvites()->attach($user, ['message' => $message]);
+
+        $user->notify(new SendInviteNotification($auth, $message));
 
         return response()->json(true, 200);
     }

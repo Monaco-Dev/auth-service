@@ -16,6 +16,7 @@ class ConnectionInvitation extends Model
      */
     protected $fillable = [
         'user_id',
-        'connection_invitation_user_id'
+        'connection_invitation_user_id',
+        'message'
     ];
 }

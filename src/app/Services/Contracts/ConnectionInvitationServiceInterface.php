@@ -9,10 +9,11 @@ interface ConnectionInvitationServiceInterface
     /**
      * Store a newly created resource in storage.
      *
+     * @param  array $request
      * @param  \App\Models\User $user
      * @return \Illuminate\Http\Response
      */
-    public function send(User $user);
+    public function send(array $request, User $user);
 
     /**
      * Search for specific resources in the database.

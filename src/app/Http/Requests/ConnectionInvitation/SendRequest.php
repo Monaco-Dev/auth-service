@@ -13,4 +13,19 @@ class SendRequest extends FormRequest
     {
         return $this->user()->can('invite', $this->user);
     }
+
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array|string>
+     */
+    public function rules(): array
+    {
+        return [
+            'message' => [
+                'nullable',
+                'string'
+            ]
+        ];
+    }
 }

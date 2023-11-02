@@ -7,20 +7,22 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class ConnectedNotification extends Notification
+class SendInviteNotification extends Notification
 {
     use Queueable;
 
-    protected $user;
+    protected $user, $message;
 
     /**
      * Create a new notification instance.
      * 
      * @param App\Models\User $user
+     * @param string|null $message
      */
-    public function __construct($user)
+    public function __construct($user, $message)
     {
         $this->user = $user;
+        $this->message = $message;
     }
 
     /**
@@ -38,11 +40,19 @@ class ConnectedNotification extends Notification
      */
     public function toMail(object $notifiable): MailMessage
     {
-        return (new MailMessage)
-            ->subject('New Connection')
-            ->line($this->user->full_name . ' accepted your invite!')
-            ->action('See profile', url(config('services.web_url') . $this->user->url))
+        $mail = (new MailMessage)
+            ->subject('New Connect Invitation')
+            ->line($this->user->full_name . ' just sent you an invite!');
+
+        if ($this->message) {
+            $mail = $mail->line('Message:')
+                ->line($this->message);
+        }
+
+        $mail = $mail->action('See profile', url(config('services.web_url') . $this->user->url))
             ->line('Thank you for using our application!');
+
+        return $mail;
     }
 
     /**

@@ -20,7 +20,8 @@ class ConnectionInvitationFactory extends Factory
     {
         return [
             'user_id' => User::factory(),
-            'connection_invitation_user_id' => User::factory()
+            'connection_invitation_user_id' => User::factory(),
+            'message' => fake()->paragraph()
         ];
     }
 }

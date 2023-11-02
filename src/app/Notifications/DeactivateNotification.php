@@ -38,6 +38,7 @@ class DeactivateNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
+            ->subject('Account Deactivation')
             ->line('You have successfully deactivated your account')
             ->line('Thank you for using our application!');
     }

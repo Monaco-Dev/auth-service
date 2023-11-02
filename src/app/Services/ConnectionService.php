@@ -43,7 +43,15 @@ class ConnectionService extends Service implements ConnectionServiceInterface
         $auth->connections()->attach($user);
         $user->connections()->attach($auth);
 
-        $auth->following()->attach($user);
+        if (!$user->is_following) {
+            $auth->following()->attach($user);
+        }
+
+        if (!$user->following()
+            ->where('follow_user_id', $auth->id)
+            ->exists()) {
+            $user->following()->attach($auth);
+        }
 
         $auth->incomingInvites()->detach($user);
         $auth->outgoingInvites()->detach($user);

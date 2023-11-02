@@ -37,7 +37,7 @@ class ConnectionInvitationController extends Controller
      */
     public function send(SendRequest $request, User $user)
     {
-        return $this->service->send($user);
+        return $this->service->send($request->validated(), $user);
     }
 
     /**
