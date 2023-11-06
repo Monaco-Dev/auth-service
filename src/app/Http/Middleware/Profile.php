@@ -6,7 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-use Facades\App\Repositories\Contracts\SlugRepositoryInterface as SlugRepository;
+use App\Models\User;
 
 class Profile
 {
@@ -17,7 +17,7 @@ class Profile
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!SlugRepository::profile($request->route('url'))) abort(404, 'Page not found');
+        if (!User::findBySlug($request->route('slug'))) abort(404, 'Page not found');
 
         return $next($request);
     }

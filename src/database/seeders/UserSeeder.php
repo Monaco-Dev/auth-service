@@ -16,7 +16,6 @@ class UserSeeder extends Seeder
     {
         $users = User::factory()
             ->hasBrokerLicense()
-            ->hasSlugs()
             ->count(5)
             ->create();
 
@@ -32,7 +31,6 @@ class UserSeeder extends Seeder
             // Create outgoing invites
             User::factory()
                 ->hasBrokerLicense()
-                ->hasSlugs()
                 ->count(2)
                 ->create()
                 ->each(function ($invite) use ($user) {
@@ -42,7 +40,6 @@ class UserSeeder extends Seeder
             // Create incoming invites
             User::factory()
                 ->hasBrokerLicense()
-                ->hasSlugs()
                 ->count(2)
                 ->create()
                 ->each(function ($invite) use ($user) {
@@ -52,7 +49,6 @@ class UserSeeder extends Seeder
             // Create outgoing invites
             User::factory()
                 ->hasBrokerLicense()
-                ->hasSlugs()
                 ->count(2)
                 ->create()
                 ->each(function ($follow) use ($user) {
@@ -62,7 +58,6 @@ class UserSeeder extends Seeder
             // Create incoming follow
             User::factory()
                 ->hasBrokerLicense()
-                ->hasSlugs()
                 ->count(2)
                 ->create()
                 ->each(function ($follow) use ($user) {

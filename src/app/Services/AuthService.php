@@ -14,7 +14,7 @@ use App\Http\Resources\UserResource;
 use App\Notifications\DeactivateNotification;
 use App\Repositories\Contracts\UserRepositoryInterface;
 use App\Repositories\Contracts\BrokerLicenseRepositoryInterface;
-use App\Repositories\Contracts\SlugRepositoryInterface;
+use Illuminate\Support\Facades\App;
 
 class AuthService extends Service implements AuthServiceInterface
 {
@@ -31,25 +31,17 @@ class AuthService extends Service implements AuthServiceInterface
     protected $brokerLicenseRepository;
 
     /**
-     * @var \App\Repositories\Contracts\SlugRepositoryInterface
-     */
-    protected $slugRepository;
-
-    /**
      * Create the service instance and inject its repository.
      *
      * @param App\Repositories\Contracts\UserRepositoryInterface
      * @param App\Repositories\Contracts\BrokerLicenseRepositoryInterface
-     * @param App\Repositories\Contracts\SlugRepositoryInterface
      */
     public function __construct(
         UserRepositoryInterface $repository,
-        BrokerLicenseRepositoryInterface $brokerLicenseRepository,
-        SlugRepositoryInterface $slugRepository
+        BrokerLicenseRepositoryInterface $brokerLicenseRepository
     ) {
         $this->repository = $repository;
         $this->brokerLicenseRepository = $brokerLicenseRepository;
-        $this->slugRepository = $slugRepository;
     }
 
     /**
@@ -113,7 +105,10 @@ class AuthService extends Service implements AuthServiceInterface
     public function verifyToken()
     {
         return $this->setResponseResource(
-            $this->repository->profile(Auth::user()->id)
+            $this->repository->model()
+                ->withRelations()
+                ->whereId(Auth::user()->id)
+                ->first()
         );
     }
 
@@ -132,6 +127,8 @@ class AuthService extends Service implements AuthServiceInterface
             $userData = Arr::except($request, ['broker']);
             // $brokerData = Arr::get(Arr::only($request, ['broker']), 'broker');
 
+            if (App::runningUnitTests()) Arr::set($userData, 'slug', fake()->slug());
+
             // create user
             $user = $this->repository->create($userData);
             event(new Registered($user));
@@ -140,19 +137,11 @@ class AuthService extends Service implements AuthServiceInterface
             // Arr::set($brokerData, 'user_id', $user->id);
             // $this->brokerLicenseRepository->create($brokerData);
 
-            // create slug
-            $this->slugRepository->updateOrCreate(
-                ['user_id' => $user->id],
-                [
-                    'slug' => Str::slug(
-                        $user->first_name . ' ' . $user->last_name . ' ' . (string) Str::uuid(),
-                        '-'
-                    )
-                ]
-            );
-
             // get profile
-            $profile = $this->repository->profile($user->id);
+            $profile = $this->repository->model()
+                ->withRelations()
+                ->whereId($user->id)
+                ->first();
 
             // authenticate
             $token = $this->repository->authenticate(

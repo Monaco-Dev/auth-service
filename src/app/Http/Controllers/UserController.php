@@ -43,12 +43,12 @@ class UserController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  string  $url
+     * @param  string  $slug
      * @return \Illuminate\Http\Response
      */
-    public function show($url)
+    public function show($slug)
     {
-        return $this->service->show($url);
+        return $this->service->show($slug);
     }
 
     /**

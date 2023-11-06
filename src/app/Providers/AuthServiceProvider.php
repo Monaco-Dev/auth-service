@@ -12,7 +12,6 @@ use App\Models\User;
 use App\Policies\ConnectionInvitationPolicy;
 use App\Policies\ConnectionPolicy;
 use App\Policies\FollowPolicy;
-use App\Policies\SlugPolicy;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -47,8 +46,6 @@ class AuthServiceProvider extends ServiceProvider
         });
 
         $this->registerPolicies();
-
-        Gate::define('delete-slug', [SlugPolicy::class, 'deleteSlug']);
 
         Gate::define('connect', [ConnectionPolicy::class, 'connect']);
         Gate::define('disconnect', [ConnectionPolicy::class, 'disconnect']);

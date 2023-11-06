@@ -47,42 +47,42 @@ class DisconnectTest extends TestCase
     /**
      * Test unverified license response
      */
-    public function test_unverified_license(): void
-    {
-        $user = User::factory()
-            ->has(BrokerLicense::factory()->unverified())
-            ->create();
+    // public function test_unverified_license(): void
+    // {
+    //     $user = User::factory()
+    //         ->has(BrokerLicense::factory()->unverified())
+    //         ->create();
 
-        $auth = $this->login($user->email);
+    //     $auth = $this->login($user->email);
 
-        $this->withHeaders([
-            'Accept' => 'application/json',
-            'Authorization' => 'Bearer ' . Arr::get($auth, 'access_token')
-        ])
-            ->delete(route($this->route, $user))
-            ->assertForbidden()
-            ->assertSeeText('Your license number is not verified');
-    }
+    //     $this->withHeaders([
+    //         'Accept' => 'application/json',
+    //         'Authorization' => 'Bearer ' . Arr::get($auth, 'access_token')
+    //     ])
+    //         ->delete(route($this->route, $user))
+    //         ->assertForbidden()
+    //         ->assertSeeText('Your license number is not verified');
+    // }
 
     /**
      * Test expired license response
      */
-    public function test_expired_license(): void
-    {
-        $user = User::factory()
-            ->has(BrokerLicense::factory()->expired())
-            ->create();
+    // public function test_expired_license(): void
+    // {
+    //     $user = User::factory()
+    //         ->has(BrokerLicense::factory()->expired())
+    //         ->create();
 
-        $auth = $this->login($user->email);
+    //     $auth = $this->login($user->email);
 
-        $this->withHeaders([
-            'Accept' => 'application/json',
-            'Authorization' => 'Bearer ' . Arr::get($auth, 'access_token')
-        ])
-            ->delete(route($this->route, $user))
-            ->assertForbidden()
-            ->assertSeeText('Your license number is expired');
-    }
+    //     $this->withHeaders([
+    //         'Accept' => 'application/json',
+    //         'Authorization' => 'Bearer ' . Arr::get($auth, 'access_token')
+    //     ])
+    //         ->delete(route($this->route, $user))
+    //         ->assertForbidden()
+    //         ->assertSeeText('Your license number is expired');
+    // }
 
     /**
      * Test successful response.

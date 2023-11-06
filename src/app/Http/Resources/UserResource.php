@@ -25,7 +25,7 @@ class UserResource extends JsonResource
             'is_email_verified',
             'is_deactivated',
             'full_name',
-            'url',
+            'slug',
             'connections_count',
             'followers_count',
             'is_verified'
@@ -61,7 +61,6 @@ class UserResource extends JsonResource
         $data = Arr::only($data, $fields);
 
         Arr::set($data, 'broker_license', new BrokerLicenseResource($this->whenLoaded('brokerLicense')));
-        Arr::set($data, 'slugs', SlugResource::collection($this->whenLoaded('slugs')));
 
         return $data;
     }

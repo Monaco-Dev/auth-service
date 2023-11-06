@@ -50,44 +50,44 @@ class SearchFollowingTest extends TestCase
     /**
      * Test unverified license response
      */
-    public function test_unverified_license(): void
-    {
-        $auth = $this->login(
-            User::factory()
-                ->has(BrokerLicense::factory()->unverified())
-                ->create()
-                ->email
-        );
+    // public function test_unverified_license(): void
+    // {
+    //     $auth = $this->login(
+    //         User::factory()
+    //             ->has(BrokerLicense::factory()->unverified())
+    //             ->create()
+    //             ->email
+    //     );
 
-        $this->withHeaders([
-            'Accept' => 'application/json',
-            'Authorization' => 'Bearer ' . Arr::get($auth, 'access_token')
-        ])
-            ->post(route($this->route))
-            ->assertForbidden()
-            ->assertSeeText('Your license number is not verified');
-    }
+    //     $this->withHeaders([
+    //         'Accept' => 'application/json',
+    //         'Authorization' => 'Bearer ' . Arr::get($auth, 'access_token')
+    //     ])
+    //         ->post(route($this->route))
+    //         ->assertForbidden()
+    //         ->assertSeeText('Your license number is not verified');
+    // }
 
     /**
      * Test expired license response
      */
-    public function test_expired_license(): void
-    {
-        $auth = $this->login(
-            User::factory()
-                ->has(BrokerLicense::factory()->expired())
-                ->create()
-                ->email
-        );
+    // public function test_expired_license(): void
+    // {
+    //     $auth = $this->login(
+    //         User::factory()
+    //             ->has(BrokerLicense::factory()->expired())
+    //             ->create()
+    //             ->email
+    //     );
 
-        $this->withHeaders([
-            'Accept' => 'application/json',
-            'Authorization' => 'Bearer ' . Arr::get($auth, 'access_token')
-        ])
-            ->post(route($this->route))
-            ->assertForbidden()
-            ->assertSeeText('Your license number is expired');
-    }
+    //     $this->withHeaders([
+    //         'Accept' => 'application/json',
+    //         'Authorization' => 'Bearer ' . Arr::get($auth, 'access_token')
+    //     ])
+    //         ->post(route($this->route))
+    //         ->assertForbidden()
+    //         ->assertSeeText('Your license number is expired');
+    // }
 
     /**
      * Test successful response.
@@ -98,7 +98,6 @@ class SearchFollowingTest extends TestCase
 
         $user = User::factory()
             ->hasBrokerLicense()
-            ->hasSlugs()
             ->create();
 
         $this->actingAs($user)

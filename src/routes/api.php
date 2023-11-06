@@ -8,7 +8,6 @@ use App\Http\Controllers\{
     ConnectionController,
     ConnectionInvitationController,
     FollowController,
-    SlugController,
     UserController
 };
 
@@ -58,13 +57,8 @@ Route::middleware('auth:api')->group(function () {
 
             Route::prefix('users')->name('users.')->group(function () {
                 Route::put('{user}', [UserController::class, 'update'])->name('update');
-                Route::get('{url}', [UserController::class, 'show'])->name('show')->middleware('profile');
+                Route::get('{slug}', [UserController::class, 'show'])->name('show')->middleware('profile');
                 Route::post('search', [UserController::class, 'search'])->name('search');
-            });
-
-            Route::prefix('slugs')->name('slugs.')->group(function () {
-                Route::post('/', [SlugController::class, 'store'])->name('store');
-                Route::delete('{slug}', [SlugController::class, 'destroy'])->name('destroy');
             });
 
             Route::prefix('connections')->name('connections.')->group(function () {

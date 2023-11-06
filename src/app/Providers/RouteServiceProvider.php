@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
 
 use App\Exceptions\ModelNotFoundException;
-use App\Models\Slug;
 use App\Models\User;
 
 class RouteServiceProvider extends ServiceProvider
@@ -42,10 +41,6 @@ class RouteServiceProvider extends ServiceProvider
         });
 
         Route::model('user', User::class, function () {
-            throw new ModelNotFoundException();
-        });
-
-        Route::model('slug', Slug::class, function () {
             throw new ModelNotFoundException();
         });
     }

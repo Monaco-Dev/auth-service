@@ -41,7 +41,7 @@ class ConnectedNotification extends Notification
         return (new MailMessage)
             ->subject('New Connection')
             ->line($this->user->full_name . ' accepted your invite!')
-            ->action('See profile', url(config('services.web_url') . $this->user->url))
+            ->action('See profile', url(config('services.web_url') . '/profile/' . $this->user->slug))
             ->line('Thank you for using our application!');
     }
 

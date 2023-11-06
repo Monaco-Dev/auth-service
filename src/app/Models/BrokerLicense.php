@@ -2,13 +2,16 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+use App\Models\Support\BrokerLicense\Attributes;
+use App\Models\Support\BrokerLicense\Relationships;
+use App\Models\Support\BrokerLicense\Scopes;
+
 class BrokerLicense extends Model
 {
-    use HasFactory;
+    use HasFactory, Attributes, Scopes, Relationships;
 
     /**
      * The attributes that are mass assignable.
@@ -41,45 +44,4 @@ class BrokerLicense extends Model
         'is_license_verified',
         'is_license_expired'
     ];
-
-    /**
-     * Append new attribute.
-     * 
-     * @return bool
-     */
-    public function getIsLicenseVerifiedAttribute()
-    {
-        return !!$this->verified_at;
-    }
-
-    /**
-     * Append new attribute.
-     * 
-     * @return bool
-     */
-    public function getIsLicenseExpiredAttribute()
-    {
-        return $this->expiration_date <= now();
-    }
-
-    /**
-     * Return User relationship.
-     * 
-     * @return App\Models\User
-     */
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
-
-    /**
-     * License must be verified.
-     * 
-     * @return Illuminate\Database\Eloquent\Builder
-     */
-    public function scopeVerified(Builder $query): Builder
-    {
-        return $query->whereNotNull('verified_at')
-            ->where('expiration_date', '>', now());
-    }
 }

@@ -11,7 +11,6 @@ use App\Services\Contracts\{
     ConnectionInvitationServiceInterface,
     ConnectionServiceInterface,
     FollowServiceInterface,
-    SlugServiceInterface,
     UserServiceInterface
 };
 use App\Services\{
@@ -20,7 +19,6 @@ use App\Services\{
     ConnectionInvitationService,
     ConnectionService,
     FollowService,
-    SlugService,
     UserService
 };
 
@@ -35,7 +33,6 @@ class AppServiceProvider extends ServiceProvider
         AuthServiceInterface::class => AuthService::class,
         UserServiceInterface::class => UserService::class,
         BrokerLicenseServiceInterface::class => BrokerLicenseService::class,
-        SlugServiceInterface::class => SlugService::class,
         ConnectionServiceInterface::class => ConnectionService::class,
         ConnectionInvitationServiceInterface::class => ConnectionInvitationService::class,
         FollowServiceInterface::class => FollowService::class,
