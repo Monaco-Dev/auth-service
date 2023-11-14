@@ -25,12 +25,14 @@ class UpdateRequest extends FormRequest
             'first_name' => [
                 'required',
                 'sometimes',
-                'string'
+                'string',
+                'max:50'
             ],
             'last_name' => [
                 'required',
                 'sometimes',
-                'string'
+                'string',
+                'max:50'
             ],
             'email' => [
                 'required',
