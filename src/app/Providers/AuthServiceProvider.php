@@ -30,7 +30,7 @@ class AuthServiceProvider extends ServiceProvider
     public function boot(): void
     {
         ResetPassword::createUrlUsing(function (User $user, string $token) {
-            return config('services.web_url') . '/reset-password?token=' . $token . '&email=' . $user->email;
+            return url(config('services.web_url') . '/reset-password?token=' . $token . '&email=' . urlencode($user->email));
         });
 
         VerifyEmail::toMailUsing(function (object $notifiable, string $url) {
