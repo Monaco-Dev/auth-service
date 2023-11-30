@@ -75,6 +75,14 @@ interface AuthServiceInterface
     public function resetPassword(array $request);
 
     /**
+     * Update user's password.
+     * 
+     * @param array $request
+     * @return \Illuminate\Http\Response
+     */
+    public function updatePassword(array $request);
+
+    /**
      * Request to deactivate a specific user.
      * 
      * @return \Illuminate\Http\Response

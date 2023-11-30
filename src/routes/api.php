@@ -41,6 +41,7 @@ Route::middleware('auth:api')->group(function () {
             Route::post('logout', [AuthController::class, 'logout'])->name('logout');
             Route::delete('delete', [AuthController::class, 'destroy'])->name('destroy');
             Route::get('verify-token', [AuthController::class, 'verifyToken'])->name('token.verify');
+            Route::post('update-password', [AuthController::class, 'updatePassword'])->name('update.password');
         });
 
         Route::prefix('email')->name('verification.')->group(function () {

@@ -7,11 +7,14 @@ use Illuminate\Http\Request;
 
 use App\Services\Contracts\AuthServiceInterface;
 use App\Http\Requests\Auth\{
+    DeactivateRequest,
+    DestroyRequest,
     ForgotPasswordRequest,
     LoginRequest,
     RefreshTokenRequest,
     RegisterRequest,
     ResetPasswordRequest,
+    UpdatePasswordRequest,
 };
 
 class AuthController extends Controller
@@ -131,11 +134,23 @@ class AuthController extends Controller
     }
 
     /**
-     * Request to deactivate a specific user.
+     * Update user's password.
      * 
+     * @param \App\Http\Requests\Auth\UpdatePasswordRequest $request
      * @return \Illuminate\Http\Response
      */
-    public function deactivate()
+    public function updatePassword(UpdatePasswordRequest $request)
+    {
+        return $this->service->updatePassword($request->validated());
+    }
+
+    /**
+     * Request to deactivate a specific user.
+     * 
+     * @param \App\Http\Requests\Auth\DeactivateRequest $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deactivate(DeactivateRequest $request)
     {
         return $this->service->deactivate();
     }
@@ -143,9 +158,10 @@ class AuthController extends Controller
     /**
      * Remove the specified resource from storage.
      *
+     * @param \App\Http\Requests\Auth\DestroyRequest $request
      * @return \Illuminate\Http\Response
      */
-    public function destroy()
+    public function destroy(DestroyRequest $request)
     {
         return $this->service->delete();
     }

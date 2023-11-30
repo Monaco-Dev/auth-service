@@ -46,6 +46,26 @@ class UserService extends Service implements UserServiceInterface
     }
 
     /**
+     * Update the specified resource in storage.
+     *
+     * @param mixed $model
+     * @param array $request
+     * @return \Illuminate\Http\Response
+     */
+    public function update(mixed $model, array $request)
+    {
+        $this->repository->update($model, $request);
+
+        return $this->setResponseResource(
+            $this->repository->model()
+                ->withRelations()
+                ->verified()
+                ->whereId($model->id)
+                ->first()
+        );
+    }
+
+    /**
      * Search for specific resources in the database.
      *
      * @param  array  $request

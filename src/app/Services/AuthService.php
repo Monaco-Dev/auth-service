@@ -7,14 +7,14 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\App;
+use Illuminate\Auth\Events\PasswordReset;
 
 use App\Services\Contracts\AuthServiceInterface;
 use App\Http\Resources\UserResource;
 use App\Notifications\DeactivateNotification;
 use App\Repositories\Contracts\UserRepositoryInterface;
 use App\Repositories\Contracts\BrokerLicenseRepositoryInterface;
-use Illuminate\Support\Facades\App;
 
 class AuthService extends Service implements AuthServiceInterface
 {
@@ -58,7 +58,8 @@ class AuthService extends Service implements AuthServiceInterface
             $user = Auth::user();
 
             if ($user->is_deactivated) {
-                $this->repository->reactivate($user->id);
+                $user->deactivated_at = null;
+                $user->save();
             }
 
             $response = $this->repository->authenticate(
@@ -229,6 +230,27 @@ class AuthService extends Service implements AuthServiceInterface
         }
 
         return response()->json($response);
+    }
+
+    /**
+     * Update user's password.
+     * 
+     * @param array $request
+     * @return \Illuminate\Http\Response
+     */
+    public function updatePassword(array $request)
+    {
+        $user = Auth::user();
+
+        $user->forceFill([
+            'password' => Arr::get($request, 'password')
+        ]);
+
+        $user->save();
+
+        $user->tokens->each(fn ($token) => $this->logout($token->id));
+
+        event(new PasswordReset($user));
     }
 
     /**
