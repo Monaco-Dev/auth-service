@@ -7,6 +7,7 @@ use Illuminate\Support\Arr;
 use App\Repositories\Contracts\UserRepositoryInterface;
 use App\Services\Contracts\UserServiceInterface;
 use App\Http\Resources\UserResource;
+use Illuminate\Support\Facades\Auth;
 
 class UserService extends Service implements UserServiceInterface
 {
@@ -56,13 +57,22 @@ class UserService extends Service implements UserServiceInterface
     {
         $this->repository->update($model, $request);
 
-        return $this->setResponseResource(
-            $this->repository->model()
-                ->withRelations()
-                ->verified()
-                ->whereId($model->id)
-                ->first()
+        $user = $this->repository->model()
+            ->withRelations()
+            ->whereId($model->id)
+            ->first();
+
+        // authenticate
+        $token = $this->repository->authenticate(
+            $user->email,
+            Arr::get($request, 'password')
         );
+
+        $user->token = $token;
+
+        Auth::setUser($user);
+
+        return $this->setResponseResource($user);
     }
 
     /**

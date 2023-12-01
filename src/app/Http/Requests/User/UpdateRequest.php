@@ -47,6 +47,11 @@ class UpdateRequest extends FormRequest
                 'min:11',
                 'string',
                 'unique:users,phone_number,' . $this->user->id
+            ],
+            'password' => [
+                'required_with:email',
+                'string',
+                'current_password:api'
             ]
         ];
     }
