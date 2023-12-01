@@ -2,11 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\SearchRequest;
 use App\Services\Contracts\UserServiceInterface;
-use App\Http\Requests\User\{
-    SearchRequest,
-    UpdateRequest,
-};
+use App\Http\Requests\User\UpdateRequest;
 use App\Models\User;
 
 class UserController extends Controller
@@ -54,7 +52,7 @@ class UserController extends Controller
     /**
      * Search for specific resources in the database.
      *
-     * @param  \App\Http\Requests\User\SearchRequest  $request
+     * @param  \App\Http\Requests\SearchRequest  $request
      * @return \Illuminate\Http\Response
      */
     public function search(SearchRequest $request)

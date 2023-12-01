@@ -89,7 +89,7 @@ class UserService extends Service implements UserServiceInterface
             $this->repository
                 ->model()
                 ->search($search)
-                ->paginate()
+                ->paginate(Arr::get($request, 'limit') ?? 15)
         );
     }
 }

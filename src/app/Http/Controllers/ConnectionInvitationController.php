@@ -3,10 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Services\Contracts\ConnectionInvitationServiceInterface;
-use App\Http\Requests\ConnectionInvitation\{
-    SearchRequest,
-    SendRequest
-};
+use App\Http\Requests\ConnectionInvitation\SendRequest;
+use App\Http\Requests\SearchRequest;
 use App\Models\User;
 
 class ConnectionInvitationController extends Controller
@@ -43,7 +41,7 @@ class ConnectionInvitationController extends Controller
     /**
      * Search for specific resources in the database.
      *
-     * @param  \App\Http\Requests\ConnectionInvitation\SearchRequest  $request
+     * @param  \App\Http\Requests\SearchRequest  $request
      * @return \Illuminate\Http\Response
      */
     public function searchIncoming(SearchRequest $request)
@@ -54,7 +52,7 @@ class ConnectionInvitationController extends Controller
     /**
      * Search for specific resources in the database.
      *
-     * @param  \App\Http\Requests\ConnectionInvitation\SearchRequest  $request
+     * @param  \App\Http\Requests\SearchRequest  $request
      * @return \Illuminate\Http\Response
      */
     public function searchOutgoing(SearchRequest $request)

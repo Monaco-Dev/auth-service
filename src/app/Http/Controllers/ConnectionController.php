@@ -5,9 +5,9 @@ namespace App\Http\Controllers;
 use App\Services\Contracts\ConnectionServiceInterface;
 use App\Http\Requests\Connection\{
     ConnectRequest,
-    DisconnectRequest,
-    SearchRequest
+    DisconnectRequest
 };
+use App\Http\Requests\SearchRequest;
 use App\Models\User;
 
 class ConnectionController extends Controller
@@ -56,7 +56,7 @@ class ConnectionController extends Controller
     /**
      * Search for specific resources in the database.
      *
-     * @param  \App\Http\Requests\Connection\SearchRequest  $request
+     * @param  \App\Http\Requests\SearchRequest  $request
      * @return \Illuminate\Http\Response
      */
     public function search(SearchRequest $request)
