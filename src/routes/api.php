@@ -39,7 +39,7 @@ Route::middleware('auth:api')->group(function () {
     Route::prefix('auth')->group(function () {
         Route::name('auth.')->group(function () {
             Route::post('logout', [AuthController::class, 'logout'])->name('logout');
-            Route::delete('delete', [AuthController::class, 'destroy'])->name('destroy');
+            Route::post('delete', [AuthController::class, 'destroy'])->name('destroy');
             Route::get('verify-token', [AuthController::class, 'verifyToken'])->name('token.verify');
             Route::post('update-password', [AuthController::class, 'updatePassword'])->name('update.password');
         });
