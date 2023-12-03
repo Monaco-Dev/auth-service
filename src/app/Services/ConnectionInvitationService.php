@@ -47,7 +47,7 @@ class ConnectionInvitationService extends Service implements ConnectionInvitatio
 
         $user->notify(new SendInviteNotification($auth, $message));
 
-        return response()->json(true, 200);
+        return new UserResource($user);
     }
 
     /**

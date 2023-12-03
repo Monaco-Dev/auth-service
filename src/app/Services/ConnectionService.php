@@ -61,7 +61,7 @@ class ConnectionService extends Service implements ConnectionServiceInterface
 
         $user->notify(new ConnectedNotification($auth));
 
-        return response()->json(true, 200);
+        return new UserResource($user);
     }
 
     /**
@@ -85,7 +85,7 @@ class ConnectionService extends Service implements ConnectionServiceInterface
         $user->incomingInvites()->detach($auth);
         $user->outgoingInvites()->detach($auth);
 
-        return response()->json(true, 200);
+        return new UserResource($user);
     }
 
     /**

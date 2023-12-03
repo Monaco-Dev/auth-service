@@ -21,12 +21,14 @@ class RegisterRequest extends FormRequest
             'first_name' => [
                 'required',
                 'string',
-                'max:50'
+                'max:50',
+                'regex:/^[a-zA-Z ]*$/'
             ],
             'last_name' => [
                 'required',
                 'string',
-                'max:50'
+                'max:50',
+                'regex:/^[a-zA-Z ]*$/'
             ],
             'email' => [
                 'required',
