@@ -276,6 +276,10 @@ class AuthService extends Service implements AuthServiceInterface
      */
     public function delete()
     {
-        return $this->repository->delete(Auth::user()->id);
+        $user = Auth::user();
+
+        $this->repository->update($user, ['email' => $user->email . '+deleted']);
+
+        return $this->repository->delete($user->id);
     }
 }
