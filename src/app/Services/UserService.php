@@ -62,15 +62,17 @@ class UserService extends Service implements UserServiceInterface
             ->whereId($model->id)
             ->first();
 
-        // authenticate
-        $token = $this->repository->authenticate(
-            $user->email,
-            Arr::get($request, 'password')
-        );
+        if (Arr::get($request, 'email')) {
+            // authenticate
+            $token = $this->repository->authenticate(
+                $user->email,
+                Arr::get($request, 'password')
+            );
 
-        $user->token = $token;
+            $user->token = $token;
 
-        Auth::setUser($user);
+            Auth::setUser($user);
+        }
 
         return $this->setResponseResource($user);
     }

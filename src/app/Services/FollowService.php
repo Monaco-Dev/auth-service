@@ -41,7 +41,7 @@ class FollowService extends Service implements FollowServiceInterface
 
         $auth->following()->attach($user);
 
-        return response()->json(true, 200);
+        return new UserResource($user);
     }
 
     /**
@@ -56,7 +56,7 @@ class FollowService extends Service implements FollowServiceInterface
 
         $auth->following()->detach($user);
 
-        return response()->json(true, 200);
+        return new UserResource($user);
     }
 
     /**
