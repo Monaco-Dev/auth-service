@@ -3,11 +3,11 @@
 namespace App\Services;
 
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Auth;
 
 use App\Repositories\Contracts\UserRepositoryInterface;
 use App\Services\Contracts\UserServiceInterface;
 use App\Http\Resources\UserResource;
-use Illuminate\Support\Facades\Auth;
 
 class UserService extends Service implements UserServiceInterface
 {
