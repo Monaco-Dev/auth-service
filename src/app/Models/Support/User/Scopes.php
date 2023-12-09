@@ -32,15 +32,27 @@ trait Scopes
     public function scopeWithRelations(Builder $query)
     {
         $with = [
-            'brokerLicense'
+            'brokerLicense' => function ($query) {
+                // $query->verified();
+            }
         ];
 
         $withCount = [
-            'connections',
-            'incomingInvites',
-            'outgoingInvites',
-            'following',
-            'followers'
+            'connections' => function ($query) {
+                $query->verified();
+            },
+            'incomingInvites' => function ($query) {
+                $query->verified();
+            },
+            'outgoingInvites' => function ($query) {
+                $query->verified();
+            },
+            'following' => function ($query) {
+                $query->verified();
+            },
+            'followers' => function ($query) {
+                $query->verified();
+            }
         ];
 
         return $query->with($with)->withCount($withCount);
