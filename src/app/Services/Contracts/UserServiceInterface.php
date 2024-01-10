@@ -16,4 +16,11 @@ interface UserServiceInterface extends Update, Show
      * @return \Illuminate\Http\Response
      */
     public function search(array $request);
+
+    /**
+     * Search for specific resources in the database.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function searchMutuals();
 }

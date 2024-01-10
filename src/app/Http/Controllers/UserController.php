@@ -59,4 +59,14 @@ class UserController extends Controller
     {
         return $this->service->search($request->validated());
     }
+
+    /**
+     * Search for specific resources in the database.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function searchMutuals()
+    {
+        return $this->service->searchMutuals();
+    }
 }

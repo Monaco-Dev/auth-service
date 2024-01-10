@@ -94,4 +94,19 @@ class UserService extends Service implements UserServiceInterface
                 ->paginate(Arr::get($request, 'limit') ?? 15)
         );
     }
+
+    /**
+     * Search for specific resources in the database.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function searchMutuals()
+    {
+        return $this->setResponseCollection(
+            $this->repository
+                ->model()
+                ->searchMutuals()
+                ->paginate(15)
+        );
+    }
 }
