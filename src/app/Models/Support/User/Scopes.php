@@ -91,4 +91,45 @@ trait Scopes
             ->orderByRaw('LOCATE("' . $search . '", phone_number) desc')
             ->orderByRaw('LOCATE("' . $search . '", license_number) desc');
     }
+
+    /**
+     * Wildcard search query
+     * 
+     * @param Illuminate\Database\Eloquent\Builder $query
+     * @return Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeSearchMutuals(Builder $query): Builder
+    {
+        $id = $id ?? optional(Auth::user())->id;
+
+        return $query->withCount([
+            'mutuals' => function ($query) use ($id) {
+                $query->whereHas('connections', function ($query) use ($id) {
+                    $query->where('connection_user_id', $id);
+                });
+            }
+        ])
+            ->whereHas('mutuals', function ($query) use ($id) {
+                $query->whereHas('connections', function ($query) use ($id) {
+                    $query->where('connection_user_id', $id);
+                });
+            })
+            ->whereDoesntHave('connections', function ($query) use ($id) {
+                $query->where('user_id', $id);
+            })
+            ->whereDoesntHave('incomingInvites', function ($query) use ($id) {
+                $query->where('connection_invitation_user_id', $id);
+            })
+            ->whereDoesntHave('outgoingInvites', function ($query) use ($id) {
+                $query->where('user_id', $id);
+            })
+            ->whereDoesntHave('following', function ($query) use ($id) {
+                $query->where('user_id', $id);
+            })
+            ->whereDoesntHave('followers', function ($query) use ($id) {
+                $query->where('follow_user_id', $id);
+            })
+            ->verified()
+            ->orderBy('mutuals_count', 'desc');
+    }
 }

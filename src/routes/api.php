@@ -60,6 +60,7 @@ Route::middleware('auth:api')->group(function () {
                 Route::put('{user}', [UserController::class, 'update'])->name('update');
                 Route::get('{slug}', [UserController::class, 'show'])->name('show')->middleware('profile');
                 Route::post('search', [UserController::class, 'search'])->name('search');
+                Route::post('search/mutuals', [UserController::class, 'searchMutuals'])->name('search.mutuals');
             });
 
             Route::prefix('connections')->name('connections.')->group(function () {
