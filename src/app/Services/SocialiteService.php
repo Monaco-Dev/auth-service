@@ -89,7 +89,8 @@ class SocialiteService extends Service implements SocialiteServiceInterface
         } catch (Exception $e) {
             DB::rollback();
 
-            return redirect("$web/login");
+            // return redirect("$web/login");
+            throw $e;
         }
     }
 
