@@ -29,8 +29,8 @@ Route::prefix('auth')->group(function () {
         Route::post('refresh-token', [AuthController::class, 'refreshToken'])->name('token.refresh');
 
         Route::prefix('{driver}')->name('socialite.')->group(function () {
-            Route::get('redirect', [SocialiteController::class, 'redirect'])->name('redirect');
-            Route::get('callback', [SocialiteController::class, 'callback'])->name('callback');
+            // Route::get('redirect', [SocialiteController::class, 'redirect'])->name('redirect');
+            // Route::get('callback', [SocialiteController::class, 'callback'])->name('callback');
             Route::post('login', [SocialiteController::class, 'login'])->name('login');
         });
     });
