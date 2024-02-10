@@ -49,7 +49,7 @@ class SocialiteService extends Service implements SocialiteServiceInterface
         try {
             $driver = Arr::get($request, 'driver');
 
-            $social = Socialite::driver($driver)->user();
+            $social = Socialite::driver($driver)->stateless()->user();
 
             $name = explode(' ', $social->getName());
             $lastName = array_splice($name, -1);
@@ -104,7 +104,7 @@ class SocialiteService extends Service implements SocialiteServiceInterface
     {
         $driver = Arr::get($request, 'driver');
 
-        return Socialite::driver($driver)->redirect();
+        return Socialite::driver($driver)->stateless()->redirect();
     }
 
     /**
