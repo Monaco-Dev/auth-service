@@ -26,6 +26,7 @@ class UserResource extends JsonResource
             'is_deactivated',
             'full_name',
             'slug',
+            'avatar',
             'connections_count',
             'followers_count',
             'is_verified'

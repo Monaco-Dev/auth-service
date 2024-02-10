@@ -9,6 +9,7 @@ use App\Repositories\Contracts\{
     ConnectionInvitationRepositoryInterface,
     ConnectionRepositoryInterface,
     FollowRepositoryInterface,
+    SocialiteRepositoryInterface,
     UserRepositoryInterface
 };
 use App\Repositories\{
@@ -16,6 +17,7 @@ use App\Repositories\{
     ConnectionInvitationRepository,
     ConnectionRepository,
     FollowRepository,
+    SocialiteRepository,
     UserRepository
 };
 
@@ -32,6 +34,7 @@ class RepositoryServiceProvider extends ServiceProvider
         ConnectionRepositoryInterface::class => ConnectionRepository::class,
         ConnectionInvitationRepositoryInterface::class => ConnectionInvitationRepository::class,
         FollowRepositoryInterface::class => FollowRepository::class,
+        SocialiteRepositoryInterface::class => SocialiteRepository::class,
     ];
 
     /**
