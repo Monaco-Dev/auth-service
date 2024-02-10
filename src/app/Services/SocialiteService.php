@@ -42,6 +42,8 @@ class SocialiteService extends Service implements SocialiteServiceInterface
      */
     public function callback(array $request)
     {
+        $web = config('services.web_url');
+
         DB::beginTransaction();
 
         try {
@@ -83,11 +85,11 @@ class SocialiteService extends Service implements SocialiteServiceInterface
 
             DB::commit();
 
-            return redirect("http://localhost:3000/login/?id=$socialId&driver=$driver");
+            return redirect("$web/login/?id=$socialId&driver=$driver");
         } catch (Exception $e) {
             DB::rollback();
 
-            return redirect("http://localhost:3000/login");
+            return redirect("$web/login");
         }
     }
 
