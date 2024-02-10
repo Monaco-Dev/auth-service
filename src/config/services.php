@@ -34,6 +34,24 @@ return [
     'client_id' => env('CLIENT_ID'),
     'client_secret' => env('CLIENT_SECRET'),
 
-    'web_url' => env('WEB_URL')
+    'web_url' => env('WEB_URL'),
+
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect' => env('GOOGLE_CLIENT_URL'),
+    ],
+
+    'facebook' => [
+        'client_id' => env('FACEBOOK_CLIENT_ID'),
+        'client_secret' => env('FACEBOOK_CLIENT_SECRET'),
+        'redirect' => env('FACEBOOK_CLIENT_URL'),
+    ],
+
+    'linkedin-openid' => [
+        'client_id' => env('LINKEDIN_CLIENT_ID'),
+        'client_secret' => env('LINKEDIN_CLIENT_SECRET'),
+        'redirect' => env('LINKEDIN_CLIENT_URL'),
+    ],
 
 ];

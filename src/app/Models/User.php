@@ -42,7 +42,9 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword
         'phone_number',
         'password',
         'deactivated_at',
-        'slug'
+        'slug',
+        'avatar',
+        'email_verified_at'
     ];
 
     /**

@@ -6,9 +6,10 @@ use App\Repositories\Support\BaseContracts\{
     FindInterface as Find,
     UpdateInterface as Update,
     DeleteInterface as Delete,
+    UpdateOrCreateInterface as UpdateOrCreate
 };
 
-interface UserRepositoryInterface extends Find, Update, Delete
+interface UserRepositoryInterface extends Find, Update, Delete, UpdateOrCreate
 {
     /**
      * Authenticate User

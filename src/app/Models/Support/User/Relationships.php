@@ -5,6 +5,7 @@ namespace App\Models\Support\User;
 use Illuminate\Support\Facades\Auth;
 
 use App\Models\BrokerLicense;
+use App\Models\Socialite;
 use App\Models\User;
 
 trait Relationships
@@ -113,5 +114,15 @@ trait Relationships
             'user_id',
         )
             ->wherePivot('connection_user_id', '!=', optional(Auth::user())->id);
+    }
+
+    /**
+     * Get Socialite relationship.
+     * 
+     * @return App\Models\Socialite
+     */
+    public function socialite()
+    {
+        return $this->hasOne(Socialite::class);
     }
 }

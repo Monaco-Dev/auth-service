@@ -8,9 +8,9 @@ use App\Http\Controllers\{
     ConnectionController,
     ConnectionInvitationController,
     FollowController,
+    SocialiteController,
     UserController
 };
-
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -27,6 +27,12 @@ Route::prefix('auth')->group(function () {
         Route::post('register', [AuthController::class, 'register'])->name('register');
         Route::post('login', [AuthController::class, 'login'])->name('login');
         Route::post('refresh-token', [AuthController::class, 'refreshToken'])->name('token.refresh');
+
+        Route::prefix('{driver}')->name('socialite.')->group(function () {
+            Route::get('redirect', [SocialiteController::class, 'redirect'])->name('redirect');
+            Route::get('callback', [SocialiteController::class, 'callback'])->name('callback');
+            Route::post('login', [SocialiteController::class, 'login'])->name('login');
+        });
     });
 
     Route::name('password.')->group(function () {
