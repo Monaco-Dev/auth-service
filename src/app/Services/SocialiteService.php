@@ -12,7 +12,6 @@ use App\Repositories\Contracts\{
     UserRepositoryInterface
 };
 use App\Services\Contracts\SocialiteServiceInterface;
-use Illuminate\Support\Facades\Log;
 
 class SocialiteService extends Service implements SocialiteServiceInterface
 {
@@ -89,8 +88,6 @@ class SocialiteService extends Service implements SocialiteServiceInterface
             return redirect("$web/login/?id=$socialId&driver=$driver");
         } catch (Exception $e) {
             DB::rollback();
-
-            // return redirect("$web/login");
             throw $e;
         }
     }
