@@ -104,7 +104,7 @@ class SocialiteService extends Service implements SocialiteServiceInterface
     {
         $driver = Arr::get($request, 'driver');
 
-        return Socialite::driver($driver)->stateless()->scopes(['openid', 'email'])->redirect();
+        return Socialite::driver($driver)->stateless()->setScopes(['openid', 'email'])->redirect();
     }
 
     /**
