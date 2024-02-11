@@ -12,6 +12,7 @@ use App\Repositories\Contracts\{
     UserRepositoryInterface
 };
 use App\Services\Contracts\SocialiteServiceInterface;
+use Illuminate\Support\Facades\Log;
 
 class SocialiteService extends Service implements SocialiteServiceInterface
 {
@@ -42,6 +43,8 @@ class SocialiteService extends Service implements SocialiteServiceInterface
      */
     public function callback(array $request)
     {
+        return request()->all();
+
         $web = config('services.web_url');
 
         DB::beginTransaction();
@@ -49,7 +52,7 @@ class SocialiteService extends Service implements SocialiteServiceInterface
         try {
             $driver = Arr::get($request, 'driver');
 
-            $social = Socialite::driver($driver)->user();
+            $social = Socialite::driver($driver)->stateless()->user();
 
             $name = explode(' ', $social->getName());
             $lastName = array_splice($name, -1);
@@ -104,7 +107,7 @@ class SocialiteService extends Service implements SocialiteServiceInterface
     {
         $driver = Arr::get($request, 'driver');
 
-        return Socialite::driver($driver)->setScopes(['email', 'openid'])->redirect();
+        return Socialite::driver($driver)->stateless()->setScopes(['email', 'openid'])->redirect();
     }
 
     /**
