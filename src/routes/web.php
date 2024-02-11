@@ -18,7 +18,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::prefix('{driver}')->name('socialite.')->group(function () {
+Route::prefix('api/auth/{driver}')->name('socialite.')->group(function () {
     Route::get('redirect', [SocialiteController::class, 'redirect'])->name('redirect');
     Route::get('callback', [SocialiteController::class, 'callback'])->name('callback');
 });
