@@ -7,6 +7,7 @@ use App\Http\Requests\Socialite\{
     SocialiteRequest,
     LoginRequest
 };
+use Illuminate\Http\Request;
 
 class SocialiteController extends Controller
 {
@@ -33,9 +34,10 @@ class SocialiteController extends Controller
      * @param \App\Http\Requests\Socialite\SocialiteRequest $request
      * @return \Illuminate\Support\Facades\Redirect
      */
-    public function callback(SocialiteRequest $request)
+    public function callback(Request $request)
     {
-        return $this->service->callback($request->validated());
+        return $request->all();
+        // return $this->service->callback($request->validated());
     }
 
     /**

@@ -43,8 +43,6 @@ class SocialiteService extends Service implements SocialiteServiceInterface
      */
     public function callback(array $request)
     {
-        return request()->all();
-
         $web = config('services.web_url');
 
         DB::beginTransaction();
