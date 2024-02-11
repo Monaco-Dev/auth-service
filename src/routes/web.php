@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\SocialiteController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -15,4 +16,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
+});
+
+Route::prefix('{driver}')->name('socialite.')->group(function () {
+    Route::get('redirect', [SocialiteController::class, 'redirect'])->name('redirect');
+    Route::get('callback', [SocialiteController::class, 'callback'])->name('callback');
 });
