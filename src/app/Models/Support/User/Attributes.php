@@ -2,6 +2,7 @@
 
 namespace App\Models\Support\User;
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -151,7 +152,7 @@ trait Attributes
     public function getAvatarUrlAttribute()
     {
         if ($this->avatar) {
-            if (parse_url($this->avatar)['scheme']) {
+            if (Arr::has(parse_url($this->avatar), 'scheme')) {
                 return $this->avatar;
             } else {
                 return Storage::disk('gcs')->url($this->avatar);
