@@ -3,6 +3,8 @@
 namespace App\Models\Support\User;
 
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 trait Attributes
 {
@@ -134,6 +136,28 @@ trait Attributes
      */
     public function setPasswordAttribute($value)
     {
-        $this->attributes['password'] = password_hash($value, PASSWORD_ARGON2I);
+        if (!Hash::info($value)['algo']) {
+            $this->attributes['password'] = password_hash($value, PASSWORD_ARGON2I);
+        } else {
+            $this->attributes['password'] = $value;
+        }
+    }
+
+    /**
+     * Append new attribute.
+     * 
+     * @return bool
+     */
+    public function getAvatarUrlAttribute()
+    {
+        if ($this->avatar) {
+            if (parse_url($this->avatar)['scheme']) {
+                return $this->avatar;
+            } else {
+                return Storage::disk('gcs')->url($this->avatar);
+            }
+        } else {
+            return fake()->imageUrl(540, 540, null, false, $this->first_name[0] . $this->last_name[0], true);
+        }
     }
 }

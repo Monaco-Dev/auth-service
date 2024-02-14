@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Requests\BrokerLicense;
+namespace App\Http\Requests\License;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rules\File;
 
-class UpdateRequest extends FormRequest
+class UpdateOrCreateRequest extends FormRequest
 {
     /**
      * Get the validation rules that apply to the request.
@@ -17,12 +17,16 @@ class UpdateRequest extends FormRequest
         return [
             'license_number' => [
                 'required',
-                'unique:broker_licenses,license_number,' . optional(Auth::user()->brokerLicense)->id,
-                'digits:7'
+                'string',
+                'unique:licenses,license_number,' . optional(auth()->user()->license)->id,
             ],
             'expiration_date' => [
                 'required',
                 'date'
+            ],
+            'file' => [
+                'required',
+                File::image()->max(5000)
             ]
         ];
     }

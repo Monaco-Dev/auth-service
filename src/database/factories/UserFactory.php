@@ -23,7 +23,8 @@ class UserFactory extends Factory
             'phone_number' => fake()->numerify('###########'),
             'email_verified_at' => now(),
             'password' => 'Password123!',
-            'slug' => fake()->slug()
+            'slug' => fake()->slug(),
+            'avatar' => fake()->imageUrl()
         ];
     }
 

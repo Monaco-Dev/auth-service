@@ -60,16 +60,31 @@ class SocialiteService extends Service implements SocialiteServiceInterface
             $refreshToken = $social->refreshToken;
             $expiresIn = $social->expiresIn;
 
+            $params = [
+                'password' => $token,
+                'deactivated_at' => null
+            ];
+
+            $user = $this->userRepository->model()->whereEmail($email)->first();
+
+            $origPsw = null;
+
+            if ($user) {
+                $origPsw = $user->password;
+
+                if (!$user->avatar) $params['avatar'] = $avatar;
+
+                if (!$user->is_email_verified) $params['email_verified_at'] = now();
+            } else {
+                $params['first_name'] = implode(' ', $name);
+                $params['last_name'] = implode('', $lastName);
+                $params['avatar'] = $avatar;
+                $params['email_verified_at'] = now();
+            }
+
             $user = $this->userRepository->updateOrCreate(
                 ['email' => $email],
-                [
-                    'password' => $token,
-                    'first_name' => implode(' ', $name),
-                    'last_name' => implode('', $lastName),
-                    'avatar' => $avatar,
-                    'deactivated_at' => null,
-                    'email_verified_at' => now()
-                ]
+                $params
             );
 
             $this->repository->updateOrCreate(
@@ -83,9 +98,28 @@ class SocialiteService extends Service implements SocialiteServiceInterface
                 ]
             );
 
+            $response = $this->userRepository->authenticate(
+                $user->email,
+                $token
+            );
+
+            $cookie = cookie(
+                'token',
+                base64_encode($response),
+                config('auth.remember_me_token_timeout'),
+                '/',
+                config('app.domain'),
+                config('app.env') != 'local',
+                false,
+                false,
+                'strict'
+            );
+
+            $this->userRepository->update($user, ['password' => $origPsw]);
+
             DB::commit();
 
-            return redirect("$web/login/?id=$socialId&driver=$driver");
+            return redirect($web)->withCookie($cookie);
         } catch (Exception $e) {
             DB::rollback();
             throw $e;
@@ -124,6 +158,8 @@ class SocialiteService extends Service implements SocialiteServiceInterface
                 $social->user->email,
                 $social->token
             );
+
+            $response->password_reset = true;
 
             DB::commit();
 

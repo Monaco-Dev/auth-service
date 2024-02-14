@@ -17,10 +17,10 @@ trait Scopes
     {
         return $query->whereNotNull('email_verified_at')
             ->whereNull('deactivated_at')
-            ->whereNull('deleted_at');
-        // ->whereHas('brokerLicense', function ($query) {
-        //     $query->verified();
-        // });
+            ->whereNull('users.deleted_at')
+            ->whereHas('license', function ($query) {
+                $query->verified();
+            });
     }
 
     /**
@@ -32,9 +32,7 @@ trait Scopes
     public function scopeWithRelations(Builder $query)
     {
         $with = [
-            'brokerLicense' => function ($query) {
-                // $query->verified();
-            }
+            'license'
         ];
 
         $withCount = [
@@ -77,7 +75,7 @@ trait Scopes
                     });
                 }
             ])
-            ->leftJoin('broker_licenses', 'broker_licenses.user_id', '=', 'users.id')
+            ->leftJoin('licenses', 'licenses.user_id', '=', 'users.id')
             ->where(function ($query) use ($search) {
                 $query->where(DB::raw('CONCAT(first_name, " ", last_name)'), 'like', '%' . $search . '%')
                     ->orWhere('email', 'like', '%' . $search . '%')

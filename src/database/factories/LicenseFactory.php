@@ -7,9 +7,9 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Models\User;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\BrokerLicense>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\License>
  */
-class BrokerLicenseFactory extends Factory
+class LicenseFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -21,6 +21,8 @@ class BrokerLicenseFactory extends Factory
         return [
             'user_id' => User::factory(),
             'license_number' => fake()->numerify('#######'),
+            'type' => fake()->randomElement(['broker', 'sales']),
+            'file' => fake()->imageUrl(),
             'verified_at' => now(),
             'expiration_date' => now()->addYear()
         ];

@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Arr;
 
-class BrokerLicenseResource extends JsonResource
+class LicenseResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -22,7 +22,9 @@ class BrokerLicenseResource extends JsonResource
             'is_license_verified',
             'is_license_expired',
             'license_number',
-            'expiration_date'
+            'license_type',
+            'expiration_date',
+            'url'
         ]);
 
         Arr::set($data, 'user', new UserResource($this->whenLoaded('user')));

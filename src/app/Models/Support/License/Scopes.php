@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Support\BrokerLicense;
+namespace App\Models\Support\License;
 
 use Illuminate\Database\Eloquent\Builder;
 
