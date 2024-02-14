@@ -267,7 +267,10 @@ class AuthService extends Service implements AuthServiceInterface
 
         $user->tokens->each(fn ($token) => $this->repository->logout($token->id));
 
-        $this->repository->update($user, ['email' => $user->email . '+deleted']);
+        $this->repository->update($user, [
+            'email' => $user->email . '+deleted',
+            'phone_number' => $user->phone_number . '+deleted'
+        ]);
 
         return $this->repository->delete($user->id);
     }
