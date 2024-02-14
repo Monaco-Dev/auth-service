@@ -5,7 +5,7 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 
 use App\Repositories\Contracts\{
-    BrokerLicenseRepositoryInterface,
+    LicenseRepositoryInterface,
     ConnectionInvitationRepositoryInterface,
     ConnectionRepositoryInterface,
     FollowRepositoryInterface,
@@ -13,7 +13,7 @@ use App\Repositories\Contracts\{
     UserRepositoryInterface
 };
 use App\Repositories\{
-    BrokerLicenseRepository,
+    LicenseRepository,
     ConnectionInvitationRepository,
     ConnectionRepository,
     FollowRepository,
@@ -30,7 +30,7 @@ class RepositoryServiceProvider extends ServiceProvider
      */
     public $bindings = [
         UserRepositoryInterface::class => UserRepository::class,
-        BrokerLicenseRepositoryInterface::class => BrokerLicenseRepository::class,
+        LicenseRepositoryInterface::class => LicenseRepository::class,
         ConnectionRepositoryInterface::class => ConnectionRepository::class,
         ConnectionInvitationRepositoryInterface::class => ConnectionInvitationRepository::class,
         FollowRepositoryInterface::class => FollowRepository::class,

@@ -6,7 +6,7 @@ use App\Repositories\Support\BaseContracts\{
     UpdateOrCreateInterface as UpdateOrCreate
 };
 
-interface BrokerLicenseRepositoryInterface extends UpdateOrCreate
+interface LicenseRepositoryInterface extends UpdateOrCreate
 {
     /**
      * Here you insert custom functions.

@@ -3,6 +3,7 @@
 namespace App\Http\Requests\User;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\File;
 
 class UpdateRequest extends FormRequest
 {
@@ -54,6 +55,10 @@ class UpdateRequest extends FormRequest
                 'required_with:email',
                 'string',
                 'current_password:api'
+            ],
+            'avatar' => [
+                'nullable',
+                File::image()->max(5000)
             ]
         ];
     }

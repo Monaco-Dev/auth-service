@@ -29,7 +29,7 @@ class CheckClientUserCredentials
             return $next($request);
         });
 
-        app(VerifiedBroker::class)->handle($request, function ($request) use ($next) {
+        app(VerifiedLicense::class)->handle($request, function ($request) use ($next) {
             return $next($request);
         });
 

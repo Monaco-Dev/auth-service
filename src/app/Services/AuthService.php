@@ -14,7 +14,6 @@ use App\Services\Contracts\AuthServiceInterface;
 use App\Http\Resources\UserResource;
 use App\Notifications\DeactivateNotification;
 use App\Repositories\Contracts\UserRepositoryInterface;
-use App\Repositories\Contracts\BrokerLicenseRepositoryInterface;
 
 class AuthService extends Service implements AuthServiceInterface
 {
@@ -26,22 +25,13 @@ class AuthService extends Service implements AuthServiceInterface
     protected $resourceClass = UserResource::class;
 
     /**
-     * @var \App\Repositories\Contracts\BrokerLicenseRepositoryInterface
-     */
-    protected $brokerLicenseRepository;
-
-    /**
      * Create the service instance and inject its repository.
      *
      * @param App\Repositories\Contracts\UserRepositoryInterface
-     * @param App\Repositories\Contracts\BrokerLicenseRepositoryInterface
      */
-    public function __construct(
-        UserRepositoryInterface $repository,
-        BrokerLicenseRepositoryInterface $brokerLicenseRepository
-    ) {
+    public function __construct(UserRepositoryInterface $repository)
+    {
         $this->repository = $repository;
-        $this->brokerLicenseRepository = $brokerLicenseRepository;
     }
 
     /**
@@ -124,19 +114,11 @@ class AuthService extends Service implements AuthServiceInterface
         DB::beginTransaction();
 
         try {
-            // prepare data
-            $userData = Arr::except($request, ['broker']);
-            // $brokerData = Arr::get(Arr::only($request, ['broker']), 'broker');
-
-            if (App::runningUnitTests()) Arr::set($userData, 'slug', fake()->slug());
+            if (App::runningUnitTests()) Arr::set($request, 'slug', fake()->slug());
 
             // create user
-            $user = $this->repository->create($userData);
+            $user = $this->repository->create($request);
             event(new Registered($user));
-
-            // create broker license
-            // Arr::set($brokerData, 'user_id', $user->id);
-            // $this->brokerLicenseRepository->create($brokerData);
 
             // get profile
             $profile = $this->repository->model()
@@ -278,10 +260,15 @@ class AuthService extends Service implements AuthServiceInterface
     {
         $user = Auth::user();
 
-        $res = $this->repository->delete($user->id);
+        $license = $user->license;
+        $license->license_number = $license->license_number . '+deleted';
+        $license->save();
+        $license->delete();
+
+        $user->tokens->each(fn ($token) => $this->repository->logout($token->id));
 
         $this->repository->update($user, ['email' => $user->email . '+deleted']);
 
-        return $res;
+        return $this->repository->delete($user->id);
     }
 }

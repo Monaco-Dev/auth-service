@@ -4,20 +4,20 @@ namespace App\Models\Support\User;
 
 use Illuminate\Support\Facades\Auth;
 
-use App\Models\BrokerLicense;
+use App\Models\License;
 use App\Models\Socialite;
 use App\Models\User;
 
 trait Relationships
 {
     /**
-     * Return BrokerLicense relationship.
+     * Return License relationship.
      * 
-     * @return App\Models\BrokerLicense
+     * @return App\Models\License
      */
-    public function brokerLicense()
+    public function license()
     {
-        return $this->hasOne(BrokerLicense::class);
+        return $this->hasOne(License::class);
     }
 
     /**

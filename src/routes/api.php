@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\{
     AuthController,
-    BrokerLicenseController,
+    LicenseController,
     ConnectionController,
     ConnectionInvitationController,
     FollowController,
@@ -45,9 +45,7 @@ Route::middleware('auth:api')->group(function () {
     Route::prefix('auth')->group(function () {
         Route::name('auth.')->group(function () {
             Route::post('logout', [AuthController::class, 'logout'])->name('logout');
-            Route::post('delete', [AuthController::class, 'destroy'])->name('destroy');
             Route::get('verify-token', [AuthController::class, 'verifyToken'])->name('token.verify');
-            Route::post('update-password', [AuthController::class, 'updatePassword'])->name('update.password');
         });
 
         Route::prefix('email')->name('verification.')->group(function () {
@@ -57,13 +55,17 @@ Route::middleware('auth:api')->group(function () {
     });
 
     Route::middleware('verified-email')->group(function () {
-        Route::post('broker-licenses/update', [BrokerLicenseController::class, 'update'])->name('brokerLicenses.update');
+        Route::post('licenses', [LicenseController::class, 'updateOrCreate'])->name('licenses.updateOrCreate');
 
-        Route::middleware('verified-broker')->group(function () {
-            Route::post('auth/deactivate', [AuthController::class, 'deactivate'])->name('auth.deactivate');
+        Route::middleware('verified-license')->group(function () {
+            Route::prefix('auth')->name('auth.')->group(function () {
+                Route::post('delete', [AuthController::class, 'destroy'])->name('destroy');
+                Route::post('update-password', [AuthController::class, 'updatePassword'])->name('update.password');
+                Route::post('deactivate', [AuthController::class, 'deactivate'])->name('deactivate');
+            });
 
             Route::prefix('users')->name('users.')->group(function () {
-                Route::put('{user}', [UserController::class, 'update'])->name('update');
+                Route::post('{user}', [UserController::class, 'update'])->name('update');
                 Route::get('{slug}', [UserController::class, 'show'])->name('show')->middleware('profile');
                 Route::post('search', [UserController::class, 'search'])->name('search');
                 Route::post('search/mutuals', [UserController::class, 'searchMutuals'])->name('search.mutuals');

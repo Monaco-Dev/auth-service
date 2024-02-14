@@ -42,16 +42,7 @@ class RegisterRequest extends FormRequest
                 'string',
                 'unique:users'
             ],
-            'password' => $this->password(),
-            // 'broker.license_number' => [
-            //     'required',
-            //     'unique:broker_licenses,license_number',
-            //     'digits:7'
-            // ],
-            // 'broker.expiration_date' => [
-            //     'required',
-            //     'date'
-            // ]
+            'password' => $this->password()
         ];
     }
 }

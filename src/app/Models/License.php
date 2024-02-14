@@ -4,14 +4,19 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
-use App\Models\Support\BrokerLicense\Attributes;
-use App\Models\Support\BrokerLicense\Relationships;
-use App\Models\Support\BrokerLicense\Scopes;
+use App\Models\Support\License\Attributes;
+use App\Models\Support\License\Relationships;
+use App\Models\Support\License\Scopes;
 
-class BrokerLicense extends Model
+class License extends Model
 {
-    use HasFactory, Attributes, Scopes, Relationships;
+    use HasFactory,
+        SoftDeletes,
+        Attributes,
+        Scopes,
+        Relationships;
 
     /**
      * The attributes that are mass assignable.
@@ -20,8 +25,10 @@ class BrokerLicense extends Model
      */
     protected $fillable = [
         'user_id',
-        'verified_at',
         'license_number',
+        'type',
+        'file',
+        'verified_at',
         'expiration_date'
     ];
 
@@ -42,6 +49,8 @@ class BrokerLicense extends Model
      */
     protected $appends = [
         'is_license_verified',
-        'is_license_expired'
+        'is_license_expired',
+        'url',
+        'license_type'
     ];
 }

@@ -4,6 +4,9 @@ namespace App\Services;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
+use Exception;
 
 use App\Repositories\Contracts\UserRepositoryInterface;
 use App\Services\Contracts\UserServiceInterface;
@@ -55,26 +58,47 @@ class UserService extends Service implements UserServiceInterface
      */
     public function update(mixed $model, array $request)
     {
-        $this->repository->update($model, $request);
+        DB::beginTransaction();
 
-        $user = $this->repository->model()
-            ->withRelations()
-            ->whereId($model->id)
-            ->first();
+        try {
+            $file = Arr::get($request, 'avatar');
 
-        if (Arr::get($request, 'email')) {
-            // authenticate
-            $token = $this->repository->authenticate(
-                $user->email,
-                Arr::get($request, 'password')
-            );
+            if ($file) {
+                if ($model->avatar) Storage::disk('gcs')->delete($model->avatar);
 
-            $user->token = $token;
+                $fileName = $model->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+                $storeFile = $file->storeAs('Avatars', $fileName, 'gcs');
 
-            Auth::setUser($user);
+                Arr::set($request, 'avatar', $storeFile);
+            }
+
+            $this->repository->update($model, $request);
+
+            $user = $this->repository->model()
+                ->withRelations()
+                ->whereId($model->id)
+                ->first();
+
+            if (Arr::get($request, 'email')) {
+                // authenticate
+                $token = $this->repository->authenticate(
+                    $user->email,
+                    Arr::get($request, 'password')
+                );
+
+                $user->token = $token;
+
+                Auth::setUser($user);
+            }
+
+            DB::commit();
+
+            return $this->setResponseResource($user);
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            throw $e;
         }
-
-        return $this->setResponseResource($user);
     }
 
     /**

@@ -7,7 +7,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 use App\Services\Contracts\{
     AuthServiceInterface,
-    BrokerLicenseServiceInterface,
+    LicenseServiceInterface,
     ConnectionInvitationServiceInterface,
     ConnectionServiceInterface,
     FollowServiceInterface,
@@ -16,7 +16,7 @@ use App\Services\Contracts\{
 };
 use App\Services\{
     AuthService,
-    BrokerLicenseService,
+    LicenseService,
     ConnectionInvitationService,
     ConnectionService,
     FollowService,
@@ -34,7 +34,7 @@ class AppServiceProvider extends ServiceProvider
     public $bindings = [
         AuthServiceInterface::class => AuthService::class,
         UserServiceInterface::class => UserService::class,
-        BrokerLicenseServiceInterface::class => BrokerLicenseService::class,
+        LicenseServiceInterface::class => LicenseService::class,
         ConnectionServiceInterface::class => ConnectionService::class,
         ConnectionInvitationServiceInterface::class => ConnectionInvitationService::class,
         FollowServiceInterface::class => FollowService::class,

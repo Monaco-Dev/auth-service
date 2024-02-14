@@ -2,7 +2,7 @@
 
 namespace App\Services\Contracts;
 
-interface BrokerLicenseServiceInterface
+interface LicenseServiceInterface
 {
     /**
      * Update or create the specified resource in storage.

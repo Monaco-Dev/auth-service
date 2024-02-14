@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
-class VerifiedBroker
+class VerifiedLicense
 {
     /**
      * Handle an incoming request.
@@ -16,13 +16,13 @@ class VerifiedBroker
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // if (!optional(Auth::user()->brokerLicense)->is_license_verified) {
-        //     abort(403, 'Your license number is not verified.');
-        // }
+        if (!optional(Auth::user()->license)->is_license_verified) {
+            abort(403, 'Your license is not verified.');
+        }
 
-        // if (optional(Auth::user()->brokerLicense)->is_license_expired) {
-        //     abort(403, 'Your license number is expired.');
-        // }
+        if (optional(Auth::user()->license)->is_license_expired) {
+            abort(403, 'Your license is expired.');
+        }
 
         return $next($request);
     }
