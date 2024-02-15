@@ -92,15 +92,7 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword
     {
         return SlugOptions::create()
             ->generateSlugsFrom(function ($model) {
-                $check = User::where('first_name', $model->first_name)
-                    ->where('last_name', $model->last_name)
-                    ->exists();
-
-                $uuid = Str::uuid();
-
-                $name = "{$model->first_name} {$model->last_name}";
-
-                return ($check) ? "{$name} {$uuid}" : $name;
+                return "{$model->full_name} {$model->id}";
             })
             ->saveSlugsTo('slug')
             ->slugsShouldBeNoLongerThan(50);
