@@ -11,8 +11,7 @@ use Exception;
 use App\Repositories\Contracts\UserRepositoryInterface;
 use App\Services\Contracts\UserServiceInterface;
 use App\Http\Resources\UserResource;
-
-use Google\Cloud\Storage\StorageClient;
+use App\Services\Support\GoogleCloudStorage;
 
 class UserService extends Service implements UserServiceInterface
 {
@@ -24,13 +23,24 @@ class UserService extends Service implements UserServiceInterface
     protected $resourceClass = UserResource::class;
 
     /**
+     * Google Cloud Storage Service.
+     * 
+     * @var \App\Services\Support\GoogleCloudStorage
+     */
+    protected $googleCloudStorage;
+
+    /**
      * Create the service instance and inject its repository.
      *
      * @param App\Repositories\Contracts\UserRepositoryInterface
+     * @param App\Services\Support\GoogleCloudStorage
      */
-    public function __construct(UserRepositoryInterface $repository)
-    {
+    public function __construct(
+        UserRepositoryInterface $repository,
+        GoogleCloudStorage $googleCloudStorage
+    ) {
         $this->repository = $repository;
+        $this->googleCloudStorage = $googleCloudStorage;
     }
 
     /**
@@ -66,17 +76,19 @@ class UserService extends Service implements UserServiceInterface
             $file = Arr::get($request, 'avatar');
 
             if ($file) {
-                // if ($model->avatar) Storage::disk('gcs')->delete($model->avatar);
-                $storage = new StorageClient([
-                    'projectId' => 'realmate-413515'
-                ]);
-                $bucket = $storage->bucket('realmate');
-                $bucket->upload(fopen(storage_path('app') . '/test.txt', 'r'));
+                $fileName = $model->id . '_' . time() . '.' . $file->getClientOriginalExtension();
 
-                // $fileName = $model->id . '_' . time() . '.' . $file->getClientOriginalExtension();
-                // $storeFile = $file->storeAs('Avatars', $fileName, 'gcs');
+                $cloudPath = 'Avatars/' . $fileName;
 
-                Arr::set($request, 'avatar', null);
+                $file->storeAs('temp', $fileName, 'local');
+
+                $this->googleCloudStorage->delete($model->avatar);
+
+                $this->googleCloudStorage->upload($fileName, $cloudPath);
+
+                Storage::disk('local')->delete('temp/' . $fileName);
+
+                Arr::set($request, 'avatar', $cloudPath);
             }
 
             $this->repository->update($model, $request);
