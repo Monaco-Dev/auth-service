@@ -71,7 +71,7 @@ class UserService extends Service implements UserServiceInterface
                     'projectId' => 'realmate-413515'
                 ]);
                 $bucket = $storage->bucket('realmate');
-                $bucket->upload($file);
+                $bucket->upload(fopen(storage_path('app') . '/test.txt', 'r'));
 
                 // $fileName = $model->id . '_' . time() . '.' . $file->getClientOriginalExtension();
                 // $storeFile = $file->storeAs('Avatars', $fileName, 'gcs');
