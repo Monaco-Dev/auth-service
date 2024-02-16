@@ -72,7 +72,7 @@ class UserService extends Service implements UserServiceInterface
 
                 $storage = new StorageClient([
                     'projectId' => config('filesystems.disks.gcs.project_id'),
-                    'keyFile' => config('filesystems.disks.gcs.key_file'),
+                    // 'keyFile' => config('filesystems.disks.gcs.key_file'),
                 ]);
 
                 $bucket = $storage->bucket(config('filesystems.disks.gcs.bucket'));
