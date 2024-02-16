@@ -11,7 +11,8 @@ use Exception;
 use App\Repositories\Contracts\UserRepositoryInterface;
 use App\Services\Contracts\UserServiceInterface;
 use App\Http\Resources\UserResource;
-use Illuminate\Http\File;
+
+use Google\Cloud\Storage\StorageClient;
 
 class UserService extends Service implements UserServiceInterface
 {
@@ -66,8 +67,9 @@ class UserService extends Service implements UserServiceInterface
 
             if ($file) {
                 // if ($model->avatar) Storage::disk('gcs')->delete($model->avatar);
-
-                Storage::disk('gcs')->putFileAs('Internals', new File(storage_path('app') . "/test.txt"), 'test.txt');
+                $storage = new StorageClient();
+                $bucket = $storage->bucket('realmate');
+                $bucket->upload($file);
 
                 $fileName = $model->id . '_' . time() . '.' . $file->getClientOriginalExtension();
                 $storeFile = $file->storeAs('Avatars', $fileName, 'gcs');
