@@ -59,18 +59,18 @@ return [
         'gcs' => [
             'driver' => 'gcs',
             'key_file' => [
-                'type' => env('CLOUD_ACCOUNT_TYPE'),
-                'private_key_id' => env('CLOUD_PRIVATE_KEY_ID'),
-                'private_key' => env('CLOUD_PRIVATE_KEY'),
-                'client_email' => env('CLOUD_CLIENT_EMAIL'),
-                'client_id' => env('CLOUD_CLIENT_ID'),
-                'auth_uri' => env('CLOUD_AUTH_URI'),
-                'token_uri' => env('CLOUD_TOKEN_URI'),
-                'auth_provider_x509_cert_url' => env('CLOUD_AUTH_PROVIDER_CERT_URL'),
-                'client_x509_cert_url' => env('CLOUD_CLIENT_CERT_URL'),
+                'type' => env('GOOGLE_CLOUD_ACCOUNT_TYPE'),
+                'private_key_id' => env('GOOGLE_CLOUD_PRIVATE_KEY_ID'),
+                'private_key' => env('GOOGLE_CLOUD_PRIVATE_KEY'),
+                'client_email' => env('GOOGLE_CLOUD_CLIENT_EMAIL'),
+                'client_id' => env('GOOGLE_CLOUD_CLIENT_ID'),
+                'auth_uri' => env('GOOGLE_CLOUD_AUTH_URI'),
+                'token_uri' => env('GOOGLE_CLOUD_TOKEN_URI'),
+                'auth_provider_x509_cert_url' => env('GOOGLE_CLOUD_AUTH_PROVIDER_CERT_URL'),
+                'client_x509_cert_url' => env('GOOGLE_CLOUD_CLIENT_CERT_URL'),
             ],
-            'project_id' => env('CLOUD_PROJECT_ID', 'your-project-id'), // optional: is included in key file
-            'bucket' => env('CLOUD_STORAGE_BUCKET', 'your-bucket'),
+            'project_id' => env('GOOGLE_CLOUD_PROJECT_ID', 'your-project-id'), // optional: is included in key file
+            'bucket' => env('GOOGLE_CLOUD_STORAGE_BUCKET', 'your-bucket'),
             'visibility' => 'public', // optional: public|private
         ],
 
