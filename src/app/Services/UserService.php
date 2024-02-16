@@ -67,7 +67,9 @@ class UserService extends Service implements UserServiceInterface
 
             if ($file) {
                 // if ($model->avatar) Storage::disk('gcs')->delete($model->avatar);
-                $storage = new StorageClient();
+                $storage = new StorageClient([
+                    'projectId' => 'realmate-413515'
+                ]);
                 $bucket = $storage->bucket('realmate');
                 $bucket->upload($file);
 
