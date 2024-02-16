@@ -11,7 +11,8 @@ use Exception;
 use App\Repositories\Contracts\UserRepositoryInterface;
 use App\Services\Contracts\UserServiceInterface;
 use App\Http\Resources\UserResource;
-use App\Services\Support\GoogleCloudStorage;
+
+use Google\Cloud\Storage\StorageClient;
 
 class UserService extends Service implements UserServiceInterface
 {
@@ -23,24 +24,13 @@ class UserService extends Service implements UserServiceInterface
     protected $resourceClass = UserResource::class;
 
     /**
-     * Google Cloud Storage Service.
-     * 
-     * @var \App\Services\Support\GoogleCloudStorage
-     */
-    protected $googleCloudStorage;
-
-    /**
      * Create the service instance and inject its repository.
      *
      * @param App\Repositories\Contracts\UserRepositoryInterface
-     * @param App\Services\Support\GoogleCloudStorage
      */
-    public function __construct(
-        UserRepositoryInterface $repository,
-        GoogleCloudStorage $googleCloudStorage
-    ) {
+    public function __construct(UserRepositoryInterface $repository)
+    {
         $this->repository = $repository;
-        $this->googleCloudStorage = $googleCloudStorage;
     }
 
     /**
@@ -78,17 +68,32 @@ class UserService extends Service implements UserServiceInterface
             if ($file) {
                 $fileName = $model->id . '_' . time() . '.' . $file->getClientOriginalExtension();
 
-                $cloudPath = 'Avatars/' . $fileName;
-
                 $file->storeAs('temp', $fileName, 'local');
 
-                $this->googleCloudStorage->delete($model->avatar);
+                $storage = new StorageClient([
+                    'projectId' => config('filesystems.disks.gcs.project_id'),
+                    'keyFile' => config('filesystems.disks.gcs.key_file'),
+                ]);
 
-                $this->googleCloudStorage->upload($fileName, $cloudPath);
+                $bucket = $storage->bucket(config('filesystems.disks.gcs.bucket'));
+
+                try {
+                    $bucket->object($model->avatar)->delete();
+                } catch (\Exception $e) {
+                    //
+                }
+
+                $bucket->upload(
+                    fopen(storage_path('app') . '/temp/' . $fileName, 'r'),
+                    [
+                        'name' => 'Avatars/' . $fileName,
+                        'predefinedAcl' => 'publicRead'
+                    ]
+                );
 
                 Storage::disk('local')->delete('temp/' . $fileName);
 
-                Arr::set($request, 'avatar', $cloudPath);
+                Arr::set($request, 'avatar', 'Avatars/' . $fileName);
             }
 
             $this->repository->update($model, $request);
