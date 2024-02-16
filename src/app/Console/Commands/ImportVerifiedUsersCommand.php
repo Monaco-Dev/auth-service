@@ -56,7 +56,7 @@ class ImportVerifiedUsersCommand extends Command
 
                         $verified[] = $user['ID'];
                     } else {
-                        if (Storage::disk('gcs')->exists($model->license->file)) Storage::disk('gcs')->delete($model->license->file);
+                        Storage::disk('gcs')->delete($model->license->file);
 
                         $model->license->forceDelete();
 
