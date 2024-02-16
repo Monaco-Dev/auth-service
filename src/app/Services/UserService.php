@@ -66,7 +66,7 @@ class UserService extends Service implements UserServiceInterface
             $file = Arr::get($request, 'avatar');
 
             if ($file) {
-                $fileName = $model->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+                $fileName = 'test.txt'; // $model->id . '_' . time() . '.' . $file->getClientOriginalExtension();
 
                 // $file->storeAs('temp', $fileName, 'local');
 
