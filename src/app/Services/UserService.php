@@ -71,10 +71,10 @@ class UserService extends Service implements UserServiceInterface
                 $bucket = $storage->bucket('realmate');
                 $bucket->upload($file);
 
-                $fileName = $model->id . '_' . time() . '.' . $file->getClientOriginalExtension();
-                $storeFile = $file->storeAs('Avatars', $fileName, 'gcs');
+                // $fileName = $model->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+                // $storeFile = $file->storeAs('Avatars', $fileName, 'gcs');
 
-                Arr::set($request, 'avatar', $storeFile);
+                Arr::set($request, 'avatar', null);
             }
 
             $this->repository->update($model, $request);
