@@ -66,9 +66,9 @@ class UserService extends Service implements UserServiceInterface
             $file = Arr::get($request, 'avatar');
 
             if ($file) {
-                $fileName = 'test.txt'; // $model->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+                $fileName = $model->id . '_' . time() . '.' . $file->getClientOriginalExtension();
 
-                // $file->storeAs('temp', $fileName, 'local');
+                $file->storeAs('temp', $fileName, 'local');
 
                 $storage = new StorageClient([
                     'projectId' => config('filesystems.disks.gcs.project_id'),
@@ -91,7 +91,7 @@ class UserService extends Service implements UserServiceInterface
                     ]
                 );
 
-                // Storage::disk('local')->delete('temp/' . $fileName);
+                Storage::disk('local')->delete('temp/' . $fileName);
 
                 Arr::set($request, 'avatar', 'Avatars/' . $fileName);
             }
