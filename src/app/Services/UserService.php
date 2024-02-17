@@ -13,6 +13,7 @@ use App\Services\Contracts\UserServiceInterface;
 use App\Http\Resources\UserResource;
 
 use Google\Cloud\Storage\StorageClient;
+use Illuminate\Support\Facades\Log;
 
 class UserService extends Service implements UserServiceInterface
 {
@@ -60,17 +61,15 @@ class UserService extends Service implements UserServiceInterface
      */
     public function update(mixed $model, array $request)
     {
+        Log::debug('testing');
+
         DB::beginTransaction();
 
         try {
             $file = Arr::get($request, 'avatar');
 
             if ($file) {
-                try {
-                    Storage::disk('gcs')->delete($model->avatar);
-                } catch (\Exception $e) {
-                    //
-                }
+                Storage::disk('gcs')->delete($model->avatar);
 
                 $fileName = $model->id . '_' . time() . '.' . $file->getClientOriginalExtension();
 
