@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Password;
@@ -261,15 +262,15 @@ class AuthService extends Service implements AuthServiceInterface
         $user = Auth::user();
 
         $license = $user->license;
-        $license->license_number = $license->license_number . '+deleted';
+        $license->license_number = $license->license_number . '+deleted-' . Str::uuid();
         $license->save();
         $license->delete();
 
         $user->tokens->each(fn ($token) => $this->repository->logout($token->id));
 
         $this->repository->model()->whereId($user->id)->update([
-            'email' => $user->email . '+deleted',
-            'phone_number' => $user->phone_number . '+deleted'
+            'email' => $user->email . '+deleted-' . Str::uuid(),
+            'phone_number' => $user->phone_number . '+deleted-' . Str::uuid()
         ]);
 
         return $this->repository->delete($user->id);
