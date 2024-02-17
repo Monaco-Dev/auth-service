@@ -12,9 +12,6 @@ use App\Repositories\Contracts\UserRepositoryInterface;
 use App\Services\Contracts\UserServiceInterface;
 use App\Http\Resources\UserResource;
 
-use Google\Cloud\Storage\StorageClient;
-use Illuminate\Support\Facades\Log;
-
 class UserService extends Service implements UserServiceInterface
 {
     /**
@@ -61,8 +58,6 @@ class UserService extends Service implements UserServiceInterface
      */
     public function update(mixed $model, array $request)
     {
-        Log::debug('testing');
-
         DB::beginTransaction();
 
         try {
