@@ -66,36 +66,17 @@ class UserService extends Service implements UserServiceInterface
             $file = Arr::get($request, 'avatar');
 
             if ($file) {
+                try {
+                    Storage::disk('gcs')->delete($model->avatar);
+                } catch (\Exception $e) {
+                    //
+                }
+
                 $fileName = $model->id . '_' . time() . '.' . $file->getClientOriginalExtension();
 
-                $file->storeAs('Avatars', $fileName, 'gcs');
+                $path = $file->storeAs('Avatars', $fileName, 'gcs');
 
-                // $file->storeAs('temp', $fileName, 'local');
-
-                // $storage = new StorageClient([
-                //     'projectId' => config('filesystems.disks.gcs.project_id'),
-                //     // 'keyFile' => config('filesystems.disks.gcs.key_file'),
-                // ]);
-
-                // $bucket = $storage->bucket(config('filesystems.disks.gcs.bucket'));
-
-                // try {
-                //     $bucket->object($model->avatar)->delete();
-                // } catch (\Exception $e) {
-                //     //
-                // }
-
-                // $bucket->upload(
-                //     fopen(storage_path('app') . '/temp/' . $fileName, 'r'),
-                //     [
-                //         'name' => 'Avatars/' . $fileName,
-                //         'predefinedAcl' => 'publicRead'
-                //     ]
-                // );
-
-                // Storage::disk('local')->delete('temp/' . $fileName);
-
-                Arr::set($request, 'avatar', 'Avatars/' . $fileName);
+                Arr::set($request, 'avatar', $path);
             }
 
             $this->repository->update($model, $request);
