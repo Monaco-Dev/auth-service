@@ -9,29 +9,17 @@ use Exception;
 
 use App\Repositories\Contracts\LicenseRepositoryInterface;
 use App\Services\Contracts\LicenseServiceInterface;
-use App\Services\Support\GoogleCloudStorage;
 
 class LicenseService extends Service implements LicenseServiceInterface
 {
     /**
-     * Google Cloud Storage Service.
-     * 
-     * @var \App\Services\Support\GoogleCloudStorage
-     */
-    protected $googleCloudStorage;
-
-    /**
      * Create the service instance and inject its repository.
      *
      * @param App\Repositories\Contracts\LicenseRepositoryInterface
-     * @param App\Services\Support\GoogleCloudStorage
      */
-    public function __construct(
-        LicenseRepositoryInterface $repository,
-        GoogleCloudStorage $googleCloudStorage
-    ) {
+    public function __construct(LicenseRepositoryInterface $repository)
+    {
         $this->repository = $repository;
-        $this->googleCloudStorage = $googleCloudStorage;
     }
 
     /**
@@ -46,18 +34,15 @@ class LicenseService extends Service implements LicenseServiceInterface
 
         try {
             $model = auth()->user()->license;
+
             $userId = auth()->user()->id;
 
-            $file = Arr::get($request, 'file');
-
-            $fileName = $userId . '_' . time() . '.' . $file->getClientOriginalExtension();
-
-            $cloudPath = 'Licenses/' . $fileName;
-
-            $file->storeAs('temp', $fileName, 'local');
-
             if ($model) {
-                $this->googleCloudStorage->delete($model->file);
+                try {
+                    Storage::disk('gcs')->delete($model->file);
+                } catch (\Exception $e) {
+                    //
+                }
 
                 $model->fill($request);
 
@@ -70,11 +55,11 @@ class LicenseService extends Service implements LicenseServiceInterface
                 $userId = $model->user_id;
             }
 
-            $this->googleCloudStorage->upload($fileName, $cloudPath);
+            $file = Arr::get($request, 'file');
+            $fileName = $userId . '_' . time() . '.' . $file->getClientOriginalExtension();
+            $storeFile = $file->storeAs('Licenses', $fileName, 'gcs');
 
-            Storage::disk('local')->delete('temp/' . $fileName);
-
-            Arr::set($request, 'file', $cloudPath);
+            Arr::set($request, 'file', $storeFile);
 
             $this->repository->updateOrCreate(
                 ['user_id' => $userId],
