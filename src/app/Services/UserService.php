@@ -68,30 +68,32 @@ class UserService extends Service implements UserServiceInterface
             if ($file) {
                 $fileName = $model->id . '_' . time() . '.' . $file->getClientOriginalExtension();
 
-                $file->storeAs('temp', $fileName, 'local');
+                $file->storeAs('Avatars', $fileName, 'gcs');
 
-                $storage = new StorageClient([
-                    'projectId' => config('filesystems.disks.gcs.project_id'),
-                    // 'keyFile' => config('filesystems.disks.gcs.key_file'),
-                ]);
+                // $file->storeAs('temp', $fileName, 'local');
 
-                $bucket = $storage->bucket(config('filesystems.disks.gcs.bucket'));
+                // $storage = new StorageClient([
+                //     'projectId' => config('filesystems.disks.gcs.project_id'),
+                //     // 'keyFile' => config('filesystems.disks.gcs.key_file'),
+                // ]);
 
-                try {
-                    $bucket->object($model->avatar)->delete();
-                } catch (\Exception $e) {
-                    //
-                }
+                // $bucket = $storage->bucket(config('filesystems.disks.gcs.bucket'));
 
-                $bucket->upload(
-                    fopen(storage_path('app') . '/temp/' . $fileName, 'r'),
-                    [
-                        'name' => 'Avatars/' . $fileName,
-                        'predefinedAcl' => 'publicRead'
-                    ]
-                );
+                // try {
+                //     $bucket->object($model->avatar)->delete();
+                // } catch (\Exception $e) {
+                //     //
+                // }
 
-                Storage::disk('local')->delete('temp/' . $fileName);
+                // $bucket->upload(
+                //     fopen(storage_path('app') . '/temp/' . $fileName, 'r'),
+                //     [
+                //         'name' => 'Avatars/' . $fileName,
+                //         'predefinedAcl' => 'publicRead'
+                //     ]
+                // );
+
+                // Storage::disk('local')->delete('temp/' . $fileName);
 
                 Arr::set($request, 'avatar', 'Avatars/' . $fileName);
             }
