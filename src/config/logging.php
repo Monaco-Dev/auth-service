@@ -127,11 +127,6 @@ return [
             'path' => storage_path('logs/laravel.log'),
         ],
 
-        'googlecloud' => [
-            'driver' => 'custom',
-            'via' => \App\Logging\CreateGoogleCloudLogger::class,
-            'level' => env('LOG_LEVEL', 'debug'),
-        ],
     ],
 
 ];
