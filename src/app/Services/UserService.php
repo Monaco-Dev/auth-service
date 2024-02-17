@@ -64,11 +64,7 @@ class UserService extends Service implements UserServiceInterface
             $file = Arr::get($request, 'avatar');
 
             if ($file) {
-                try {
-                    Storage::disk('gcs')->delete($model->avatar);
-                } catch (\Exception $e) {
-                    //
-                }
+                Storage::disk('gcs')->delete($model->avatar);
 
                 $fileName = $model->id . '_' . time() . '.' . $file->getClientOriginalExtension();
 
