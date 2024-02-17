@@ -267,7 +267,7 @@ class AuthService extends Service implements AuthServiceInterface
 
         $user->tokens->each(fn ($token) => $this->repository->logout($token->id));
 
-        $this->repository->update($user, [
+        $this->repository->model()->whereId($user->id)->update([
             'email' => $user->email . '+deleted',
             'phone_number' => $user->phone_number . '+deleted'
         ]);
