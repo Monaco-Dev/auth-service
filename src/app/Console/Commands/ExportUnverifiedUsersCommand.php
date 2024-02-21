@@ -72,11 +72,20 @@ class ExportUnverifiedUsersCommand extends Command
 
         fclose($outFile);
 
-        $path = Storage::disk('gcs')->putFileAs('Internals', new File(storage_path('app') . "/data.csv"), date('d-m-Y') . '.csv');
+        $filename = date('d-m-Y') . '.csv';
+
+        $path = Storage::disk('gcs')->putFileAs('Internals', new File(storage_path('app') . "/data.csv"), $filename);
 
         Storage::disk('local')->delete('data.csv');
 
-        $link = Storage::disk('gcs')->url($path);
+        $link = Storage::disk('gcs')->temporaryUrl(
+            $path,
+            now()->addHours(12),
+            [
+                'ResponseContentType' => 'application/octet-stream',
+                'ResponseContentDisposition' => "attachment; filename=$filename",
+            ]
+        );
 
         Notification::route('mail', [
             config('mail.from.address') => 'Admin'
