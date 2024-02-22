@@ -38,7 +38,7 @@ class LicenseService extends Service implements LicenseServiceInterface
             $userId = auth()->user()->id;
 
             if ($model) {
-                Storage::disk('gcs')->delete($model->file);
+                if ($model->file) Storage::disk('gcs')->delete($model->file);
 
                 $model->fill($request);
 
