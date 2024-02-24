@@ -22,9 +22,7 @@ class UserFactory extends Factory
             'email' => fake()->unique()->safeEmail(),
             'phone_number' => fake()->numerify('###########'),
             'email_verified_at' => now(),
-            'password' => 'Password123!',
-            'slug' => fake()->slug(),
-            'avatar' => fake()->imageUrl()
+            'password' => 'Password123!'
         ];
     }
 
