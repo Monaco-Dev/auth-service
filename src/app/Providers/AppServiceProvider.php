@@ -12,6 +12,7 @@ use App\Services\Contracts\{
     ConnectionServiceInterface,
     FollowServiceInterface,
     SocialiteServiceInterface,
+    SocialServiceInterface,
     UserServiceInterface
 };
 use App\Services\{
@@ -21,6 +22,7 @@ use App\Services\{
     ConnectionService,
     FollowService,
     SocialiteService,
+    SocialService,
     UserService
 };
 
@@ -39,6 +41,7 @@ class AppServiceProvider extends ServiceProvider
         ConnectionInvitationServiceInterface::class => ConnectionInvitationService::class,
         FollowServiceInterface::class => FollowService::class,
         SocialiteServiceInterface::class => SocialiteService::class,
+        SocialServiceInterface::class => SocialService::class,
     ];
 
     /**

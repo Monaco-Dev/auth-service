@@ -62,6 +62,7 @@ class UserResource extends JsonResource
         $data = Arr::only($data, $fields);
 
         Arr::set($data, 'license', new LicenseResource($this->whenLoaded('license')));
+        Arr::set($data, 'socials', SocialResource::collection($this->whenLoaded('socials')));
 
         return $data;
     }
