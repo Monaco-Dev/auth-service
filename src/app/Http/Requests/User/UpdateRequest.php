@@ -59,6 +59,19 @@ class UpdateRequest extends FormRequest
             'avatar' => [
                 'nullable',
                 File::image()->max(5000)
+            ],
+            'socials' => [
+                'nullable',
+                'array'
+            ],
+            'socials.*.provider' => [
+                'required',
+                'string'
+            ],
+            'socials.*.url' => [
+                'required',
+                'string',
+                'active_url'
             ]
         ];
     }
