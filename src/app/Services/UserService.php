@@ -11,6 +11,7 @@ use Exception;
 use App\Repositories\Contracts\UserRepositoryInterface;
 use App\Services\Contracts\UserServiceInterface;
 use App\Http\Resources\UserResource;
+use App\Repositories\Contracts\SocialRepositoryInterface;
 
 class UserService extends Service implements UserServiceInterface
 {
@@ -22,13 +23,22 @@ class UserService extends Service implements UserServiceInterface
     protected $resourceClass = UserResource::class;
 
     /**
+     * @var \App\Repositories\Contracts\SocialRepositoryInterface
+     */
+    protected $socialRepository;
+
+    /**
      * Create the service instance and inject its repository.
      *
      * @param App\Repositories\Contracts\UserRepositoryInterface
+     * @param App\Repositories\Contracts\SocialRepositoryInterface
      */
-    public function __construct(UserRepositoryInterface $repository)
-    {
+    public function __construct(
+        UserRepositoryInterface $repository,
+        SocialRepositoryInterface $socialRepository
+    ) {
         $this->repository = $repository;
+        $this->socialRepository = $socialRepository;
     }
 
     /**
@@ -71,6 +81,19 @@ class UserService extends Service implements UserServiceInterface
                 $path = $file->storeAs('Avatars', $fileName, 'gcs');
 
                 Arr::set($request, 'avatar', $path);
+            }
+
+            $this->socialRepository->model()->whereUserId($model->id)->delete();
+
+            if (Arr::get($request, 'socials')) {
+                $request['socials'] = array_map(function ($v) use ($model) {
+                    $v['user_id'] = $model->id;
+                    $v['created_at'] = now();
+                    $v['updated_at'] = now();
+                    return $v;
+                }, $request['socials']);
+
+                $this->socialRepository->model()->insert($request['socials']);
             }
 
             $this->repository->update($model, $request);
