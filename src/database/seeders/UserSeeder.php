@@ -16,6 +16,7 @@ class UserSeeder extends Seeder
     {
         $users = User::factory()
             ->hasLicense()
+            ->hasSocials()
             ->count(5)
             ->create();
 
@@ -31,6 +32,7 @@ class UserSeeder extends Seeder
             // Create outgoing invites
             User::factory()
                 ->hasLicense()
+                ->hasSocials()
                 ->count(2)
                 ->create()
                 ->each(function ($invite) use ($user) {
@@ -40,6 +42,7 @@ class UserSeeder extends Seeder
             // Create incoming invites
             User::factory()
                 ->hasLicense()
+                ->hasSocials()
                 ->count(2)
                 ->create()
                 ->each(function ($invite) use ($user) {
@@ -49,6 +52,7 @@ class UserSeeder extends Seeder
             // Create outgoing invites
             User::factory()
                 ->hasLicense()
+                ->hasSocials()
                 ->count(2)
                 ->create()
                 ->each(function ($follow) use ($user) {
@@ -58,6 +62,7 @@ class UserSeeder extends Seeder
             // Create incoming follow
             User::factory()
                 ->hasLicense()
+                ->hasSocials()
                 ->count(2)
                 ->create()
                 ->each(function ($follow) use ($user) {

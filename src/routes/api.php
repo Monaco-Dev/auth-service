@@ -8,6 +8,7 @@ use App\Http\Controllers\{
     ConnectionController,
     ConnectionInvitationController,
     FollowController,
+    SocialController,
     SocialiteController,
     UserController
 };
@@ -103,6 +104,8 @@ Route::middleware('auth:api')->group(function () {
                     Route::post('followers', [FollowController::class, 'searchFollowers'])->name('followers');
                 });
             });
+
+            Route::post('socials', [SocialController::class, 'sync'])->name('socials.sync');
         });
     });
 });

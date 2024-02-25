@@ -5,6 +5,7 @@ namespace App\Models\Support\User;
 use Illuminate\Support\Facades\Auth;
 
 use App\Models\License;
+use App\Models\Social;
 use App\Models\Socialite;
 use App\Models\User;
 
@@ -124,5 +125,15 @@ trait Relationships
     public function socialite()
     {
         return $this->hasOne(Socialite::class);
+    }
+
+    /**
+     * Get Social relationship.
+     * 
+     * @return App\Models\Social
+     */
+    public function socials()
+    {
+        return $this->hasMany(Social::class);
     }
 }

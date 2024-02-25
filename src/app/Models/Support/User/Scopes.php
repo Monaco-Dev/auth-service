@@ -32,7 +32,8 @@ trait Scopes
     public function scopeWithRelations(Builder $query)
     {
         $with = [
-            'license'
+            'license',
+            'socials'
         ];
 
         $withCount = [
