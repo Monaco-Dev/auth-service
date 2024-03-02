@@ -7,7 +7,7 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use Illuminate\Support\Arr;
 
-use App\Models\BrokerLicense;
+use App\Models\License;
 use App\Models\User;
 
 class DeactivateTest extends TestCase
@@ -50,56 +50,62 @@ class DeactivateTest extends TestCase
     /**
      * Test unverified license response
      */
-    // public function test_unverified_license(): void
-    // {
-    //     $auth = $this->login(
-    //         User::factory()
-    //             ->has(BrokerLicense::factory()->unverified())
-    //             ->create()
-    //             ->email
-    //     );
+    public function test_unverified_license(): void
+    {
+        $auth = $this->login(
+            User::factory()
+                ->has(License::factory()->unverified())
+                ->create()
+                ->email
+        );
 
-    //     $this->withHeaders([
-    //         'Accept' => 'application/json',
-    //         'Authorization' => 'Bearer ' . Arr::get($auth, 'access_token')
-    //     ])
-    //         ->post(route($this->route))
-    //         ->assertForbidden()
-    //         ->assertSeeText('Your license number is not verified');
-    // }
+        $this->withHeaders([
+            'Accept' => 'application/json',
+            'Authorization' => 'Bearer ' . Arr::get($auth, 'access_token')
+        ])
+            ->post(route($this->route))
+            ->assertForbidden()
+            ->assertSeeText('Your license is not verified');
+    }
 
     /**
      * Test expired license response
      */
-    // public function test_expired_license(): void
-    // {
-    //     $auth = $this->login(
-    //         User::factory()
-    //             ->has(BrokerLicense::factory()->expired())
-    //             ->create()
-    //             ->email
-    //     );
+    public function test_expired_license(): void
+    {
+        $auth = $this->login(
+            User::factory()
+                ->has(License::factory()->expired())
+                ->create()
+                ->email
+        );
 
-    //     $this->withHeaders([
-    //         'Accept' => 'application/json',
-    //         'Authorization' => 'Bearer ' . Arr::get($auth, 'access_token')
-    //     ])
-    //         ->post(route($this->route))
-    //         ->assertForbidden()
-    //         ->assertSeeText('Your license number is expired');
-    // }
+        $this->withHeaders([
+            'Accept' => 'application/json',
+            'Authorization' => 'Bearer ' . Arr::get($auth, 'access_token')
+        ])
+            ->post(route($this->route))
+            ->assertForbidden()
+            ->assertSeeText('Your license is expired');
+    }
 
     /**
      * Test successful response.
      */
     public function test_success(): void
     {
-        $this->withoutMiddleware();
+        $auth = $this->login(
+            User::factory()
+                ->hasLicense()
+                ->create()
+                ->email
+        );
 
-        $user = User::factory()->create();
-
-        $this->actingAs($user)
-            ->post(route($this->route))
+        $this->withHeaders([
+            'Accept' => 'application/json',
+            'Authorization' => 'Bearer ' . Arr::get($auth, 'access_token')
+        ])
+            ->post(route($this->route), ['password' => 'Password123!'])
             ->assertOk();
     }
 }
