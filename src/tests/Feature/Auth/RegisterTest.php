@@ -6,7 +6,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
-use App\Models\BrokerLicense;
+use App\Models\License;
 use App\Models\User;
 
 class RegisterTest extends TestCase
@@ -21,7 +21,7 @@ class RegisterTest extends TestCase
     public function test_success(): void
     {
         $user = User::factory()->make();
-        $brokerLicense = BrokerLicense::factory()->make(['user_id' => $user->id]);
+        $license = License::factory()->make(['user_id' => $user->id]);
         $password = fake()->password(8, 8) . 'Aa1!';
 
         $payload = [
@@ -32,8 +32,8 @@ class RegisterTest extends TestCase
             'password' => $password,
             'password_confirmation' => $password,
             'broker' => [
-                'license_number' => $brokerLicense->license_number,
-                'expiration_date' => $brokerLicense->expiration_date
+                'license_number' => $license->license_number,
+                'expiration_date' => $license->expiration_date
             ]
         ];
 

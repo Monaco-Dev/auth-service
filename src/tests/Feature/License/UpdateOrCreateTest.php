@@ -1,20 +1,22 @@
 <?php
 
-namespace Tests\Feature\BrokerLicense;
+namespace Tests\Feature\License;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\UploadedFile;
 
-use App\Models\BrokerLicense;
+use App\Models\License;
 use App\Models\User;
 
-class UpdateTest extends TestCase
+class UpdateOrCreateTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected $route = 'brokerLicenses.update';
+    protected $route = 'licenses.updateOrCreate';
 
     /**
      * Test unauthenticated response.
@@ -54,16 +56,22 @@ class UpdateTest extends TestCase
     {
         $this->withoutMiddleware();
 
-        $user = User::factory()->hasBrokerLicense()->create();
-        $brokerLicense = BrokerLicense::factory()->make();
+        $user = User::factory()->hasLicense()->create();
+        $license = License::factory()->make();
+
+        Storage::fake('photos');
 
         $payload = [
-            'license_number' => $brokerLicense->license_number,
-            'expiration_date' => $brokerLicense->expiration_date
+            'license_number' => $license->license_number,
+            'expiration_date' => $license->expiration_date,
+            'file' => UploadedFile::fake()->image('photo1.jpg')
         ];
 
         $this->actingAs($user)
-            ->withHeaders(['Accept' => 'application/json'])
+            ->withHeaders([
+                'Accept' => 'application/json',
+                'Content-Type' => 'multipart/form-data'
+            ])
             ->post(route($this->route), $payload)
             ->assertOk();
     }
