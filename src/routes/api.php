@@ -66,7 +66,7 @@ Route::middleware('auth:api')->group(function () {
 
             Route::prefix('users')->name('users.')->group(function () {
                 Route::post('update/{user}', [UserController::class, 'update'])->name('update');
-                Route::get('{slug}', [UserController::class, 'show'])->name('show')->middleware('profile');
+                Route::get('{uuid}', [UserController::class, 'show'])->name('show')->middleware('profile');
 
                 Route::prefix('search')->name('search.')->group(function () {
                     Route::post('/', [UserController::class, 'search'])->name('users');

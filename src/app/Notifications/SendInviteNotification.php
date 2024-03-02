@@ -49,7 +49,7 @@ class SendInviteNotification extends Notification
                 ->line($this->message);
         }
 
-        $mail = $mail->action('See profile', url(config('services.web_url') . '/profile/' . $this->user->slug))
+        $mail = $mail->action('See profile', url(config('services.web_url') . '/profile/' . $this->user->uuid))
             ->line('Thank you for using our application!');
 
         return $mail;

@@ -22,7 +22,7 @@ class ShowTest extends TestCase
     public function test_unauthenticated(): void
     {
         $this->withHeaders(['Accept' => 'application/json'])
-            ->get(route($this->route, 'slug'))
+            ->get(route($this->route, 'uuid'))
             ->assertUnauthorized();
     }
 
@@ -42,7 +42,7 @@ class ShowTest extends TestCase
             'Accept' => 'application/json',
             'Authorization' => 'Bearer ' . Arr::get($auth, 'access_token')
         ])
-            ->get(route($this->route, 'slug'))
+            ->get(route($this->route, 'uuid'))
             ->assertForbidden()
             ->assertSeeText('Your email address is not verified');
     }
@@ -62,7 +62,7 @@ class ShowTest extends TestCase
             'Accept' => 'application/json',
             'Authorization' => 'Bearer ' . Arr::get($auth, 'access_token')
         ])
-            ->get(route($this->route, $user->slug))
+            ->get(route($this->route, $user->uuid))
             ->assertForbidden()
             ->assertSeeText('Your license is not verified');
     }
@@ -82,7 +82,7 @@ class ShowTest extends TestCase
             'Accept' => 'application/json',
             'Authorization' => 'Bearer ' . Arr::get($auth, 'access_token')
         ])
-            ->get(route($this->route, $user->slug))
+            ->get(route($this->route, $user->uuid))
             ->assertForbidden()
             ->assertSeeText('Your license is expired');
     }
@@ -98,7 +98,7 @@ class ShowTest extends TestCase
 
         $this->actingAs($user)
             ->withHeaders(['Accept' => 'application/json'])
-            ->get(route($this->route, $user->slug))
+            ->get(route($this->route, $user->uuid))
             ->assertOk();
     }
 
@@ -115,7 +115,7 @@ class ShowTest extends TestCase
             'Accept' => 'application/json',
             'Authorization' => 'Bearer ' . Arr::get($auth, 'access_token')
         ])
-            ->get(route($this->route, 'slug'))
+            ->get(route($this->route, 'uuid'))
             ->assertNotFound();
     }
 }

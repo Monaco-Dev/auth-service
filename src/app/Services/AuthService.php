@@ -115,7 +115,7 @@ class AuthService extends Service implements AuthServiceInterface
         DB::beginTransaction();
 
         try {
-            if (App::runningUnitTests()) Arr::set($request, 'slug', fake()->slug());
+            Arr::set($request, 'uuid', Str::uuid());
 
             // create user
             $user = $this->repository->create($request);

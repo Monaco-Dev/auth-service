@@ -41,12 +41,12 @@ class UserController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  string  $slug
+     * @param  string  $uuid
      * @return \Illuminate\Http\Response
      */
-    public function show($slug)
+    public function show($uuid)
     {
-        return $this->service->show($slug);
+        return $this->service->show($uuid);
     }
 
     /**
