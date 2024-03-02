@@ -9,6 +9,7 @@ use Exception;
 
 use App\Repositories\Contracts\LicenseRepositoryInterface;
 use App\Services\Contracts\LicenseServiceInterface;
+use Illuminate\Support\Facades\App;
 
 class LicenseService extends Service implements LicenseServiceInterface
 {
@@ -38,7 +39,7 @@ class LicenseService extends Service implements LicenseServiceInterface
             $userId = auth()->user()->id;
 
             if ($model) {
-                if ($model->file) Storage::disk('gcs')->delete($model->file);
+                if ($model->file && !App::runningUnitTests()) Storage::disk('gcs')->delete($model->file);
 
                 $model->fill($request);
 
@@ -51,11 +52,15 @@ class LicenseService extends Service implements LicenseServiceInterface
                 $userId = $model->user_id;
             }
 
-            $file = Arr::get($request, 'file');
-            $fileName = $userId . '_' . time() . '.' . $file->getClientOriginalExtension();
-            $storeFile = $file->storeAs('Licenses', $fileName, 'gcs');
+            if (!App::runningUnitTests()) {
+                $file = Arr::get($request, 'file');
+                $fileName = $userId . '_' . time() . '.' . $file->getClientOriginalExtension();
+                $storeFile = $file->storeAs('Licenses', $fileName, 'gcs');
 
-            Arr::set($request, 'file', $storeFile);
+                Arr::set($request, 'file', $storeFile);
+            } else {
+                Arr::set($request, 'file', 'tmp');
+            }
 
             $this->repository->updateOrCreate(
                 ['user_id' => $userId],

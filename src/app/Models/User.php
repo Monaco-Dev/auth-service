@@ -11,8 +11,6 @@ use Laravel\Passport\HasApiTokens;
 use Illuminate\Auth\Passwords\CanResetPassword as PasswordsCanResetPassword;
 use Illuminate\Contracts\Auth\CanResetPassword;
 use Illuminate\Support\Str;
-use Spatie\Sluggable\HasSlug;
-use Spatie\Sluggable\SlugOptions;
 
 use App\Models\Support\User\Attributes;
 use App\Models\Support\User\Relationships;
@@ -27,8 +25,7 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword
         PasswordsCanResetPassword,
         Attributes,
         Scopes,
-        Relationships,
-        HasSlug;
+        Relationships;
 
     /**
      * The attributes that are mass assignable.
@@ -36,13 +33,13 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword
      * @var array<int, string>
      */
     protected $fillable = [
+        'uuid',
         'first_name',
         'last_name',
         'email',
         'phone_number',
         'password',
         'deactivated_at',
-        'slug',
         'avatar',
         'email_verified_at'
     ];
@@ -84,17 +81,4 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword
         'is_verified',
         'avatar_url'
     ];
-
-    /**
-     * Get the options for generating the slug.
-     */
-    public function getSlugOptions(): SlugOptions
-    {
-        return SlugOptions::create()
-            ->generateSlugsFrom(function ($model) {
-                return "{$model->full_name} {$model->id}";
-            })
-            ->saveSlugsTo('slug')
-            ->slugsShouldBeNoLongerThan(50);
-    }
 }

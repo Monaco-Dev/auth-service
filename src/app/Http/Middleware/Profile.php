@@ -17,7 +17,7 @@ class Profile
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!User::verified()->whereSlug($request->route('slug'))->exists()) abort(404, 'Page not found');
+        if (!User::verified()->whereUuid($request->route('uuid'))->exists()) abort(404, 'Page not found');
 
         return $next($request);
     }

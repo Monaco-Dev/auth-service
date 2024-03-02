@@ -7,7 +7,7 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use Illuminate\Support\Arr;
 
-use App\Models\BrokerLicense;
+use App\Models\License;
 use App\Models\User;
 
 class UnfollowTest extends TestCase
@@ -47,42 +47,42 @@ class UnfollowTest extends TestCase
     /**
      * Test unverified license response
      */
-    // public function test_unverified_license(): void
-    // {
-    //     $user = User::factory()
-    //         ->has(BrokerLicense::factory()->unverified())
-    //         ->create();
+    public function test_unverified_license(): void
+    {
+        $user = User::factory()
+            ->has(License::factory()->unverified())
+            ->create();
 
-    //     $auth = $this->login($user->email);
+        $auth = $this->login($user->email);
 
-    //     $this->withHeaders([
-    //         'Accept' => 'application/json',
-    //         'Authorization' => 'Bearer ' . Arr::get($auth, 'access_token')
-    //     ])
-    //         ->delete(route($this->route, $user))
-    //         ->assertForbidden()
-    //         ->assertSeeText('Your license number is not verified');
-    // }
+        $this->withHeaders([
+            'Accept' => 'application/json',
+            'Authorization' => 'Bearer ' . Arr::get($auth, 'access_token')
+        ])
+            ->delete(route($this->route, $user))
+            ->assertForbidden()
+            ->assertSeeText('Your license is not verified');
+    }
 
     /**
      * Test expired license response
      */
-    // public function test_expired_license(): void
-    // {
-    //     $user = User::factory()
-    //         ->has(BrokerLicense::factory()->expired())
-    //         ->create();
+    public function test_expired_license(): void
+    {
+        $user = User::factory()
+            ->has(License::factory()->expired())
+            ->create();
 
-    //     $auth = $this->login($user->email);
+        $auth = $this->login($user->email);
 
-    //     $this->withHeaders([
-    //         'Accept' => 'application/json',
-    //         'Authorization' => 'Bearer ' . Arr::get($auth, 'access_token')
-    //     ])
-    //         ->delete(route($this->route, $user))
-    //         ->assertForbidden()
-    //         ->assertSeeText('Your license number is expired');
-    // }
+        $this->withHeaders([
+            'Accept' => 'application/json',
+            'Authorization' => 'Bearer ' . Arr::get($auth, 'access_token')
+        ])
+            ->delete(route($this->route, $user))
+            ->assertForbidden()
+            ->assertSeeText('Your license is expired');
+    }
 
     /**
      * Test successful response.
@@ -90,7 +90,7 @@ class UnfollowTest extends TestCase
     public function test_success(): void
     {
         $user = User::factory()
-            ->hasBrokerLicense()
+            ->hasLicense()
             ->hasFollowing()
             ->create();
 
@@ -112,7 +112,7 @@ class UnfollowTest extends TestCase
     public function test_unauthorized(): void
     {
         $user = User::factory()
-            ->hasBrokerLicense()
+            ->hasLicense()
             ->count(2)
             ->create();
 

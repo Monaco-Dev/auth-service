@@ -6,6 +6,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\App;
 use Exception;
 
 use App\Repositories\Contracts\UserRepositoryInterface;
@@ -44,17 +45,17 @@ class UserService extends Service implements UserServiceInterface
     /**
      * Display the specified resource.
      *
-     * @param string $slug
+     * @param string $uuid
      * @param bool $findOrFail
      * @return \Illuminate\Http\Response
      */
-    public function show($slug, bool $findOrFail = true)
+    public function show($uuid, bool $findOrFail = true)
     {
         return $this->setResponseResource(
             $this->repository->model()
                 ->withRelations()
                 ->verified()
-                ->whereSlug($slug)
+                ->whereUuid($uuid)
                 ->first()
         );
     }
@@ -73,7 +74,7 @@ class UserService extends Service implements UserServiceInterface
         try {
             $file = Arr::get($request, 'avatar');
 
-            if ($file) {
+            if ($file && !App::runningUnitTests()) {
                 if ($model->avatar) Storage::disk('gcs')->delete($model->avatar);
 
                 $fileName = $model->id . '_' . time() . '.' . $file->getClientOriginalExtension();
