@@ -102,7 +102,7 @@ class ConnectionService extends Service implements ConnectionServiceInterface
             Auth::user()
                 ->connections()
                 ->search($search, Auth::user()->id)
-                ->paginate()
+                ->simplePaginate()
         );
     }
 }
