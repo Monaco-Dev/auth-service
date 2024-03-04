@@ -73,7 +73,7 @@ class FollowService extends Service implements FollowServiceInterface
             Auth::user()
                 ->following()
                 ->search($search, Auth::user()->id)
-                ->paginate()
+                ->simplePaginate()
         );
     }
 
@@ -91,7 +91,7 @@ class FollowService extends Service implements FollowServiceInterface
             Auth::user()
                 ->followers()
                 ->search($search, Auth::user()->id)
-                ->paginate()
+                ->simplePaginate()
         );
     }
 }

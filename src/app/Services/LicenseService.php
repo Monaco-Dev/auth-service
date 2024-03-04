@@ -5,11 +5,11 @@ namespace App\Services;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\App;
 use Exception;
 
 use App\Repositories\Contracts\LicenseRepositoryInterface;
 use App\Services\Contracts\LicenseServiceInterface;
-use Illuminate\Support\Facades\App;
 
 class LicenseService extends Service implements LicenseServiceInterface
 {

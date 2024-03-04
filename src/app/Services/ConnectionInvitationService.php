@@ -64,7 +64,7 @@ class ConnectionInvitationService extends Service implements ConnectionInvitatio
             Auth::user()
                 ->incomingInvites()
                 ->search($search, Auth::user()->id)
-                ->paginate()
+                ->simplePaginate()
         );
     }
 
@@ -82,7 +82,7 @@ class ConnectionInvitationService extends Service implements ConnectionInvitatio
             Auth::user()
                 ->outgoingInvites()
                 ->search($search, Auth::user()->id)
-                ->paginate()
+                ->simplePaginate()
         );
     }
 }

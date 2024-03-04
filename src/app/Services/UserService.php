@@ -140,7 +140,7 @@ class UserService extends Service implements UserServiceInterface
             $this->repository
                 ->model()
                 ->search($search)
-                ->paginate(Arr::get($request, 'limit') ?? 15)
+                ->simplePaginate(Arr::get($request, 'limit') ?? 15)
         );
     }
 
@@ -155,7 +155,7 @@ class UserService extends Service implements UserServiceInterface
             $this->repository
                 ->model()
                 ->searchMutuals()
-                ->paginate(15)
+                ->simplePaginate(15)
         );
     }
 }
