@@ -126,7 +126,13 @@ trait Attributes
      */
     public function getIsVerifiedAttribute()
     {
-        return !!$this->verified()->find($this->id);
+        return (
+            $this->email_verified_at &&
+            !$this->deactivated_at &&
+            !$this->deleted_at &&
+            $this->license->is_license_verified &&
+            !$this->license->is_license_expired
+        );
     }
 
     /**
