@@ -65,7 +65,7 @@
                                     <tr>
                                         <td class="content-cell" style="padding: 25px !important">
                                             <div style="text-align: center !important">
-                                                Hi <strong>{{ $name }}</strong>!
+                                                <h1 style="color: #000 !important; font-size: 25px !important; font-weight: normal !important; text-align: center !important;">Hi <strong>{{ $name }}</strong>!</h1>
                                                 <hr style="margin-left: 80px !important; margin-right: 80px !important">
                                             </div>
 
@@ -105,7 +105,7 @@
                                     <tr>
                                         <td class="content-cell" style="padding: 25px !important">
                                             <div style="text-align: center !important">
-                                                <strong>Why do I need to verify my account?</strong>
+                                                <h1 style="color: #000 !important; text-align: center !important;">Why do I need to verify my account?</h1>
                                                 <hr style="margin-left: 80px !important; margin-right: 80px !important">
                                             </div>
 
@@ -131,7 +131,7 @@
                                     <tr>
                                         <td class="content-cell" style="padding: 25px !important">
                                             <div style="text-align: center !important">
-                                                <strong>What do you need to submit?</strong>
+                                                <h1 style="color: #000 !important; text-align: center !important;">What do you need to submit?</h1>
                                                 <hr style="margin-left: 80px !important; margin-right: 80px !important">
                                             </div>
 
@@ -165,7 +165,7 @@
                                     <tr>
                                         <td class="content-cell" style="padding: 25px !important">
                                             <div style="text-align: center !important">
-                                                <strong>What do I need to do next?</strong>
+                                                <h1 style="color: #000 !important; text-align: center !important;">What do I need to do next?</h1>
                                                 <hr style="margin-left: 80px !important; margin-right: 80px !important">
                                             </div>
 
