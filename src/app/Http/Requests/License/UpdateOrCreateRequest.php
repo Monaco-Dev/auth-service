@@ -26,7 +26,7 @@ class UpdateOrCreateRequest extends FormRequest
             ],
             'file' => [
                 'required',
-                File::image()->max(5000)
+                File::image()->max(10000)
             ]
         ];
     }
