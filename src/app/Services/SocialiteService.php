@@ -5,6 +5,7 @@ namespace App\Services;
 use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use Exception;
 
 use App\Repositories\Contracts\{
@@ -75,11 +76,14 @@ class SocialiteService extends Service implements SocialiteServiceInterface
                 if (!$user->avatar) $params['avatar'] = $avatar;
 
                 if (!$user->is_email_verified) $params['email_verified_at'] = now();
+
+                $params['uuid'] = $user->uuid;
             } else {
                 $params['first_name'] = implode(' ', $name);
                 $params['last_name'] = implode('', $lastName);
                 $params['avatar'] = $avatar;
                 $params['email_verified_at'] = now();
+                $params['uuid'] = Str::uuid();
             }
 
             $user = $this->userRepository->updateOrCreate(
