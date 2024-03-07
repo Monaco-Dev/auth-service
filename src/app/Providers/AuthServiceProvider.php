@@ -39,9 +39,8 @@ class AuthServiceProvider extends ServiceProvider
             $url = config('services.web_url') . '/verify-email?path=' . $path . '&' . $url['query'];
 
             return (new MailMessage)
-                ->subject('Verify Email Address')
-                ->line('Click the button below to verify your email address.')
-                ->action('Verify Email Address', url($url));
+                ->subject('Email Verification')
+                ->markdown('mail.verify-email', ['url' => url($url), 'name' => $notifiable->full_name]);
         });
 
         $this->registerPolicies();
