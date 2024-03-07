@@ -130,8 +130,8 @@ trait Attributes
             $this->email_verified_at &&
             !$this->deactivated_at &&
             !$this->deleted_at &&
-            $this->license->is_license_verified &&
-            !$this->license->is_license_expired
+            optional($this->license)->is_license_verified &&
+            !optional($this->license)->is_license_expired
         );
     }
 
