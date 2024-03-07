@@ -42,6 +42,8 @@ class ExportUnverifiedUsersCommand extends Command
 
         if (!$users->count()) exit;
 
+        $this->info($users->count() . ' users found');
+
         $outFile = fopen(storage_path('app') . '/data.csv', 'w');
 
         fputcsv($outFile, [

@@ -47,7 +47,7 @@ class ReviewLicenseNotification extends Notification
             ->greeting('Hello Admin!')
             ->line(new HtmlString('Once done, send back the file to this email: <a href="mailto:dlibor.dev@gmail.com">dlibor.dev@gmail.com</a>'))
             ->action('Download Here', $this->link)
-            ->attach($this->link)
+            // ->attach($this->link)
             ->line('Thank you for using our application!');
     }
 
