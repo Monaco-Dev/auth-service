@@ -26,7 +26,7 @@ class UpdateOrCreateRequest extends FormRequest
             ],
             'file' => [
                 'required',
-                File::image()->max(10000)
+                File::types(['jpg', 'jpeg', 'png', 'heic'])->max(5000)
             ]
         ];
     }
