@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 use App\Models\User;
 use App\Notifications\LicenseNotification;
@@ -47,11 +48,16 @@ class ImportVerifiedUsersCommand extends Command
             foreach ($imports as $users) {
                 foreach ($users as $user) {
                     $model = User::whereId($user['ID'])->first();
+                    $type = Str::lower($user['License Type']);
+                    $isVerified = Str::lower($user['Is Verified']);
 
-                    if (strtolower($user['Is Verified']) == 'true' && $user['License Type']) {
+                    if (
+                        in_array($isVerified, ['true', 'yes']) &&
+                        in_array($type, ['sales', 'broker'])
+                    ) {
                         $model->license->update([
                             'verified_at' => now(),
-                            'type' => $user['License Type']
+                            'type' => $type
                         ]);
 
                         $verified[] = $user['ID'];
