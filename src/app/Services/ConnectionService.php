@@ -9,6 +9,7 @@ use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Notifications\ConnectedNotification;
 use App\Repositories\Contracts\ConnectionRepositoryInterface;
+use App\Repositories\Contracts\UserRepositoryInterface;
 use App\Services\Contracts\ConnectionServiceInterface;
 
 class ConnectionService extends Service implements ConnectionServiceInterface
@@ -21,13 +22,22 @@ class ConnectionService extends Service implements ConnectionServiceInterface
     protected $resourceClass = UserResource::class;
 
     /**
+     * @var \App\Repositories\Contracts\UserRepositoryInterface
+     */
+    protected $userRepository;
+
+    /**
      * Create the service instance and inject its repository.
      *
      * @param App\Repositories\Contracts\ConnectionRepositoryInterface
+     * @param App\Repositories\Contracts\UserRepositoryInterface
      */
-    public function __construct(ConnectionRepositoryInterface $repository)
-    {
+    public function __construct(
+        ConnectionRepositoryInterface $repository,
+        UserRepositoryInterface $userRepository
+    ) {
         $this->repository = $repository;
+        $this->userRepository = $userRepository;
     }
 
     /**
@@ -61,7 +71,19 @@ class ConnectionService extends Service implements ConnectionServiceInterface
 
         $user->notify(new ConnectedNotification($auth));
 
-        return new UserResource($user);
+        $user = $this->userRepository->model()
+            ->withRelations()
+            ->withCount([
+                'mutuals' => function ($query) use ($auth) {
+                    $query->whereHas('connections', function ($query) use ($auth) {
+                        $query->where('connection_user_id', $auth->id);
+                    });
+                }
+            ])
+            ->whereId($user->id)
+            ->first();
+
+        return response()->json(new UserResource($user));
     }
 
     /**
@@ -85,7 +107,19 @@ class ConnectionService extends Service implements ConnectionServiceInterface
         $user->incomingInvites()->detach($auth);
         $user->outgoingInvites()->detach($auth);
 
-        return new UserResource($user);
+        $user = $this->userRepository->model()
+            ->withRelations()
+            ->withCount([
+                'mutuals' => function ($query) use ($auth) {
+                    $query->whereHas('connections', function ($query) use ($auth) {
+                        $query->where('connection_user_id', $auth->id);
+                    });
+                }
+            ])
+            ->whereId($user->id)
+            ->first();
+
+        return response()->json(new UserResource($user));
     }
 
     /**

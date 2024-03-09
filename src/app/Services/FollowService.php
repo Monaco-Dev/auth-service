@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Repositories\Contracts\FollowRepositoryInterface;
+use App\Repositories\Contracts\UserRepositoryInterface;
 use App\Services\Contracts\FollowServiceInterface;
 
 class FollowService extends Service implements FollowServiceInterface
@@ -20,13 +21,22 @@ class FollowService extends Service implements FollowServiceInterface
     protected $resourceClass = UserResource::class;
 
     /**
+     * @var \App\Repositories\Contracts\UserRepositoryInterface
+     */
+    protected $userRepository;
+
+    /**
      * Create the service instance and inject its repository.
      *
      * @param App\Repositories\Contracts\FollowRepositoryInterface
+     * @param App\Repositories\Contracts\UserRepositoryInterface
      */
-    public function __construct(FollowRepositoryInterface $repository)
-    {
+    public function __construct(
+        FollowRepositoryInterface $repository,
+        UserRepositoryInterface $userRepository
+    ) {
         $this->repository = $repository;
+        $this->userRepository = $userRepository;
     }
 
     /**
@@ -41,7 +51,19 @@ class FollowService extends Service implements FollowServiceInterface
 
         $auth->following()->attach($user);
 
-        return new UserResource($user);
+        $user = $this->userRepository->model()
+            ->withRelations()
+            ->withCount([
+                'mutuals' => function ($query) use ($auth) {
+                    $query->whereHas('connections', function ($query) use ($auth) {
+                        $query->where('connection_user_id', $auth->id);
+                    });
+                }
+            ])
+            ->whereId($user->id)
+            ->first();
+
+        return response()->json(new UserResource($user));
     }
 
     /**
@@ -56,7 +78,19 @@ class FollowService extends Service implements FollowServiceInterface
 
         $auth->following()->detach($user);
 
-        return new UserResource($user);
+        $user = $this->userRepository->model()
+            ->withRelations()
+            ->withCount([
+                'mutuals' => function ($query) use ($auth) {
+                    $query->whereHas('connections', function ($query) use ($auth) {
+                        $query->where('connection_user_id', $auth->id);
+                    });
+                }
+            ])
+            ->whereId($user->id)
+            ->first();
+
+        return response()->json(new UserResource($user));
     }
 
     /**
