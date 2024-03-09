@@ -19,15 +19,16 @@ class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
         $this->hideSensitiveRequestDetails();
 
         Telescope::filter(function (IncomingEntry $entry) {
-            if (config('telescope.enabled')) {
-                return true;
-            }
+            return true;
+            // if ($this->app->environment('local')) {
+            //     return true;
+            // }
 
-            return $entry->isReportableException() ||
-                $entry->isFailedRequest() ||
-                $entry->isFailedJob() ||
-                $entry->isScheduledTask() ||
-                $entry->hasMonitoredTag();
+            // return $entry->isReportableException() ||
+            //     $entry->isFailedRequest() ||
+            //     $entry->isFailedJob() ||
+            //     $entry->isScheduledTask() ||
+            //     $entry->hasMonitoredTag();
         });
     }
 
@@ -36,7 +37,7 @@ class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
      */
     protected function hideSensitiveRequestDetails(): void
     {
-        if (config('telescope.enabled')) {
+        if ($this->app->environment('local')) {
             return;
         }
 
