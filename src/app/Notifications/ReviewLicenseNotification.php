@@ -39,7 +39,7 @@ class ReviewLicenseNotification extends Notification
     {
         return (new MailMessage)
             ->cc([
-                'reychanbernaldez1019@gmail.com',
+                'chanbernaldez.capital@gmail.com',
                 'jaztinpuma@gmail.com',
                 'dlibor.dev@gmail.com',
             ])
