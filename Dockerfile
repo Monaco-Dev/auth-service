@@ -16,6 +16,8 @@ RUN cd /app && \
     docker-php-ext-install pdo pdo_mysql && \
     php artisan passport:keys
 
+ADD ./docker/file-upload.ini /usr/local/etc/php/conf.d/file-upload.ini
+
 RUN chown -R www-data: /app
 
 CMD sh /app/docker/startup.sh
