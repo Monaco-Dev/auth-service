@@ -1,6 +1,7 @@
 FROM php:8.2-fpm-alpine
 
 RUN apk add --no-cache nginx wget
+RUN apk add --update npm
 
 RUN mkdir -p /run/nginx
 
@@ -14,7 +15,9 @@ RUN sh -c "wget http://getcomposer.org/composer.phar && chmod a+x composer.phar 
 RUN cd /app && \
     /usr/local/bin/composer install --optimize-autoloader --no-dev &&  \
     docker-php-ext-install pdo pdo_mysql && \
-    php artisan passport:keys
+    php artisan passport:keys && \
+    npm install && \
+    npm run build
 
 ADD ./docker/file-upload.ini /usr/local/etc/php/conf.d/file-upload.ini
 
