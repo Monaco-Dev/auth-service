@@ -71,6 +71,7 @@ class UpdateRequest extends FormRequest
             'socials.*.url' => [
                 'required',
                 'string',
+                'url:https',
                 'active_url'
             ]
         ];
