@@ -58,24 +58,8 @@ class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
     {
         Gate::define('viewTelescope', function ($user) {
             return in_array($user->email, [
-                //
+                'dlibor.dev@gmail.com'
             ]);
-        });
-    }
-
-    /**
-     * Configure the Telescope authorization services.
-     *
-     * @return void
-     */
-    protected function authorization()
-    {
-        $this->gate();
-
-        Telescope::auth(function ($request) {
-            // return app()->environment('local') ||
-            //     $request->query('email') === 'dlibor.dev@gmail.com';
-            return config('telescope.enabled');
         });
     }
 }
