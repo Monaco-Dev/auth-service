@@ -18,9 +18,4 @@ RUN cd /app && \
 
 RUN chown -R www-data: /app
 
-#upload
-RUN echo "upload_max_filesize = 8M\n" \
-         "post_max_size = 24M\n" \
-         > /usr/local/etc/php/conf.d/uploads.ini
-
 CMD sh /app/docker/startup.sh
