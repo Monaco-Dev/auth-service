@@ -16,7 +16,7 @@
                         {{ __('Dashboard') }}
                     </x-nav-link>
 
-                    <x-nav-link :href="route('telescope')" :active="request()->routeIs('telescope')">
+                    <x-nav-link :href="route('telescope')" target="_blank">
                         {{ __('Telescope') }}
                     </x-nav-link>
                 </div>
@@ -71,7 +71,7 @@
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
 
-            <x-responsive-nav-link :href="route('telescope')" :active="request()->routeIs('telescope')">
+            <x-responsive-nav-link :href="route('telescope')" target="_blank">
                 {{ __('Telescope') }}
             </x-responsive-nav-link>
         </div>
