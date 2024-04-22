@@ -7,6 +7,7 @@ use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Notifications\Messages\MailMessage;
+use Laravel\Passport\Passport;
 
 use App\Models\User;
 use App\Policies\ConnectionInvitationPolicy;
@@ -29,8 +30,15 @@ class AuthServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        ResetPassword::createUrlUsing(function (User $user, string $token) {
-            return url(config('services.web_url') . '/reset-password?token=' . $token . '&email=' . urlencode($user->email));
+        Passport::tokensExpireIn(now()->addMinutes(config('auth.access_token_timeout')));
+        Passport::refreshTokensExpireIn(now()->addMinutes(config('auth.refresh_token_timeout')));
+
+        ResetPassword::toMailUsing(function (object $notifiable, string $url) {
+            $url = url(config('services.web_url') . '/reset-password?token=' . $url . '&email=' . urlencode($notifiable->email));
+
+            return (new MailMessage)
+                ->subject('Reset Password')
+                ->markdown('mail.reset-password', ['url' => $url, 'name' => $notifiable->full_name]);
         });
 
         VerifyEmail::toMailUsing(function (object $notifiable, string $url) {

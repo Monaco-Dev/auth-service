@@ -39,10 +39,11 @@ class ConnectedNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('New Connection')
-            ->line($this->user->full_name . ' accepted your invite!')
-            ->action('See profile', url(config('services.web_url') . '/profile/' . $this->user->uuid))
-            ->line('Thank you for using our application!');
+            ->subject('You have a new connection!')
+            ->markdown('mail.connection', [
+                'name' => $this->user->full_name,
+                'url' => url(config('services.web_url') . '/profile/' . $this->user->uuid)
+            ]);
     }
 
     /**

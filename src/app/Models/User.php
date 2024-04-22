@@ -10,7 +10,6 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
 use Illuminate\Auth\Passwords\CanResetPassword as PasswordsCanResetPassword;
 use Illuminate\Contracts\Auth\CanResetPassword;
-use Illuminate\Support\Str;
 
 use App\Models\Support\User\Attributes;
 use App\Models\Support\User\Relationships;

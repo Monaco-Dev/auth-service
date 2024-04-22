@@ -4,6 +4,7 @@ namespace App\Services;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 use App\Http\Resources\UserResource;
 use App\Models\User;
@@ -16,7 +17,7 @@ class ConnectionService extends Service implements ConnectionServiceInterface
 {
     /**
      * Resource class of the service.
-     * 
+     *
      * @var \App\Http\Resources\UserResource
      */
     protected $resourceClass = UserResource::class;
@@ -48,42 +49,53 @@ class ConnectionService extends Service implements ConnectionServiceInterface
      */
     public function connect(User $user)
     {
-        $auth = Auth::user();
+        DB::beginTransaction();
 
-        $auth->connections()->attach($user);
-        $user->connections()->attach($auth);
+        try {
+            $auth = Auth::user();
 
-        if (!$user->is_following) {
-            $auth->following()->attach($user);
+            $auth->connections()->attach($user);
+            $user->connections()->attach($auth);
+
+            if (!$user->is_following) {
+                $auth->following()->attach($user);
+            }
+
+            if (!$user->following()
+                ->where('follow_user_id', $auth->id)
+                ->exists()) {
+                $user->following()->attach($auth);
+            }
+
+            $auth->incomingInvites()->detach($user);
+            $auth->outgoingInvites()->detach($user);
+
+            $user->incomingInvites()->detach($auth);
+            $user->outgoingInvites()->detach($auth);
+
+            $user->notify(new ConnectedNotification($auth));
+
+            $user = $this->userRepository->model()
+                ->withRelations()
+                ->withCount([
+                    'mutuals' => function ($query) use ($auth) {
+                        $query->whereHas('connections', function ($query) use ($auth) {
+                            $query->where('connection_user_id', $auth->id);
+                        });
+                    }
+                ])
+                ->whereId($user->id)
+                ->first();
+
+            $response = new UserResource($user);
+
+            DB::commit();
+
+            return response()->json($response);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
         }
-
-        if (!$user->following()
-            ->where('follow_user_id', $auth->id)
-            ->exists()) {
-            $user->following()->attach($auth);
-        }
-
-        $auth->incomingInvites()->detach($user);
-        $auth->outgoingInvites()->detach($user);
-
-        $user->incomingInvites()->detach($auth);
-        $user->outgoingInvites()->detach($auth);
-
-        $user->notify(new ConnectedNotification($auth));
-
-        $user = $this->userRepository->model()
-            ->withRelations()
-            ->withCount([
-                'mutuals' => function ($query) use ($auth) {
-                    $query->whereHas('connections', function ($query) use ($auth) {
-                        $query->where('connection_user_id', $auth->id);
-                    });
-                }
-            ])
-            ->whereId($user->id)
-            ->first();
-
-        return response()->json(new UserResource($user));
     }
 
     /**
@@ -94,37 +106,49 @@ class ConnectionService extends Service implements ConnectionServiceInterface
      */
     public function disconnect(User $user)
     {
-        $auth = Auth::user();
+        DB::beginTransaction();
 
-        $auth->connections()->detach($user);
-        $user->connections()->detach($auth);
+        try {
+            $auth = Auth::user();
 
-        $auth->following()->detach($user);
+            $auth->connections()->detach($user);
+            $user->connections()->detach($auth);
 
-        $auth->incomingInvites()->detach($user);
-        $auth->outgoingInvites()->detach($user);
+            $auth->following()->detach($user);
 
-        $user->incomingInvites()->detach($auth);
-        $user->outgoingInvites()->detach($auth);
+            $auth->incomingInvites()->detach($user);
+            $auth->outgoingInvites()->detach($user);
 
-        $user = $this->userRepository->model()
-            ->withRelations()
-            ->withCount([
-                'mutuals' => function ($query) use ($auth) {
-                    $query->whereHas('connections', function ($query) use ($auth) {
-                        $query->where('connection_user_id', $auth->id);
-                    });
-                }
-            ])
-            ->whereId($user->id)
-            ->first();
+            $user->incomingInvites()->detach($auth);
+            $user->outgoingInvites()->detach($auth);
 
-        return response()->json(new UserResource($user));
+            $user = $this->userRepository->model()
+                ->withRelations()
+                ->withCount([
+                    'mutuals' => function ($query) use ($auth) {
+                        $query->whereHas('connections', function ($query) use ($auth) {
+                            $query->where('connection_user_id', $auth->id);
+                        });
+                    }
+                ])
+                ->whereId($user->id)
+                ->first();
+
+            $response = new UserResource($user);
+
+            DB::commit();
+
+            return response()->json($response);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            throw $e;
+        }
     }
 
     /**
      * Search for specific resources in the database.
-     * 
+     *
      * @param  array  $request
      * @return \Illuminate\Http\Response
      */

@@ -35,7 +35,7 @@ abstract class TestCase extends BaseTestCase
 
     /**
      * Request for password grant access token.
-     * 
+     *
      * @param string $email
      * @return json
      */

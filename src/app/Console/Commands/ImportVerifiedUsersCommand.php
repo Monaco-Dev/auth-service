@@ -73,9 +73,9 @@ class ImportVerifiedUsersCommand extends Command
 
             $unverifiedUsers = User::whereIn('id', $unverified)->cursor();
 
-            $unverifiedUsers->each(function ($user) {
-                $user->notify(new LicenseNotification($user, false));
-            });
+            // $unverifiedUsers->each(function ($user) {
+            //     $user->notify(new LicenseNotification($user, false));
+            // });
 
             $verifiedUsers = User::whereIn('id', $verified)->cursor();
 
@@ -93,7 +93,7 @@ class ImportVerifiedUsersCommand extends Command
 
     /**
      * Convert CSV file to array
-     * 
+     *
      * @param string $file
      * @return array
      */

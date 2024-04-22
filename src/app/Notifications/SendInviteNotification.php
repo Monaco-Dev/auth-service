@@ -15,7 +15,7 @@ class SendInviteNotification extends Notification
 
     /**
      * Create a new notification instance.
-     * 
+     *
      * @param App\Models\User $user
      * @param string|null $message
      */
@@ -40,19 +40,13 @@ class SendInviteNotification extends Notification
      */
     public function toMail(object $notifiable): MailMessage
     {
-        $mail = (new MailMessage)
-            ->subject('New Connect Invitation')
-            ->line($this->user->full_name . ' just sent you an invite!');
-
-        if ($this->message) {
-            $mail = $mail->line('Message:')
-                ->line($this->message);
-        }
-
-        $mail = $mail->action('See profile', url(config('services.web_url') . '/profile/' . $this->user->uuid))
-            ->line('Thank you for using our application!');
-
-        return $mail;
+        return (new MailMessage)
+            ->subject('Let\'s connect!')
+            ->markdown('mail.send-invite', [
+                'name' => $this->user->full_name,
+                'message' => $this->message,
+                'url' => url(config('services.web_url') . '/profile/' . $this->user->uuid)
+            ]);
     }
 
     /**

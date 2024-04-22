@@ -20,7 +20,7 @@ class SocialFactory extends Factory
     {
         return [
             'user_id' => User::factory(),
-            'provider' => fake()->randomElements(['facebook', 'linkedin']),
+            'provider' => fake()->randomElement(['facebook', 'linkedin']),
             'url' => fake()->url()
         ];
     }

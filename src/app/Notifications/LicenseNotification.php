@@ -37,15 +37,11 @@ class LicenseNotification extends Notification
      */
     public function toMail(object $notifiable): MailMessage
     {
-        $name = $this->user->full_name;
-
         return (new MailMessage)
-            ->subject('License Verification Result')
-            ->greeting("Hello $name!")
-            ->lineIf($this->isVerified, 'Congratulations, Your license has been approved!')
-            ->lineIf(!$this->isVerified, 'Sorry, unfortunately your license has been denied. Please double check your license before submitting.')
-            ->action('Log in', config('services.web_url'))
-            ->line('Thank you for using our application!');
+            ->subject('Account has been verified')
+            ->markdown('mail.license-verified', [
+                'name' => $this->user->full_name
+            ]);
     }
 
     /**
