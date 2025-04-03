@@ -5,6 +5,7 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\URL;
+use Laravel\Passport\Passport;
 
 use App\Services\Contracts\{
     AuthServiceInterface,
@@ -55,6 +56,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Passport::enablePasswordGrant();
+
         JsonResource::withoutWrapping();
 
         if (app()->environment('production')) {
