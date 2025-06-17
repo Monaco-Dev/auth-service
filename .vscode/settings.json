@@ -1,0 +1,23 @@
+{
+    "dbcode.connections": [
+        {
+            "connectionId": "z5iA-cQHlCiIUZ9BZ_XdD",
+            "name": "local",
+            "driver": "mysql",
+            "color": "#33B8FF",
+            "connectionType": "host",
+            "host": "localhost",
+            "port": 3306,
+            "ssl": false,
+            "username": "root",
+            "savePassword": "na",
+            "database": "monaco_auth",
+            "readOnly": false,
+            "role": "development",
+            "connectionTimeout": 30,
+            "driverOptions": {
+                "retrievePublickey": true
+            }
+        }
+    ]
+}
